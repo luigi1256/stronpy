@@ -307,9 +307,12 @@ def Look_profile():
     second_name.grid(column=8,row=4,pady=2,padx=10)
     label_picture=tk.Label(frame_pic,text="Picture ",font=('Arial',10,'bold'))
     label_picture.grid(column=8,row=5,pady=2,padx=10)
+    label_address=tk.Label(frame_pic,text="Address ",font=('Arial',10,'bold'))
+    label_address.grid(column=8,row=6,pady=2,padx=10)
     stringa_pic=tk.StringVar()
     stringa_name=tk.StringVar()
     stringa_about=tk.StringVar()
+    stringa_address=tk.StringVar()
     
     label_name = Entry(frame_pic, textvariable=stringa_name)
     label_name.grid(column=9,row=1,pady=2)
@@ -323,6 +326,9 @@ def Look_profile():
     label_pic = Entry(frame_pic, textvariable=stringa_pic)
     label_pic.grid(column=9,row=5,pady=2)
 
+    entry_address = Entry(frame_pic, textvariable=stringa_address)
+    entry_address.grid(column=9,row=6,pady=2)
+
     def write_json(name,note_text):
        with open(name+".json", 'w',encoding="utf-8") as file:
     
@@ -333,10 +339,11 @@ def Look_profile():
         Metadata_dict["about"]=label_about.get()
         Metadata_dict["display_name"]=label_name.get()
         Metadata_dict["picture"]=label_pic.get()
+        Metadata_dict["lud16"]=email_check(entry_address.get())
         s=1
         for xvalues in list(Metadata_dict.values()):
          if xvalues=="":
-          if s==4:
+          if s==5:
            messagebox.showerror("No metadata", "Please insert \n something")
            
            
@@ -356,6 +363,7 @@ def Look_profile():
             .set_display_name(Metadata_dict['display_name']) \
             .set_about(Metadata_dict['about']) \
             .set_picture(Metadata_dict['picture']) \
+            .set_lud16(Metadata_dict['lud16'])
             
         write_json("metadata",metadata.as_json())
         
@@ -386,14 +394,18 @@ def Look_profile():
                  stringa_pic.set(data["picture"])
                 stringa_name.set(data["name"])
                 stringa_about.set(data["about"])
+                if "lud16" in data.keys():
+                 stringa_address.set(data["lud16"])
+
                 Metadata_dict["name"]=label_name.get()
                 Metadata_dict["about"]=label_about.get()
                 Metadata_dict["display_name"]=label_name.get()
                 Metadata_dict["picture"]=label_pic.get()
+                Metadata_dict["lud16"]=email_check(entry_address.get())
                 s=1
                 for xvalues in list(Metadata_dict.values()):
                  if xvalues=="":
-                    if s==4:
+                    if s==5:
                         messagebox.showerror("No metadata", "Please insert \n something")
                         return None
                     else:
@@ -739,5 +751,19 @@ def check_square():
         
 button_list_id=tk.Button(root,text="Tag",command=link_share, background="darkgrey",font=("Arial",14,"bold"))  #only for fun
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2) #only for fun
+
+def email_check(test:str):
+   i=0
+   name=""
+   suff=""
+   while i <len(test):
+    if test[i]=="@":
+       name=test[0:i]
+       suff=test[i+1:]
+    i=i+1
+   if name!="" and suff!="":
+      return test 
+   else:
+      return ""
 
 root.mainloop()
