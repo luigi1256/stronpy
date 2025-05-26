@@ -447,6 +447,7 @@ def metadata_get():
                 .set_name(Metadata_dict['name']) \
                 .set_display_name(Metadata_dict['display_name']) \
                 .set_about(Metadata_dict['about']) \
+                
 
                      
             return metadata     
@@ -456,6 +457,7 @@ def metadata_get():
                 .set_display_name(Metadata_dict['display_name']) \
                 .set_about(Metadata_dict['about']) \
                 .set_picture(Metadata_dict['picture']) \
+                
             
             
             return metadata     
