@@ -797,9 +797,9 @@ async def Get_id(event_):
        for jrelay in relay_list:
           await client.add_relay(jrelay)
     else:
-     await client.add_relay(" wss://nostr.mom/")
+     await client.add_relay("wss://nostr.mom/")
      await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+     await client.add_relay("wss://relay.primal.net/")
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -999,7 +999,7 @@ async def Get_event_id(e_id):
     else:
      await client.add_relay("wss://nos.lol/")
      await client.add_relay("wss://nostr.mom/")
-     await client.add_relay(" wss://purplerelay.com/")
+     await client.add_relay("wss://purplerelay.com/")
     
     await client.connect()
 

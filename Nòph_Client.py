@@ -903,11 +903,6 @@ def email_check(test:str):
    else:
       return ""
 
-def write_txt_note(name,note_text):
-       with open(name+".txt", 'w',encoding="utf-8") as file:
-    
-        file.write(str(note_text)) 
-
 def Open_txt_note(name):
       if name:
           try:
