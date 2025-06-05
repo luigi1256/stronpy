@@ -382,23 +382,18 @@ button_block_1.place(relx=0.08,rely=0.2, anchor="n")
 
 def Open_structure():
     test=test_relay()
-    print(len(test))
+    
     if test:
         db_list_=filter_test(test)
         timeline_created(db_list_)
-        #for jdb in  db_list_:
-        #  if jdb not in db_list:
-        #    db_list.append(jdb)
-       
+        
 def Open_str():
     test=test_relay()
     
     if test:
         db_list_=filter_light_test(test)
         timeline_created(db_list_)
-        #for jdb in  db_list_:
-        #  if jdb not in db_list:
-        #    db_list.append(jdb)
+       
 
 def preset_block_r():
        if Checkbutton8.get()==1:  
@@ -510,9 +505,6 @@ lab_e = tk.Label(root, text=" ",font=('Arial',14,'normal'))
 
 def respond_to(note_text):
     show_print_test_tag(note_text)
-
-#def like(note_text, like_label):
-#    like_label.config(text=str(int(like_label['text']) + 1))
 
 def block_pubkey_out(note_):
         #messagebox.askokcancel("askokcancel", "Want to continue?") 
@@ -769,7 +761,8 @@ def reply_note():
    person=convert_user(entryp_tag.get())
    test = evnt_id(entry_tag.get())
    if person !=None and test!=None:
-    tags=Tag.event(test),Tag.public_key(person)
+    #tags=Tag.event(test),Tag.public_key(person)
+    tags=Tag.from_standardized(TagStandard.EVENT_TAG(test,None,Marker.REPLY,person,FALSE)),Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(person,None,None,FALSE))
     if __name__ == '__main__':
      note=entry4.get()
      tag=tags
