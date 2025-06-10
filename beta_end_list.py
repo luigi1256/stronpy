@@ -1199,12 +1199,15 @@ def zap_id_note():
   if note:
    if __name__ == '__main__':
     callback=fetch_lud_16(note)
-    request,amount_=asyncio.run(zap_request(note, callback))
-    #print(callback)
+    if callback!=None:
+     request,amount_=asyncio.run(zap_request(note, callback))
+    else:
+       return None,None,None 
     
-   if __name__ == '__main__':
+    if __name__ == '__main__':
      invoice,preimage=asyncio.run(main_2(callback,amount_))
-   return invoice,request,preimage  
+    if invoice!=None and preimage!=None: 
+     return invoice,request,preimage  
   else:
      return None,None,None
   
@@ -1222,25 +1225,29 @@ def zap_id_note2():
 def fetch_lud_16(note):
  public_key_=PublicKey.parse(note['pubkey'])
  kind_0=search_kind(public_key_,0)
- content=json.loads((kind_0[0]['content']))    
- if 'lud16' in list(content.keys()):
-  try:
-   url_16=content['lud16']
-   i=0
-   while i <len(url_16):
-    if url_16[i]=="@":
+ if kind_0!=[]:
+  content=json.loads((kind_0[0]['content']))    
+  if 'lud16' in list(content.keys()):
+   try:
+    url_16=content['lud16']
+    i=0
+    while i <len(url_16):
+     if url_16[i]=="@":
        name=url_16[0:i]
        suff=url_16[i+1:]
-    i=i+1
-   print(name,suff) 
-   request=str(str("https://")+suff+str("/.well-known/"))+str("lnurlp/")+str(name)
-   print(request) 
-   return request
-  except KeyError as e:
+     i=i+1
+    print(name,suff) 
+    request=str(str("https://")+suff+str("/.well-known/"))+str("lnurlp/")+str(name)
+    print(request) 
+    return request
+   except KeyError as e:
      print(e )
      return None 
- else:
+  else:
     return None 
+ else:
+    return None
+ 
 
 def qrcode_f(invoice):
     for j in invoice.split():

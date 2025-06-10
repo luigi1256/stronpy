@@ -951,13 +951,13 @@ async def Get_id(event_):
     return test_kind
 
 async def get_relays_z(client, authors):
-    f = Filter().authors(authors)
+    f = Filter().authors(authors).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
 
 async def get_relay_z(client, user):
-    f = Filter().author(user)
+    f = Filter().author(user).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
