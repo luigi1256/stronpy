@@ -757,7 +757,8 @@ def show_note_from_id(note):
 
 def nota_reply_id(nota):
     e_id=[]
-    if tags_string(nota,'e')!=[]:
+    if nota["tags"]!=[]:
+      if tags_string(nota,'e')!=[]:
             for event_id in tags_string(nota,'e'):
                   if event_id not in e_id:
                     e_id.append(event_id)   
