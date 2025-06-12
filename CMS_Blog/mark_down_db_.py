@@ -791,7 +791,7 @@ def OpenColumn3():
     def delete_option():
        entry_1.delete(0, END)
 
-    delete_send_3=Button(frame7, text = "Delete",command=delete_option, font=button_font)
+    delete_send_3=Button(frame7, text = "Del Text",command=delete_option, font=button_font)
     delete_send_3.grid(column=5, row=2,ipadx=2,ipady=2)
 
     #save in md
@@ -926,9 +926,9 @@ def OpenColumn3():
     button_send_3.grid(column=1, row=4,ipadx=2,ipady=2)
     button_send_4=Button(frame7, text = "Save DB",command=Save_in_DB,width=10, font=button_font)
     button_send_4.grid(column=2, row=4,ipadx=2,ipady=2)
-    button_send_5=Button(frame7, text = "last post",command=read_long_form, font=button_font)
+    button_send_5=Button(frame7, text = "Last Post",command=read_long_form, font=button_font)
     button_send_5.grid(column=3, row=4,ipadx=2,ipady=2)
-    button_send_6=Button(frame7, text = "Del Text",command=del_text, font=button_font)
+    button_send_6=Button(frame7, text = "Delete",command=del_text, font=button_font)
     button_send_6.grid(column=4, row=4,ipadx=2,ipady=2)
     tag_text=Label(frame7,text="Text :",font=button_font,width=10)
     tag_text.grid(column=0,row=2,ipadx=2,ipady=2)
