@@ -53,7 +53,11 @@ def OpenColumn():
     Button5.grid(column=1, row=0)
     entry_t= Entry(frame3, textvariable=text_var,width=60)
     entry_t.grid(column=0, row=1, columnspan=2)
-    Text_t=Text(frame3, width=45,height=30,wrap="word",undo=True)
+    scroll_bar_mini = tk.Scrollbar(frame3)
+    
+    Text_t=Text(frame3, width=45,height=30,wrap="word",undo=True,yscrollcommand = scroll_bar_mini.set)
+    scroll_bar_mini.config( command = Text_t.yview )
+    scroll_bar_mini.grid( sticky = NS,column=2,row=2,rowspan=3,pady=5)
     Text_t.grid(column=0, row=2, columnspan=2,rowspan=3)
    
     def initialize_data_name():
@@ -213,15 +217,15 @@ def OpenColumn():
              else:
                  None
 
-    receive_pc_message=Button(frame3, command=return_note, text="return note")
+    receive_pc_message=Button(frame3, command=return_note, text="Return Note")
     receive_pc_message.grid(column=1, row=5,pady=2)   
-    receive_pc_message=Button(frame3, command=return_Tags, text="return Tags")
+    receive_pc_message=Button(frame3, command=return_Tags, text="Return Tags")
     receive_pc_message.grid(column=1, row=6,pady=2)              
-    delete_pc_message=Button(frame3, command=delete_events, text="delete note")
+    delete_pc_message=Button(frame3, command=delete_events, text="Delete Note")
     delete_pc_message.grid(column=0, row=6,pady=2)
-    numb_message=Button(frame3, command=lambda:count_note(1), text="numb note")
+    numb_message=Button(frame3, command=lambda:count_note(1), text="Number Note")
     numb_message.grid(column=0, row=7,pady=2) 
-    numb_post=Button(frame3, command=lambda:count_note(30023), text="numb post")
+    numb_post=Button(frame3, command=lambda:count_note(30023), text="Number Post")
     numb_post.grid(column=1, row=7,pady=2) 
     numb_lab=Label(frame3,text="")
     numb_lab.grid(column=0,row=8)
@@ -321,8 +325,11 @@ def OpenColumn():
          for j in note:
             events.append(fake_rerender(j))
          return events   
+     
+     def select_tag(event):
+          Text_t2.delete("1.0", "end")
         
-     input_6 = Button(frame_box, text = "Test Table", 
+     input_6 = Button(frame_box, text = "Read Note", 
                     command =six_event_1, 
                     height = 2, 
                     width = 10)
@@ -331,7 +338,7 @@ def OpenColumn():
      combo_to_do_list = ttk.Combobox(frame_open_2, values=["To do","Wish list", "Done", "To complete" ],font=button_font,width=10 )
      combo_to_do_list.grid(column=0, row=1)
      combo_to_do_list.set("Option Tag")
-     combo_to_do_list.bind("<<ComboboxSelected>>")
+     combo_to_do_list.bind("<<ComboboxSelected>>",select_tag)
      since_variable=IntVar(value=1)
      since_entry=Entry(frame_box,textvariable=since_variable,font=("Arial",12,"normal"),width=4)
      since_entry.grid(column=4,row=0,ipadx=1)
@@ -373,7 +380,7 @@ def OpenColumn():
     button_open2=Button(frame4,command=create_button_1,text="New Tab button")
     button_open2.grid(column=0, row=0,pady=5,padx=2) 
 
-    button_open3=Button(frame4, command=create_button_test, text= "New send tab")
+    button_open3=Button(frame4, command=create_button_test, text= "New Send tab")
     button_open3.grid(column=1, row=0,pady=5,padx=2,columnspan=2) 
 
 y=1
@@ -952,20 +959,13 @@ menu = Menu(frame2)
 root.config(menu=menu)
 filemenu = Menu(menu)
 menu.add_cascade(label="File", menu=filemenu)
-filemenu.add_command(label="create Note", command=OpenColumn)
-filemenu.add_command(label="create Post", command=OpenColumn3)
-
+filemenu.add_command(label="Create Note", command=OpenColumn)
+filemenu.add_command(label="Create Post", command=OpenColumn3)
 filemenu.add_separator()
-
-filemenu.add_command(label="new Thing",command=create_button_test)
-filemenu.add_command(label="Exit", command=frame3.quit)
+filemenu.add_command(label="New Send tab",command=create_button_test)
 Test=Menu(frame2)
 File2Menu=Menu(frame2)
-
 text_variable = StringVar()
-
-#test
-#frame1
 
 def report_fake(event):
      id = event[0]
@@ -984,53 +984,71 @@ def fake_rerender(event):
 
 fg_color=""
 
-def OpenColumn2():
-    frame1.place(relx=0.1,rely=0.1,relheight=0.3,relwidth=0.45)
-    Frame_block=Frame(frame1)
-   
-    def palette():
-     if string_pal.get()!="":
-      if string_pal.get() in color_list:
-        color_choice=string_pal.get()
-        root.config(bg=color_choice)
-        #frame_6.tk_setPalette(str(color_choice))
-        
-      else:
-        root.config(bg="white")
+def Notebook_():
+ notebook = ttk.Notebook(root)
+ notebook.place(relx=0.4,rely=0.1,relheight=0.395)
 
-    def palette_fg():
-       if col_pal_button.get() in color_list:
+ # create frames
+ frame1 = Frame(notebook, width=370, height=280)
+ import random
+
+ def palette():
+     if Check_1.get()==1:
+         Check_1.set(0)
+         number=random.randint(0,8)
+         root.config(bg=color_list[number])
+     else:
+        Check_1.set(1)
+        root.config(bg="grey")
+
+ def palette_fg():
+       if Check_0.get()==1:
+        Check_0.set(0)
+        number=random.randint(0,8)
         for widget in root.winfo_children():  
          if isinstance(widget, tk.Button):  
-            widget["foreground"] = col_pal_button.get()
-        #Button["foreground"]=col_pal_button.get()
+            
+            widget["foreground"] = color_list[number]
+      
        else:
-          button_fg_color.set("")
-    
-    string_pal=StringVar()
-    string_pal_entry=Entry(Frame_block,textvariable=string_pal,font=entry_font,width=30)
-    string_pal_entry.grid(column=0,row=2,padx=5,pady=5) 
-    col_pal_button=Entry(Frame_block,textvariable=button_fg_color,font=entry_font,width=30)
-    col_pal_button.grid(column=0,row=3,padx=5,pady=5) 
-    button_palette=Button(Frame_block,text="BG palette",command=palette,font=button_font)
-    button_palette.grid(column=1,row=2,padx=5,pady=5)
-    button_col_palette=Button(Frame_block,text="FG button",command=palette_fg,font=button_font)
-    button_col_palette.grid(column=1,row=3,padx=5,pady=5)
-    Frame_block.pack()
-    button_input=Button(Frame_block, text = "+",width=6,command =increase_font_size,font=("Roboto Mono", 12,"bold"))
-    button_input.grid(column=0, row=4,ipadx=2,ipady=2)
-    button_input1=Button(Frame_block, text = "-", width=6, 
-                    command =decrease_font_size,font=("Roboto Mono", 12,"bold"))
-    button_input1.grid(column=1, row=4,ipadx=2,ipady=2) 
+          Check_0.set(1)
+          for widget in root.winfo_children():  
+           if isinstance(widget, tk.Button):  
+            widget["foreground"] = "black"
+          
+ Frame_block=Frame(frame1)
+ Check_0 = IntVar()
+ Check_0.set(1)
+ Check_1= IntVar()
+ Check_1.set(1)
 
-    def close_settings():
-      Frame_block.pack_forget()
-      button_input2.grid_forget()
-
-    button_input2=Button(Frame_block, text = "X", width=6, 
-                    command =close_settings,font=("Roboto Mono", 12,"bold"))
-    button_input2.grid(column=2, row=0,ipadx=2,ipady=2)   
-
+ def slide_r1():    
+                    font_font.config(size=min(14,font_font.actual()['size'] -1+ int(menu_slider1.get()/25)))
+                    
+ menu_slider1=Scale(Frame_block,orient=HORIZONTAL)
+ menu_slider1.grid(column=0, row=0) 
+ button_slider1=Button(Frame_block,command=slide_r1, text="zoom", font=button_font)
+ button_slider1.grid(column=0,row=3,padx=3)                   
+ entry_A= Label(Frame_block, text="A",width=10,font=font_font)
+ entry_A.grid(column=0, row=1,rowspan=2)
+ button_palette=Button(Frame_block,text="BG palette",command=palette,font=button_font)
+ button_palette.grid(column=2,row=2,padx=5,pady=5)
+ button_col_palette=tk.Button(Frame_block,text="FG button",command=palette_fg,font=button_font)
+ button_col_palette.grid(column=3,row=2,padx=5,pady=5)
+ button_input=Button(Frame_block, text = "+",width=6,command =increase_font_size,font=("Roboto Mono", 12,"bold"))
+ button_input.grid(column=2, row=4,ipadx=2,ipady=2)
+ button_input1=Button(Frame_block, text = "-", width=6, command =decrease_font_size,font=("Roboto Mono", 12,"bold"))
+ button_input1.grid(column=3, row=4,ipadx=2,ipady=2) 
+  
+ def close_n():
+    notebook.place_forget()
+    button_close.place_forget()
+ 
+ button_close=Button(Frame_block,text="Close",command=close_n, border=1,highlightbackground="white")
+ button_close.grid(row=0, column=3) 
+ Frame_block.pack(pady=5)
+ frame1.pack(fill='both', expand=True)
+ notebook.add(frame1, text='General Settings')
    
 color_list=["red","blue","grey","darkgrey","black","white","yellow","green"]     
 button_fg_color=StringVar()
@@ -1046,23 +1064,17 @@ def increase_font_size():
      button_font.config(size=min(14,font_font.actual()['size'] + 2))
      label_font.config(size=min(14,font_font.actual()['size'] + 2))
      entry_font.config(size=min(14,font_font.actual()['size'] + 2))
-     #print(font_font.cget("size"))
+
     
 def decrease_font_size():
      font_font.config(size=max(8, font_font.actual()['size'] - 2))
      button_font.config(size=max(8, font_font.actual()['size'] - 2))  
      label_font.config(size=max(8, font_font.actual()['size'] - 2))
      entry_font.config(size=max(8, font_font.actual()['size'] - 2))
-     #print(font_font.cget("size"))
-    
+
 frame_2=Frame(root,width=20,height=1)
-
-def Close_frame():
-     frame1.place_forget()
-
-filemenu.add_command(label="Settings", command=OpenColumn2)
-filemenu.add_command(label="close frame", command=Close_frame)
-
+filemenu.add_command(label="Settings", command=Notebook_)
+filemenu.add_command(label="Exit", command=frame3.quit)
 frame1 = ttk.Frame(root, width=200, height=280)
 
 #test database
