@@ -14,7 +14,6 @@ from tkinter import messagebox
 root = Tk()
 root.title("Alake CLient")
 root.geometry("1250x800")
-
 #nostr
 
 def timeline_created(list_new):
@@ -643,16 +642,17 @@ def reply_event(note_val):
     event=entry_note.get()
     search_id=evnt_id(event)
     found_nota=asyncio.run(Get_id(search_id))
-    nota=get_note(found_nota)
-  
+    
+    nota=json.loads(found_nota[0].as_json())
+    
     if nota!=[] and nota!=None:
         if entryp_tag.get()!="" or entry_tag.get()!="":
            entryp_tag.delete(0, END) 
            entry_tag.delete(0, END)
          
-        entryp_tag.insert(0,nota[0]['pubkey'])
-        entry_tag.insert(0,nota[0]['id'])
-        note_tag1["text"] = "e: " + nota[0]['id'][0:9]
+        entryp_tag.insert(0,nota['pubkey'])
+        entry_tag.insert(0,nota['id'])
+        note_tag1["text"] = "e: " + nota['id'][0:9]
     else:
       print("not found")
       entryp_tag.delete(0, END)
@@ -661,6 +661,8 @@ def reply_event(note_val):
       entry_note.delete(0, END)
      
       close_answer()
+
+    return found_nota  
   except NostrSdkError as e:
     print(e)     
 
@@ -732,6 +734,7 @@ def test_open(note_val):
         
     button_pre["command"]= Preview
     button_pre.place(relx=0.75,rely=0.15,relwidth=0.1, anchor="n") 
+    button_reply["command"]=lambda: reply_note(note_val)
     button_reply.place(relx=0.85,rely=0.15,relwidth=0.1,anchor='n' )
     if entry_tag.get()=="":
         close_answer()    
@@ -756,20 +759,21 @@ def close_answer():
   event_idone.place_forget()
   close_.place_forget()
 
-def reply_note():
+def reply_note(note):
   if entry4.get()!="" and entryp_tag.get()!="" and entry_tag.get()!="": 
    person=convert_user(entryp_tag.get())
    test = evnt_id(entry_tag.get())
+   test_event=reply_event(note)
    if person !=None and test!=None:
     #tags=Tag.event(test),Tag.public_key(person)
     tags=Tag.from_standardized(TagStandard.EVENT_TAG(test,None,Marker.REPLY,person,FALSE)),Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(person,None,None,FALSE))
     if __name__ == '__main__':
      note=entry4.get()
      tag=tags
-     asyncio.run(reply(note,tag))
+     asyncio.run(reply(note,tag,test_event[0]))
   close_answer()
 
-button_reply=tk.Button(root,text="send reply", background="darkgrey", command=reply_note, font=('Arial',12,'normal'))
+button_reply=tk.Button(root,text="send reply", background="darkgrey", font=('Arial',12,'normal'))
 
 def share(note_text):
     print(f"Note:\n{note_text}")
@@ -777,7 +781,13 @@ def share(note_text):
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    #z = [event.as_json() for event in events.to_vec()]
+    z=[]  
+    for event in events.to_vec():
+     if event.verify()==True:
+        z.append(event)
+    if z!=[]: 
+     return z   
     return z
 
 async def Get_id(event_):
@@ -803,51 +813,37 @@ async def Get_id(event_):
         test_kind = await get_one_Event(client, event_)
     return test_kind
 
-async def reply(note,tag):
+async def reply(note,tag,test):
     # Init logger
     init_logger(LogLevel.INFO)
-    
     keys = Keys.generate()
-        
     signer = NostrSigner.keys(keys)
-    
     client = Client(signer)
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
           await client.add_relay(jrelay)
     else:
-     await client.add_relay("wss://nostr.mom")
-     await client.add_relay("wss://nos.lol")
+     pass
+    await client.add_relay("wss://nostr.mom/")
+    await client.add_relay("wss://nos.lol/")
+    await client.add_relay("wss://nostr.oxtr.dev/")
+    await client.add_relay("wss://nostr.stakey.net/")
     await client.connect()
-
-    # Send an event using the Nostr Signer
-    builder = EventBuilder.text_note(note).tags(tag)
-    await client.send_event_builder(builder)
-    metadata = Metadata() \
-        .set_name("Just The Second") \
-        .set_display_name("Just The Second") \
-        #.set_about("") \
-        #.set_picture("") \
-        #.set_banner("") \
-        #.set_nip05("") \
-        #.set_lud16("")
-
-    print(f"Setting profile metadata for {keys.public_key().to_bech32()}")
-    print(metadata.as_json())
-    await client.set_metadata(metadata)
-
-    print("Event sent:")
-    
-    await asyncio.sleep(2.0)
-
-    # Get events from relays
-    print("Getting events from relays...")
-    f = Filter().authors([keys.public_key()])
-    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    for event in events.to_vec():
-     print(event.as_json())
-
+    try:
+     builder = EventBuilder.text_note_reply(note,test,test,relay_list[0])  #.tags(tag) 
+     testNote= await client.send_event_builder_to(relay_list,builder)
+     messagebox.showinfo("Result", "fail "+str(testNote.failed))
+     print(str(testNote.success))
+     print(str(testNote.id))
+     print(str(testNote.id.to_bech32()))
+     print("Getting events from relays...")
+     f = Filter().authors([keys.public_key()])
+     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+     for event in events.to_vec():
+      print(event.as_json())
+    except NostrSdkError as e:
+       print(e)
 frame_1.grid(padx=20,pady=20)
 
 #----------------- end test
