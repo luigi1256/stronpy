@@ -14,7 +14,6 @@ from tkinter import messagebox
 root = Tk()
 root.title("Alake CLient")
 root.geometry("1250x800")
-#nostr
 
 def timeline_created(list_new):
   new_note=[] 
@@ -307,7 +306,7 @@ def add_db_list():
             test_user=PublicKey.parse(stringa_block.get())
             if test_user.to_hex() not in block_npub:
              block_npub.append(test_user.to_hex())
-             #block_npub.append(stringa_block.get())
+             
             for dbpub in db_list:
               if dbpub["pubkey"]== test_user.to_hex():
                  db_list.remove(dbpub)
@@ -323,8 +322,8 @@ def add_db_list():
             label_string_block.set(len(block_npub))
        
         Frame_block=Frame(root,width=50, height=10)
+        
         stringa_bloc=StringVar()   
-    
         stringa_block=Entry(Frame_block,textvariable=stringa_bloc,font=('Arial',12,'normal'),width=10)
         stringa_block.grid(column=0,row=1,padx=5,pady=5)
         random_block=Button(Frame_block, command=add_npub_to_list, text= "block npub",background="darkgrey",font=('Arial',12,'normal'))
@@ -339,7 +338,6 @@ def add_db_list():
         button_b_close=Button(Frame_block, background='red', text='❌',font=('Arial',12,'bold'))    
         button_b_close.bind("<Double-Button-1>" ,Close_block)
         button_b_close.grid(column=3, row=0, padx=5, rowspan=2) 
-        #Relay add
         entry_relay=ttk.Entry(Frame_block,justify='left',font=("Arial",12,"bold"),width=10)
         
         def relay_class():
@@ -348,7 +346,7 @@ def add_db_list():
            
                 if entry_relay.get() not in relay_list:
                     relay_list.append(entry_relay.get())
-                 #print(relay_list)  
+                 
                 counter_relay['text']=str(len(relay_list)) 
                 counter_relay.grid(column=2,row=4)
                 entry_relay.delete(0, END)
@@ -367,7 +365,6 @@ def add_db_list():
     
         clear_block=Button(Frame_block, command=delete_block_list, text= "Clear DB: ",background="darkgrey",font=('Arial',12,'normal'))
         clear_block.grid(column=0,row=0,padx=5,pady=5)    
-    
         random_block1=Button(Frame_block, command=search_block_list, text= "DB: ",background="darkgrey",font=('Arial',12,'normal'))
         random_block1.grid(column=1,row=0,padx=5,pady=5)
         label_string_block1=StringVar()
@@ -422,13 +419,10 @@ button_structure.place(relx=0.42,rely=0.2,relwidth=0.1,anchor='n')
 button_str=tk.Button(root, highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',
                   text='DB Spam',font=('Arial',14,'bold'),command=Open_str)
 button_str.place(relx=0.31,rely=0.2,anchor='n')
-
 Checkbutton8 = IntVar() 
-
 Type_feed = Checkbutton(root, text = "Type R", variable = Checkbutton8, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'normal'),command=preset_block_r)
 Type_feed.place(relx=0.68,rely=0.22,relwidth=0.1,relheight=0.05,anchor='e')  
-
 Check_reply = IntVar() 
 Type_reply = Checkbutton(root, text = "Reply ", variable = Check_reply, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'bold'), command=preset_reply)
@@ -436,16 +430,14 @@ Type_reply.place(relx=0.545,rely=0.12)
 
 type_light=["no spam","video","pic","tme","spam"]
 label_light=[]
-
 Checkbutton9 = IntVar() 
-
 string_var_l=StringVar()
+
 label_note=Entry(root,textvariable=string_var_l,font=('Arial',12,'normal'))
 label_note_number=Label(root,text="",font=('Arial',12,'bold'))
 lab_spam = tk.Label(root, text="Name: ",font=('Arial',12,'normal'))
 combo_spam = ttk.Combobox(root, values=type_light,font=('Arial',12,'normal'))
 button_spam=Button(root,text="go!",background="darkgrey",font=('Arial',12,'normal'))
- 
 clear_Lab=Button(root, text= "Clear list ",background="darkgrey",font=('Arial',12,'normal'))
      
 def add_db_light():
@@ -496,7 +488,6 @@ def add_db_light():
 Light_feed = Checkbutton(root, text = "Type S", variable = Checkbutton9, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'normal'),command=add_db_light)
 Light_feed.place(relx=0.58,rely=0.22,relwidth=0.1,relheight=0.05,anchor='e')  
-
 lab_r = tk.Label(root, text=" ",font=('Arial',12,'normal'))
 lab_e = tk.Label(root, text=" ",font=('Arial',14,'normal'))
 
@@ -506,15 +497,13 @@ def respond_to(note_text):
     show_print_test_tag(note_text)
 
 def block_pubkey_out(note_):
-        #messagebox.askokcancel("askokcancel", "Want to continue?") 
-              
+        
          if len(note_["pubkey"])==64:
-          
             test_user=PublicKey.parse(note_["pubkey"])
+            
             if test_user.to_hex() not in block_npub:
              block_npub.append(test_user.to_hex())
-             
-             #block_npub.append(stringa_block.get())
+            
             for dbpub in db_list:
               if dbpub["pubkey"]== test_user.to_hex():
                  db_list.remove(dbpub)
@@ -525,28 +514,23 @@ def block_pubkey_out(note_):
 def share(note_text):
     print(f"Note: \n {note_text}")
 
-#add new nota
 def layout():
    if db_list!=[]: 
     frame1=Frame(root, width=400, height=100)
     canvas = Canvas(frame1)
     canvas.pack(side="left", fill=BOTH, expand=True)
-
     scrollbar = Scrollbar(frame1, orient=VERTICAL, command=canvas.yview)
     scrollbar.pack(side=RIGHT, fill=Y)
-    
     canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind(
     "<Configure>",
     lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    # Frame scrollabile
     scrollable_frame = Frame(canvas, background="#E3E0DD")
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     list_note_lib=[]
     
     def create_note(note_text, s):
-        # Message 
        if len(note_text["content"])>140 and len(note_text["content"])<800:
         if note_text["content"] not in list_note_lib:
          list_note_lib.append(note_text["content"])
@@ -577,7 +561,7 @@ def layout():
              content.grid_forget()
            content = Button(scrollable_frame, text="show",font=('Arial',12,'normal'), command=content_show)
            content.grid(row=s+1, column=0, columnspan=3, padx=5, pady=5)  
-         # Button down
+        
          Button(scrollable_frame, text="Open", command=lambda: respond_to(note_text)).grid(row=s + 2, column=0, padx=5, pady=5)
          blo_label = Button(scrollable_frame, text="😶",font=('Arial',12,'normal'), command=lambda: block_pubkey(note_text))
          blo_label.grid(row=s + 2, column=1, padx=5, pady=5)
@@ -596,17 +580,17 @@ def layout():
         frame1.destroy()
 
     if list_note_lib==[]:
-     close_canvas()    
-    def block_pubkey(note_):
-         #messagebox.askokcancel("askokcancel", "Want to continue?") 
+     close_canvas() 
 
+    def block_pubkey(note_):
+        
          if len(note_["pubkey"])==64:
           
             test_user=PublicKey.parse(note_["pubkey"])
             if test_user.to_hex() not in block_npub:
              block_npub.append(test_user.to_hex())
              
-             #block_npub.append(stringa_block.get())
+             
             for dbpub in db_list:
               if dbpub["pubkey"]== test_user.to_hex():
                  db_list.remove(dbpub)
@@ -620,9 +604,6 @@ def layout():
 
 button_open=Button(root, command=layout, text="scroll",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
 button_open.place(relx=0.2,rely=0.2, anchor="n")
-
-#----------------- test button
-
 frame_1=tk.Frame(root,height=100,width=200)
 note_tag = tk.Label(root, text="Note",font=('Arial',12,'normal'))
 entry4=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))
@@ -679,7 +660,6 @@ def test_open(note_val):
     note_tag.place(relx=0.85,rely=0.01,relwidth=0.1,relheight=0.05,anchor='n' )
     entry4.place(relx=0.8,rely=0.05,relwidth=0.25,relheight=0.1,anchor='n' )
     
-    #entry_layout-right
     e_tag.place(relx=0.82,rely=0.47,relwidth=0.1 )
     entry_tag.place(relx=0.82,rely=0.52,relwidth=0.1,relheight=0.05 )
     p_tag.place(relx=0.7,rely=0.47,relwidth=0.1 )
@@ -687,8 +667,6 @@ def test_open(note_val):
     enter_note.place(relx=0.7,rely=0.59,relwidth=0.1 )
     entry_note.place(relx=0.7,rely=0.65,relwidth=0.1)
     note_tag1.place(relx=0.75,rely=0.01,relwidth=0.1,relheight=0.04,anchor='n' )
- 
-    #event_idone["command"]=(lambda val=note_val: reply_event(val))
     event_idone["command"]= reply_event(note_val)
     event_idone.place(relx=0.88,rely=0.62,anchor='n' )
     close_["command"] = close_answer
@@ -699,14 +677,12 @@ def test_open(note_val):
         frame1=Frame(root, width=310, height=100)
         canvas = Canvas(frame1)
         canvas.pack(side="left", fill=BOTH, expand=True)
-
         canvas.bind( "<Configure>",lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-
         scrollable_frame = Frame(canvas)
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     
         def create_note(note_text, s):
-         # Message 
+         
             if len(note_text)<200:
              message = Message(scrollable_frame, text=note_text, width=300, font=('Arial',12,'normal'))
              message.grid(row=s, column=0, columnspan=3, padx=5)
@@ -739,9 +715,6 @@ def test_open(note_val):
     if entry_tag.get()=="":
         close_answer()    
 
-#button_create=Button(frame_1,text="test", command=test_open).grid(column=0, row=0)
-#entry_layout
-
 def close_answer():
   button_reply.place_forget() 
   button_pre.place_forget()  
@@ -765,7 +738,6 @@ def reply_note(note):
    test = evnt_id(entry_tag.get())
    test_event=reply_event(note)
    if person !=None and test!=None:
-    #tags=Tag.event(test),Tag.public_key(person)
     tags=Tag.from_standardized(TagStandard.EVENT_TAG(test,None,Marker.REPLY,person,FALSE)),Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(person,None,None,FALSE))
     if __name__ == '__main__':
      note=entry4.get()
@@ -781,7 +753,6 @@ def share(note_text):
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    #z = [event.as_json() for event in events.to_vec()]
     z=[]  
     for event in events.to_vec():
      if event.verify()==True:
@@ -849,15 +820,13 @@ frame_1.grid(padx=20,pady=20)
 #----------------- end test
 
 def photo_print(note):
-  #print(codifica_link(note),url_spam(note))
+ 
   if codifica_link(note)=="pic":
-   #morespam
-
+   
    frame_pic=tk.Frame(root,height=20,width= 80)
    stringa_pic=StringVar()
    stringa_pic.set(url_spam(note))
    label_pic = Entry(frame_pic, textvariable=stringa_pic)
-   #label_pic.grid(column=1,row=2,pady=2)
    image_label = tk.Label(frame_pic)
    image_label.grid(column=0,row=0, padx=10,pady=10)
    if label_pic.get()!="":
@@ -918,7 +887,6 @@ def photo_list(list_note):
     stringa_pic=StringVar()
     stringa_pic.set(note)
     label_pic = Entry(frame_pic, textvariable=stringa_pic)
-    #label_pic.grid(column=1,row=2,pady=2)
     image_label = tk.Label(frame_pic)
     image_label.grid(column=1,row=s, columnspan=2)
     if label_pic.get()!="":
@@ -955,7 +923,7 @@ def nota_reply_id(nota):
     return e_id             
 
 def reply_id(reply_list):
-    #if type(reply_list)=="list":
+    
      e_id=[]  
      for nota in reply_list:  
         if tags_string(nota,'e')!=[]:
@@ -1005,8 +973,6 @@ async def Get_event_id(e_id):
 
 def show_note_from_id(note):
         result=note["id"]
-        #result1=ast.literal_eval(entry_note.get())
-        #print(result1)
         replay=nota_reply_id(note)
         replay.append(result)
         if replay!=[]:
@@ -1070,8 +1036,7 @@ def show_print_test_tag(note):
    if tags_string(note,"e")!=[]:
         if four_tags(note,"e"):
             for F_note in four_tags(note,"e"):
-         #for note_tags in tags_string(note,"e"):
-             context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+                context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
    else:
          pass            
    second_label_10.insert(END,note["content"]+"\n"+str(context2))
@@ -1108,8 +1073,7 @@ def show_print_test_tag(note):
               if four_tags(jresult,"e"):
                 for F_note in four_tags(note,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
-              #for note_tags in tags_string(jresult,"e"):
-              # context22=context22+str("e ")+note_tags+"\n"
+              
              else:
                context22="---> Root  <--- "  
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
@@ -1149,7 +1113,7 @@ def photo_list_2(note):
   if list_note1!=None and balance!=None:
    
    def next_number():
-      #lbel_var.grid(column=1,row=3,pady=2) 
+      
       if int((int(lbel_var.get())+1))< len(list_note1):
        int_var.set(int(lbel_var.get())+1)
        print_photo()
@@ -1157,14 +1121,14 @@ def photo_list_2(note):
           int_var.set(int(0)) 
           print_photo()
        
-    #while int(lbel_var.get())<len(list_note1):  
+    
    stringa_pic=StringVar()
 
    def print_photo():
      s=0  
      stringa_pic.set(list_note1[int(lbel_var.get())])
      label_pic = Entry(frame_pic, textvariable=stringa_pic)
-     #label_pic.grid(column=1,row=2,pady=2)
+    
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":

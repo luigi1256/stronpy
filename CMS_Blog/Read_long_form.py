@@ -509,7 +509,7 @@ def print_text():
 button4=tk.Button(root,text="People List",command=print_text, font=('Arial',12,'bold'))
 button4.place(relx=0.07,rely=0.37) 
 button4=tk.Button(root,text="Search Post",command=create_tm,font=('Arial',12,'bold'))
-button4.place(relx=0.07,rely=0.28) 
+button4.place(relx=0.07,rely=0.27) 
 frame_upfront=Frame(root)
 frame2=Frame(root)
 
@@ -536,8 +536,8 @@ def add_db_list():
         random_block1=Button(Frame_block, command=search_block_list, text= "DB: ")
         random_block1.grid(column=1,row=0,padx=5,pady=5)
         label_string_block1=StringVar()
-        label_block_list1=Label(Frame_block, textvariable=label_string_block1)
-        label_block_list1.grid(column=2,row=0,padx=5,pady=5)
+        label_block_list1=Label(Frame_block, textvariable=label_string_block1,font=('Arial',12,'bold'))
+        label_block_list1.grid(column=1,row=1,padx=5,pady=5)
         Frame_block.grid(column=0,row=6, columnspan=3, rowspan=2)
         Frame_2.place(relx=0.01,rely=0.75)
 
@@ -676,7 +676,7 @@ def show_Teed():
  create_page(list_timeline(combo_note.get()), int(lbel_var.get()))
  root.update_idletasks()
  
-button_id=tk.Button(root,command=show_Teed,text="Go id",font=("Arial",12,"normal"))
+button_id=tk.Button(root,command=show_Teed,text="Read",font=("Arial",12,"normal"))
 button_id.place(relx=0.26,rely=0.08)
 
 def show_print_test(note):
@@ -1086,6 +1086,7 @@ def zap_id_note2():
    if __name__ == '__main__':
        if preimage!=None:
           asyncio.run(zap_ing(invoice,preimage,request))
+          
    else:
           print("Error")
           entry_preimage.insert(0, "Error ") 
@@ -1177,16 +1178,17 @@ def qrcode_f(invoice):
          img = qrcode.make(invoice)
          img.show()
 
+pre_image_tag_1 = tk.Label(root, text="call lnurlp")
+entry_preimage_1=ttk.Entry(root,justify='left')
+
 async def main_2(url,amount_):
     # create the background task
     task = asyncio.create_task(background())
     # allow the background task to start executing
     await asyncio.sleep(0)
-    pre_image_tag = tk.Label(root, text="call lnurlp")
-    pre_image_tag.place(relx=0.55,rely=0.9,relwidth=0.1,relheight=0.05 )
-    entry_preimage=ttk.Entry(root,justify='left')
-    entry_preimage.place(relx=0.55,rely=0.95,relwidth=0.2 ) 
-    entry_preimage.insert(0,url)
+    pre_image_tag_1.place(relx=0.55,rely=0.9,relwidth=0.1,relheight=0.05 )
+    entry_preimage_1.place(relx=0.55,rely=0.95,relwidth=0.2 ) 
+    entry_preimage_1.insert(0,url)
     
     if url[8:19]!="getalby.com" or url[8:14]!="zbd.gg":
      r2=requests.get(url) 
@@ -1248,18 +1250,18 @@ def amount_zap():
     number_string.set(0)
     zap_long_split()
     button_zap_1=tk.Button(root,text="5", background="darkgrey", command=lambda val=5: val_number(val))
-    button_zap_1.place(relx=0.7,rely=0.7)   
+    button_zap_1.place(relx=0.7,rely=0.76)   
     button_zap_2=tk.Button(root,text="10", background="darkgrey", command=lambda val=10: val_number(val))
-    button_zap_2.place(relx=0.75,rely=0.7)   
+    button_zap_2.place(relx=0.75,rely=0.76)   
     button_zap_3=tk.Button(root,text="20", background="darkgrey", command=lambda val=20: val_number(val))
-    button_zap_3.place(relx=0.8,rely=0.7)   
+    button_zap_3.place(relx=0.8,rely=0.76)   
     button_zap_4=tk.Button(root,text="50", background="darkgrey", command=lambda val=50: val_number(val))
-    button_zap_4.place(relx=0.7,rely=0.75)   
+    button_zap_4.place(relx=0.7,rely=0.8)   
     button_zap_5=tk.Button(root,text="100", background="darkgrey", command=lambda val=100: val_number(val))
-    button_zap_5.place(relx=0.75,rely=0.75)   
+    button_zap_5.place(relx=0.75,rely=0.8)   
     button_zap_6=tk.Button(root,text="200", background="darkgrey", command=lambda val=200: val_number(val))
-    button_zap_6.place(relx=0.8,rely=0.75)  
-    select_number.place(relx=0.7,rely=0.8)
+    button_zap_6.place(relx=0.8,rely=0.8)  
+    select_number.place(relx=0.7,rely=0.85)
 
     def close_stuff():
        button_zap_1.place_forget()
@@ -1273,11 +1275,13 @@ def amount_zap():
        button_zap_o1.place_forget()
        pre_image_tag.place_forget()
        entry_preimage.place_forget()
-
-    button_zap_c=tk.Button(root,text="close X", background="darkgrey", command=close_stuff)
-    button_zap_c.place(relx=0.85,rely=0.75)       
+       pre_image_tag_1.place_forget()
+       entry_preimage_1.place_forget()
+      
+    button_zap_c=tk.Button(root,text="close X", command=close_stuff,fg="red")
+    button_zap_c.place(relx=0.85,rely=0.76)       
     button_zap_o1=tk.Button(root,text=f"Zap", background="grey", command=zap_id_note2)
-    button_zap_o1.place(relx=0.8,rely=0.8)    
+    button_zap_o1.place(relx=0.8,rely=0.85)    
 
 button_zap_o=tk.Button(root,text="Zap it!", background="darkgrey", command=amount_zap)
 number_string=IntVar()
