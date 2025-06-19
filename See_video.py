@@ -32,10 +32,6 @@ relay_list=[]
 public_list=[]
 frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
 
-def on_kind(event):
-    selected_item = combo_kind.get()
-    label_kind.config(text="Kind: "+ str(my_kind[selected_item]))
-
 def on_server(event):
     label_r_lay.config(text="Relay: "+ str(len(relay_list)))
     call_r_lay()
@@ -43,12 +39,6 @@ def on_server(event):
     label_r_lay.config(text="Relay: "+ str(len(relay_list)))
 
 relay_watch=[{"relays":10002}]
-label_kind = tk.Label(frame1, text="Kind: ", font=('Arial',12,'bold'))
-#label_kind.grid(column=6, row=0,padx=5,pady=5,ipadx=1,ipady=1)
-combo_kind = ttk.Combobox(frame1, values=my_tag,font=('Arial',12,'bold'))
-#combo_kind.grid(column=6, row=1,padx=5,pady=5,ipadx=2,ipady=1)
-combo_kind.set("Type of Kind")
-combo_kind.bind("<<ComboboxSelected>>", on_kind) 
 label_r_lay = tk.Label(frame1, text="Relay: ", font=('Arial',12,'bold'))
 label_r_lay.grid(column=7, row=0,padx=20,pady=5,ipadx=1,ipady=1)
 combo_list_lay = ttk.Combobox(frame1, values=relay_list,font=('Arial',12,'bold'))
@@ -693,7 +683,7 @@ def layout():
               number=float(image.height/image.width)
               
               test1=int(float(number)*300)
-              print(test1)
+              
               if test1>350:
                test1=int(350)
                if test1<250:
