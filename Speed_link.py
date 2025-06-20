@@ -197,13 +197,14 @@ async def link_it(tag,description):
      builder = EventBuilder(Kind(39701),description).tags(tag)
      test_result_post= await client.send_event_builder(builder)
      metadata = metadata_get()
-     await client.set_metadata(metadata)
-     await asyncio.sleep(2.0) 
+     if metadata!=None:
+      await client.set_metadata(metadata)
+      await asyncio.sleep(2.0) 
 
-     f = Filter().authors([keys.public_key()])
-     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     for event in events.to_vec():
-      print(event.as_json())
+      f = Filter().authors([keys.public_key()])
+      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+      for event in events.to_vec():
+       print(event.as_json())
      return test_result_post    
 
 def metadata_get():
@@ -507,15 +508,15 @@ def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
         stuff_frame.place(relx=0.65,rely=0.12,relheight=0.75,relwidth=0.3)  
-        r_tag.place(relx=0.7,rely=0.39,relwidth=0.1,relheight=0.1 )
+        r_tag.place(relx=0.7,rely=0.43,relwidth=0.1 )
         r_summary.place(relx=0.7,rely=0.47,relwidth=0.2 )
         r_button.place(relx=0.7,rely=0.52,relwidth=0.1)
         r_view.place(relx=0.85,rely=0.52)
 
         descr_tag.place(relx=0.7,rely=0.17,relwidth=0.1,relheight=0.1 )
         descr_summary.place(relx=0.7,rely=0.27,relwidth=0.2 )
-        descr_button.place(relx=0.82,rely=0.2,relwidth=0.1)
-        descr_view.place(relx=0.7,rely=0.32,relwidth=0.2)
+        descr_button.place(relx=0.82,rely=0.2)
+        descr_view.place(relx=0.7,rely=0.32,relwidth=0.23,relheight=0.1)
 
         d_button.place(relx=0.83,rely=0.59,relwidth=0.07)  
         d_tag.place(relx=0.75,rely=0.6 )
@@ -575,7 +576,7 @@ def r_show():
              r_view.config(text="Enter a Content: " )         
              r_summary.delete(0, END)
      else:
-            r_view.config(text="Sorry, this is uncorrect: ")             
+            r_view.config(text="Uncorrect: ")             
             r_summary.delete(0, END)
        
 r_tag = tk.Label(root, text="Content-Tag",font=("Arial",12,"bold"))
@@ -585,14 +586,14 @@ r_view = tk.Label(root, text="Content: ", font=("helvetica",13,"bold"),justify="
 
 def show_descr():
     if len(list_title)<1:
-     descr_tag_entry=descr_summary.get()
-     if descr_tag_entry!="":
-           if len(descr_tag_entry)<140:
-                descr_view.config(text=descr_tag_entry[0:35] +"\n"+ descr_tag_entry[35:70]+"\n"+ descr_tag_entry[70:105]+"\n"+ descr_tag_entry[105:140])
+     descr_entry=descr_summary.get()
+     if descr_entry!="":
+           if len(descr_entry)<105:
+                
+                descr_view.config(text=str(descr_entry[0:35]+"\n ")+ str(descr_entry[35:70]+"\n")+ str(descr_entry[70:105]))
            else:
-            descr_view.config(text="Sorry, this is longer than a tweet: " + str(len(descr_tag_entry))+"\n"+descr_tag_entry[0:35] +"\n"+ descr_tag_entry[35:70]+"\n"+ descr_tag_entry[70:105]+"\n"+ descr_tag_entry[105:140])
- 
-           descr_view.config(text=descr_summary.get()) 
+            descr_view.config(text="Sorry, this is longer than a tweet: " + str(len(descr_entry))+"\n"+descr_entry[0:60])
+                       
            def add_description():
              if len(list_title)<1:
               list_title.append(descr_summary.get())
@@ -603,15 +604,15 @@ def show_descr():
                descr_summary.delete(0, END)
                add_button.place_forget()  
 
-           add_button = tk.Button(root, text="title list", font=("Arial",12,"bold"), command=add_description)
-           add_button.place(relx=0.7,rely=0.36) 
+           add_button = tk.Button(root, text="Add", font=("Arial",12,"bold"), command=add_description)
+           add_button.place(relx=0.91,rely=0.26) 
         
      else:
            
             if len(list_title)==1: 
                 descr_view.config(text=str(len(list_title)))
             else:
-                 descr_view.config(text="Sorry, this is uncorrect: ")                
+                 descr_view.config(text="Uncorrect: ")                
             descr_summary.delete(0, END)
     else:
         descr_view.config(text=str(len(list_title)))
@@ -619,8 +620,8 @@ def show_descr():
  
 descr_tag = tk.Label(root, text="Title-Tag",font=("Arial",12,"bold"))
 descr_summary=ttk.Entry(root,justify='left',font=("Arial",12))
-descr_button = tk.Button(root, text="Title tag", font=("Arial",12,"bold"), command=show_descr)
-descr_view = tk.Label(root, text="Title: ", font=("helvetica",13,"bold"),justify="center")
+descr_button = tk.Button(root, text="Preview ", font=("Arial",12,"bold"), command=show_descr)
+descr_view = ttk.Label(root, text="Title: ", font=("helvetica",12,"bold"),justify='left')
 entry_Home_title=ttk.Label(frame1,text="Speed Link", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
 entry_Home_title.place(relx=0.35,rely=0.1,relwidth=0.2)
 #Parse id in note
