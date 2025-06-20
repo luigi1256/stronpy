@@ -522,7 +522,7 @@ def raw_label():
         d_tag.place(relx=0.75,rely=0.6 )
         d_title.place(relx=0.75,rely=0.65)
 
-        d_view.place(relx=0.7,rely=0.7,relwidth=0.3,bordermode=INSIDE) 
+        d_view.place(relx=0.7,rely=0.7) 
    else:
       Check_raw.set(0)
       stuff_frame.place_forget() 
@@ -548,7 +548,6 @@ stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)
 d_tag = tk.Label(root, text="d-Tag",font=("Arial",12,"bold"))
 d_title=ttk.Entry(root,justify='left',font=("Arial",12))
 d_view = tk.Label(root, text="d-view ", font=("helvetica",13,"bold"),justify="center")
-#d_view.place(relx=0.75,rely=0.9,relwidth=0.3)
 d_identifier=""
 
 def d_tag_show():
@@ -558,9 +557,9 @@ def d_tag_show():
        if  codifica_spam()=="spam":
             d_identifier=title[8:]
             print(d_identifier)
-            d_view.config(text=d_identifier)   
+            d_view.config(text=d_identifier[0:30]+"\n"+d_identifier[30:60]+"\n"+d_identifier[60:90])   
          
-d_button = tk.Button(root, text="view-d-tag", font=("Arial",12,"bold"), command=d_tag_show)
+d_button = tk.Button(root, text="View d Tag", font=("Arial",12,"bold"), command=d_tag_show)
 e_tag = tk.Label(root, text="e-Tag",font=("Arial",12,"bold"))
 e_tag_entry=ttk.Entry(root,justify='left',font=("Arial",12))
 list_content=[]            

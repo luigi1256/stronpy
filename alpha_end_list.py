@@ -715,10 +715,13 @@ def show_print_test_tag(note):
               if four_tags(jresult,"e"):
                 for F_note in four_tags(note,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
-              #for note_tags in tags_string(jresult,"e"):
-              # context22=context22+str("e ")+note_tags+"\n"
+              else:
+                 if tags_string(jresult,"e"):
+                    context22=context22+str(len(tags_string(jresult,"e")))+ "\n"
+                 else:
+                    context22="---> Root  <--- "     
              else:
-               context22="---> Root  <--- "  
+               context22="---> Root  <--- "
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
@@ -1268,7 +1271,7 @@ def print_people():
 button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
 button_people_.place(relx=0.12,rely=0.58) 
 
-button_people_2=Button(root,text=f"find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
+button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
 button_people_2.place(relx=0.22,rely=0.58) 
 
 root.mainloop()

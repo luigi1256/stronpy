@@ -100,6 +100,7 @@ def codifica_link(x):
    list=['mov','mp4']
    img=['png','jpg','JPG','gif']
    img1=['jpeg','webp'] 
+   ytube=['https://youtu.be']
    tme=["https://t.me/"]
    xtwitter=["https://x.com/"]
    if f==None:
@@ -110,10 +111,13 @@ def codifica_link(x):
            return "pic" 
    if f[-4:] in img1:
             return "pic"
+   if f[0:16] in ytube:
+            return 'ytb'
    if f[0:13] in tme:
             return "tme"
    if f[0:14] in xtwitter:
             return "tme"
+   
    else:
        return "spam"  
 
@@ -131,6 +135,16 @@ def block_url_spam(x):
            return "no context"  
        else:
              return codifica_link(x)
+
+def note_invidious(x):
+    f1=url_spam(x)
+    if f1!=None:
+       invidious(f1)
+
+def invidious(url):
+   if url[0:17]=='https://youtu.be/':
+      string=str("https://inv.nadeko.net/")+str(url[17:])
+      print(string)
 
 block_content=[]
 block_japanese=[]
@@ -281,19 +295,22 @@ def filter_light_test(List_note):
               if Check_reply.get()==1:
                if tags_string(jnote,"e")!=[]:
                  List_note_out.append(jnote)
+              
 
               else:     
                if tags_string(jnote,"e")==[]:
                 List_note_out.append(jnote)
+                
           else:   
              if jnote not in List_note_out:      
               if Check_reply.get()==1:
                if tags_string(jnote,"e")!=[]:
                  List_note_out.append(jnote)
-
+        
               else:     
                if tags_string(jnote,"e")==[]:
                 List_note_out.append(jnote)
+              
  return List_note_out
 
 frame2=Frame(root, background="grey")
@@ -428,7 +445,7 @@ Type_reply = Checkbutton(root, text = "Reply ", variable = Check_reply, onvalue 
                     height = 2, width = 10,font=('Arial',16,'bold'), command=preset_reply)
 Type_reply.place(relx=0.545,rely=0.12) 
 
-type_light=["no spam","video","pic","tme","spam"]
+type_light=["no spam","video","pic","tme","spam",'ytb',"no context"]
 label_light=[]
 Checkbutton9 = IntVar() 
 string_var_l=StringVar()
@@ -579,9 +596,6 @@ def layout():
         canvas.destroy()
         frame1.destroy()
 
-    if list_note_lib==[]:
-     close_canvas() 
-
     def block_pubkey(note_):
         
          if len(note_["pubkey"])==64:
@@ -601,6 +615,14 @@ def layout():
 
     button_close=Button(scrollable_frame, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
     button_close.grid(column=1,row=0, padx=5,pady=5)    
+    if list_note_lib==[]:
+     close_canvas() 
+     if db_list!=[]:
+        if messagebox.askyesno("Form", "Do you want to see these notes?"): 
+           for note_x in db_list:
+              print(note_x, "\n")
+              note_invidious(note_x)
+
 
 button_open=Button(root, command=layout, text="scroll",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
 button_open.place(relx=0.2,rely=0.2, anchor="n")
@@ -749,6 +771,7 @@ button_reply=tk.Button(root,text="send reply", background="darkgrey", font=('Ari
 
 def share(note_text):
     print(f"Note:\n{note_text}")
+    note_invidious(note_text)
 
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
@@ -830,8 +853,9 @@ def photo_print(note):
    image_label = tk.Label(frame_pic)
    image_label.grid(column=0,row=0, padx=10,pady=10)
    if label_pic.get()!="":
-       try:
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       response = requests.get(label_pic.get(), stream=True)
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -854,7 +878,7 @@ def photo_print(note):
         
         button_close.grid(column=0,row=1,padx=10)
         frame_pic.place(relx=0.85,rely=0.01,relwidth=0.3,relheight=0.3,anchor="n")
-       except TypeError as e: 
+      except TypeError as e: 
         print(e)  
 
 def more_link(f):
@@ -891,7 +915,8 @@ def photo_list(list_note):
     image_label.grid(column=1,row=s, columnspan=2)
     if label_pic.get()!="":
          
-        response = requests.get(label_pic.get(), stream=True)
+       response = requests.get(label_pic.get(), stream=True)
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response

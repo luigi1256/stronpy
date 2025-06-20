@@ -41,7 +41,7 @@ async def get_event(client, event_):
 async def Selected_event(event_):
         
     client = Client(None)
-    #uniffi_set_event_loop(asyncio.get_running_loop())
+    uniffi_set_event_loop(asyncio.get_running_loop())
     # Add relays and connect
     await client.add_relay("wss://nostr.mom/")
     await client.add_relay("wss://nos.lol/")
@@ -236,10 +236,7 @@ def call_layoput_note():
         note=asyncio.run(Selected_event(note_lile))
         lile_note=get_note(note)
         timeline_created(lile_note)
-        #for zeta_l in lile_note:
-        #         if zeta_l not in kind_db_list:
-        #            if len(kind_db_list)<100:
-        #              kind_db_list.append(zeta_l)
+        
         print(len(kind_db_list))         
 
 def timeline_created(list_new):
@@ -333,7 +330,7 @@ button_3_z.place(relx=0.75,rely=0.11, anchor="n")
 wall=tk.Label(frame1, text="",background="lightgrey",height=4)
 wall.grid(column=3, row=0,padx=10,pady=5, rowspan=2)
 frame1.place(relx=0.1,rely=0.06)
-frame4.place(relx=0.1,rely=0.7)
+frame4.place(relx=0.05,rely=0.7)
 
 def number_kind(tm):
     z=[]
@@ -589,7 +586,6 @@ def show_print_test_tag(note):
           pass            
    second_label_2.insert(END,note["content"]+"\n"+str(context2))
    scroll_bar_mini_2.config( command = second_label_2.yview )
-         
    second_label_2.grid(padx=10, column=0, columnspan=3, row=s+2,rowspan=2)
 
    def print_var(entry):
@@ -692,8 +688,11 @@ def show_print_test_tag(note):
               if four_tags(jresult,"e"):
                 for F_note in four_tags(note,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
-              #for note_tags in tags_string(jresult,"e"):
-              # context22=context22+str("e ")+note_tags+"\n"
+              else:
+                 if tags_string(jresult,"e"):
+                    context22=context22+str(len(tags_string(jresult,"e")))+ "\n"
+                 else:
+                    context22="---> Root  <--- "     
              else:
                context22="---> Root  <--- "  
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
@@ -721,8 +720,7 @@ def show_print_test_tag(note):
 
 def show_note_from_id(note):
         result=note["id"]
-        #result1=ast.literal_eval(entry_note.get())
-        #print(result1)
+       
         replay=nota_reply_id(note)
         replay.append(result)
         if replay!=[]:
@@ -911,12 +909,12 @@ def photo_list_2(note):
      s=0  
      stringa_pic.set(list_note1[int(lbel_var.get())])
      label_pic = Entry(frame_pic, textvariable=stringa_pic)
-     #label_pic.grid(column=1,row=2,pady=2)
+    
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-         
-        response = requests.get(label_pic.get(), stream=True)
+       response = requests.get(label_pic.get(), stream=True)
+       if response.ok==True:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -1502,14 +1500,14 @@ def list_pubkey_id():
            
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
-              print(single_1["name"])
+              #print(single_1["name"])
          else:   
             if single_1["display_name"]!="":
                 #print("Pubkey", single["pubkey"],"\n","Npub ",PublicKey.parse(single["pubkey"]).to_bech32())
                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
-                  print(single_1["display_name"])      
+                  #print(single_1["display_name"])      
         except KeyError as e:
           print("KeyError ",e)             
    
@@ -1549,7 +1547,7 @@ def print_people():
                  button_grid2.grid(row=s,column=3,padx=5,pady=5) 
             
                 root.update()  
-                root.after(100)
+              
                 s=s+1
                 se=se+3
                 ra=ra+3   
@@ -1557,7 +1555,7 @@ def print_people():
     canvas.pack(side="left", fill="y", expand=True)
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
-    frame3.place(relx=0.33,rely=0.65,relwidth=0.3, relheight=0.3)      
+    frame3.place(relx=0.3,rely=0.65,relwidth=0.28, relheight=0.3)      
     def Close_print():
        frame3.destroy()  
        
@@ -1567,7 +1565,7 @@ def print_people():
 button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
 button_people_.place(relx=0.12,rely=0.58) 
 
-button_people_2=Button(root,text=f"find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
+button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
 button_people_2.place(relx=0.22,rely=0.58) 
 
 root.mainloop()
