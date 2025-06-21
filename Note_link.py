@@ -5,6 +5,12 @@ from nostr_sdk import *
 from nostr_sdk import Event,EventBuilder, Metadata,EventId,Kind
 from datetime import timedelta
 import json
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
+from PIL import Image, ImageTk
+import requests
+import shutil
 
 def note_list(list_follow):
     L=[]
@@ -102,15 +108,10 @@ async def main(authors):
     
     return combined_results
 
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk
-from PIL import Image, ImageTk
-
 root = tk.Tk()
 root.title("test link")
 root.geometry("1250x800")
-frame_top_box=tk.Frame(root,height=30,width=200,background="grey")
+frame_top_box=tk.Frame(root,height=30,width=200,background="darkgrey")
 frame2=tk.Frame(root,height=60,width=110)
 
 my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
@@ -125,15 +126,15 @@ def on_select(event):
     selected_item = combo_box.get()
     label.config(text="Selected Item: " + my_dict[selected_item][0:9])
 
-label = tk.Label(frame_top_box, text="Selected Item: ",font=("Arial",10,"bold"))
+label = tk.Label(frame_top_box, text="Selected Item: ",font=("Arial",10,"bold"),width=20)
 label.grid(row=1, column=5, columnspan=2,pady=5,padx=5 )
 combo_box = ttk.Combobox(frame_top_box, values=["Pablo","jb55","Vitor","Hodlbod","me"],font=("Arial",10,"bold"))
 combo_box.grid(row=0, column=5,columnspan=2, pady=5 )
 combo_box.set("Option 1")
 combo_box.bind("<<ComboboxSelected>>", on_select)
 stringa=tk.IntVar()
-select_kind=Label(frame_top_box,text="Links", font=("Arial",20,"bold"),background="darkgrey")
-select_kind.grid(column=2, row=0,padx=10,columnspan=2,rowspan=2,pady=5)
+select_kind=Label(frame_top_box,text="Links", font=("Arial",20,"bold"),background="lightgrey")
+select_kind.grid(column=2, row=0,padx=10,columnspan=2,rowspan=2,pady=10)
 
 def search_event(): 
  if combo_box.get()!="Option 1":
@@ -156,7 +157,7 @@ def search_():
 
 frame1=tk.Frame(root,height=100,width=200)
 button_tm=tk.Button(frame_top_box,command= search_,text="View note", font=("Arial",10,"bold"))
-button_tm.grid(column=8, row=1,padx=5)
+button_tm.grid(column=8, row=1,padx=5,pady=5)
 db_link=[]
 db_list=[]
 
@@ -184,7 +185,8 @@ def codifica_link_str(string):
    list=['mov','mp4']
    audio=['mp3']
    img=['png','jpg','gif']
-   img1=['jpeg','webp'] 
+   img1=['jpeg','webp']
+   ytube=['https://youtu.be',"https://www.youtube.com/","https://m.youtube.com/"] 
    if f==None:
                  return "no spam"
    if f[-3:] in list:
@@ -193,10 +195,26 @@ def codifica_link_str(string):
         return "audio"
    if f[-3:] in img:
            return "pic" 
+   if f[0:16] in ytube or  f[0:24] in ytube or f[0:22] in ytube:
+            return 'ytb'
    if f[-4:] in img1:
             return "pic"
    else:
        return "spam"
+
+def invidious(url):
+   if url[0:17]=='https://youtu.be/':
+      string=str("https://inv.nadeko.net/")+str(url[17:])
+      string2=str("https://yewtu.be/")+str(url[17:])
+      print(string,"\n",string2)
+   if url[0:24]=="https://www.youtube.com/":   
+      string=str("https://inv.nadeko.net/")+str(url[24:])
+      string2=str("https://yewtu.be/")+str(url[24:])
+      print(string,"\n",string2)
+   if url[0:22]=="https://m.youtube.com/": 
+      string=str("https://inv.nadeko.net/")+str(url[22:])
+      string2=str("https://yewtu.be/")+str(url[22:])
+      print(string,"\n",string2)  
 
 def show_link():
     result=link_kind1()
@@ -207,27 +225,21 @@ def show_link():
 
 frame3=tk.Frame(root,height=120,width= 100)
 frame1=tk.Frame(root,height=100,width=200)
-
-frame_top_box.grid()
+frame_top_box.grid(column=0,row=0,padx=5,rowspan=2,columnspan=4)
 frame1.grid()
 frame3.grid()
 
-
 def add_db_list():
-        
-        Frame_block=Frame(frame_top_box,width=50, height=20)
-        button10=tk.Button(Frame_block, highlightcolor='Blue',
-                 cursor='hand1',
-                  text='Links',
-                  font=('Arial',12,'bold'),
-                  command=show_link)  
-        
+        button_block.grid_forget()
+        Frame_block=Frame(root, height=30,width=200, background="darkgrey")
+                
         def Close_block(event):
-            Frame_block.destroy()
+            Frame_block.place_forget()
+            button_block.grid(column=9, columnspan=2, row=0, pady=5,padx=10) 
          
-        button_b_close=Button(Frame_block, background='red', text='❌',font=('Arial',12,'bold'))    
+        button_b_close=Button(Frame_block, background='red', text='❌',font=('Arial',10,'bold'))    
         button_b_close.bind("<Double-Button-1>" ,Close_block)
-        button_b_close.grid(column=17, row=1, padx=5, columnspan=1) 
+        button_b_close.grid(column=17, row=0, padx=5, columnspan=1) 
         
         def search_block_list():
             label_string_block1.set(len(db_list))    
@@ -257,14 +269,14 @@ def add_db_list():
         label_block_list1.grid(column=2,row=0,padx=5,pady=5)
         label_var_list1=Label(Frame_block, textvariable=label_link_var)
         label_var_list1.grid(column=2,row=1,padx=5,pady=5)
-        Frame_block.grid(column=14,row=0, columnspan=3, rowspan=2)
-        button10.grid(column=3,row=0,padx=5,pady=5)
-
-button_block=tk.Button(frame_top_box, highlightcolor='WHITE',
+        
+        Frame_block.place(relx=0.3,rely=0,relwidth=0.18,relheight=0.095)
+        
+button_block=tk.Button(root, highlightcolor='WHITE',
                   text='DB count',
                   font=("Arial",10,"bold"),
                   command=add_db_list)
-button_block.grid(column=9, columnspan=2, row=1, pady=9.5,padx=5) 
+button_block.grid(column=9, columnspan=2, row=0, pady=5,padx=10) 
 frame2.place(relx=0.65,rely=0.15,relwidth=0.2,relheight=0.3)
 
 def show_Teed():
@@ -338,11 +350,9 @@ def show_Teed():
     button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
     button_frame.place(relx=0.5,rely=0.78,relwidth=0.1)      
    
-import requests
-import shutil
-
 def pic_show(x):
-    response = requests.get(x, stream=True)
+   response = requests.get(x, stream=True)
+   if response.ok==True:
     with open('my_image.png', 'wb') as file:
         shutil.copyfileobj(response.raw, file)
     del response
@@ -364,16 +374,24 @@ def photo_print(url):
    stringa_pic.set(url)
    label_pic = Entry(frame_pic, textvariable=stringa_pic)
    image_label = tk.Label(frame_pic)
-   image_label.grid(column=0,row=0, padx=10,pady=10)
+   image_label.grid(column=0,row=1, padx=10,pady=10)
    if label_pic.get()!="":
-       try:
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       response = requests.get(label_pic.get(), stream=True)
+       if response.ok==True:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
         from PIL import Image
         image = Image.open('my_image.png')
-        image.thumbnail((250, 250))  # Resize image if necessary
+       
+        number=float(image.height/image.width) 
+        
+        test1=int(float(number*250))
+        if number>1.5:
+            test1=int(1.5*250)
+     
+        image.thumbnail((250, test1))  # Resize image if necessary
         photo = ImageTk.PhotoImage(image)
         image_label.config(image=photo)
         image_label.image_names= photo
@@ -386,15 +404,19 @@ def photo_print(url):
   
         button_close=Button(frame_pic,command=close_pic,text="close",font=("Arial",12,"bold"))
         frame_pic.columnconfigure(0,weight=1)
-        frame_pic.rowconfigure(0,weight=3)
+        frame_pic.rowconfigure(1,weight=3)
         
-        button_close.grid(column=0,row=1,padx=10)
-        frame_pic.place(relx=0.85,rely=0.5,relwidth=0.3,relheight=0.3,anchor="n")
-       except TypeError as e: 
+        button_close.grid(column=0,row=0,padx=10)
+        frame_pic.place(relx=0.85,rely=0.5,relwidth=0.3,anchor="n")
+         
+      except TypeError as e: 
         print(e)  
+      except ZeroDivisionError as d:
+         print(d)
+           
 
-button_pic_ent=tk.Button(root, highlightcolor='Blue',text='Photo',font=('Arial',12,'normal'),command=show_one_photo)
-button_pic_ent.place(relx=0.37, rely=0.17,relheight=0.035)
+button_pic_ent=tk.Button(root, highlightcolor='Blue',text=' 📷 Photo',font=('Arial',12,'normal'),command=show_one_photo)
+button_pic_ent.place(relx=0.42, rely=0.17,relheight=0.035)
 button_read=Button(root,text="Stamp Note", command=show_Teed,font=("Arial",12,"normal"))
 button_read.place(relx=0.2, rely=0.25)
 
@@ -535,8 +557,8 @@ def show_save_note():
             if url_spam(j_db)==entry_id.get():
               pass #save id tag
 
-button_id=tk.Button(root,command=show_link_note,text="note",font=("Arial",12,"normal"))
-button_id.place(relx=0.3,rely=0.13)
+button_id=tk.Button(root,command=show_link_note,text="Note",font=("Arial",12,"normal"))
+button_id.place(relx=0.37,rely=0.17, relheight=0.035)
 frame_id.grid(column=0, row=0, columnspan=4, rowspan=3)
 List_note_out=[]
 
@@ -582,6 +604,10 @@ def print_text():
             if codifica_link_str(note)=="pic":
              button_grid4=Button(scrollable_frame,text="Photo", command=lambda val=note: photo_print(val))
              button_grid4.grid(row=s+1,column=3,padx=5,pady=10)
+            if codifica_link_str(note)=="ytb":
+               button_grid5=Button(scrollable_frame,text="Video", command=lambda val=note: invidious(val))
+               button_grid5.grid(row=s+1,column=3,padx=5,pady=10)
+              
             root.update()  
             s=s+2
    
@@ -597,7 +623,6 @@ def print_text():
 
 button4=tk.Button(root,text="View Links",command=print_text, font=("Arial",12,"normal"))
 button4.place(relx=0.1, rely=0.25) 
-
 frame1.grid()
 relay_list=[]
 
@@ -614,7 +639,7 @@ def open_relay():
            
             if entry_relay.get() not in relay_list:
                 relay_list.append(entry_relay.get())
-                #print(relay_list)  
+                
             counter_relay['text']=str(len(relay_list)) 
             counter_relay.grid(column=12,row=1)
             entry_relay.delete(0, END)
@@ -646,7 +671,7 @@ def open_relay():
                   font=('Arial',12,'bold'),
                   command=open_relay            
                   )
-       button_beau.place(relx=0.6,rely=0.05) 
+       button_beau.place(relx=0.55,rely=0.02) 
         
     button_close=tk.Button(frame_account, background='red', text='❌',font=('Arial',12,'bold'))    
     button_close.bind("<Double-Button-1>" ,Close_profile) 
@@ -661,10 +686,10 @@ def open_relay():
     combo_bo_r.grid(column=13,row=2,pady=5)
     combo_bo_r.set("Relays set")
     combo_bo_r.bind("<<ComboboxSelected>>", on_server)
-    frame_account.place(relx=0.6,rely=0.001,relheight=0.2,relwidth=0.4)
+    frame_account.place(relx=0.5,rely=0.001,relheight=0.2,relwidth=0.4)
 
 button_beau=tk.Button(root, highlightcolor='WHITE',text='Relay',font=('Arial',12,'bold'),command=open_relay )
-button_beau.place(relx=0.6,rely=0.05) 
+button_beau.place(relx=0.55,rely=0.02) 
 
 def upload_relay_list(name):
     with open(name+".txt", 'r',encoding="utf-8") as file:
