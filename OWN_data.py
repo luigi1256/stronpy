@@ -110,13 +110,14 @@ def Notebook_():
  treeview.heading("#0", text="key")
  treeview.heading("Value", text="Value")
  while i<len(list_note_zer0):
-  name_account=json.loads(list_note_zer0[i]["content"])["name"]
-  level1 = treeview.insert("", tk.END, text=f"{name_account}")
-  content=json.loads(list_note_zer0[i]["content"])
-  for key,value in content.items():
-   if value!="":
+  if "name" in list(json.loads(list_note_zer0[i]["content"]).keys()):
+   name_account=json.loads(list_note_zer0[i]["content"])["name"]
+   level1 = treeview.insert("", tk.END, text=f"{name_account}")
+   content=json.loads(list_note_zer0[i]["content"])
+   for key,value in content.items():
+    if value!="":
      treeview.insert(level1, tk.END,text=str(key),values=f"{value}")
-  treeview.insert(level1, tk.END,text=" \n",values="\n") 
+   treeview.insert(level1, tk.END,text=" \n",values="\n") 
   i=i+1
  v_scrollbar = Scrollbar(frame2, orient=VERTICAL, command=treeview.yview)
  treeview.configure(yscrollcommand=v_scrollbar.set)
@@ -194,10 +195,11 @@ def Notebook_():
           if list_x not in  list(note_pubikey_0.keys()): 
            note_pubikey_0[list_x]=json.loads(test_x["content"])
  for key,value in note_pubikey_0.items():
-    value_name=value["name"]
-    key_value=key[0:18]
-    value_pubkey=str(number_pubkey[key])
-    treeview_4.insert(level3, tk.END,text=str(key_value),values=f"{value_name},{value_pubkey}")
+    if "name" in list(value.keys()): 
+     value_name=value["name"]
+     key_value=key[0:18]
+     value_pubkey=str(number_pubkey[key])
+     treeview_4.insert(level3, tk.END,text=str(key_value),values=f"{value_name},{value_pubkey}")
     
  v_scrollbar3 = ttk.Scrollbar(frame_4, orient=VERTICAL, command=treeview_4.yview)
  treeview_4.configure(yscrollcommand=v_scrollbar3.set,height=8)
@@ -238,6 +240,7 @@ def Notebook_():
  kind_0=list(note_pubikey_0.values())
  list_name=[]
  for note_name in kind_0:
+   if "name" in list(note_name.keys()):
     if note_name["name"] not in list_name:
        list_name.append(note_name["name"])
 
