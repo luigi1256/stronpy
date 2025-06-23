@@ -78,7 +78,27 @@ def call_r_lay():
          if relay_x[0:6]=="wss://" and relay_x[-1]=="/" and relay_x not in relay_list:
             if len(relay_list)<6:
                 relay_list.append(relay_x)
-          
+
+def pubkey_id(test):
+   note_pubkey=[]
+   for note_x in db_note:
+       if note_x["pubkey"] == test:
+          if note_x not in note_pubkey:
+             note_pubkey.append(note_x)
+   if len(note_pubkey)>1:       
+    search_for_note(note_pubkey)
+    show_noted()
+
+def pubkey_id_ver(test):
+   note_pubkey=[]
+   for note_x in db_note:
+       if note_x["pubkey"] == test:
+          if note_x not in note_pubkey:
+             note_pubkey.append(note_x)
+   if len(note_pubkey)>1:       
+    search_v_note(note_pubkey)
+    layout()
+  
 def Open_source(value_kind):
      test=[]
      if __name__ == "__main__":
@@ -270,6 +290,15 @@ def search_for_kind(kind_int:int):
                hash_list_notes.append(note_x)
         return hash_list_notes     
 
+def search_ver_kind(kind_int:int):
+     Notes=db_note
+     if Notes!=[]:
+        vertical_note.clear()
+        for note_x in Notes:
+            if note_x["kind"]==kind_int:  
+               vertical_note.append(note_x)
+        return vertical_note  
+
 def print_text():  
     """Widget function \n
     Dict: List of Events    \n
@@ -314,7 +343,7 @@ def print_text():
                       var_id_test.set("Event kind 34235 for horizontal video") 
                   
                 if list(test.keys())[0]=="v_video":
-                   number_event=search_for_kind(test[list(test.keys())[0]])  
+                   number_event=search_ver_kind(test[list(test.keys())[0]])  
            
                    if number_event:
                     var_id_test.set("Event kind 22, number " +str(len(number_event)))
@@ -332,7 +361,7 @@ def print_text():
                       var_id_test.set("Event kind 21 for horizontal video")                  
                      
                 if list(test.keys())[0]=="v_video_1":
-                   number_event= search_for_kind(test[list(test.keys())[0]]) 
+                   number_event=search_ver_kind(test[list(test.keys())[0]]) 
             
                    if number_event:
                     var_id_test.set("Event kind 34236, number " + str(len(number_event)))
@@ -368,6 +397,15 @@ def search_for_channel(note_hash):
             if note_hash in tags_string(note_x,"t"): 
                hash_list_notes.append(note_x)
         return hash_list_notes    
+
+def search_ver_channel(note_hash):
+     Notes=db_note
+     if Notes:
+        vertical_note.clear()
+        for note_x in Notes:
+            if note_hash in tags_string(note_x,"t"): 
+               vertical_note.append(note_x)
+        return vertical_note       
 
 def Alt_tag(note):
    if alt_string.get()==1:
@@ -414,16 +452,17 @@ def show_noted():
   canvas_1.create_window((0, 0), window=scrollable_frame_1, anchor="nw")
   canvas_1.configure(xscrollcommand=scrollbar_1.set,yscrollcommand=scrollbar_2.set)
   if hash_list_notes!=[]:
-  
+   
    s=1
    s1=0
    for note in hash_list_notes:
-    
      if Alt_tag(note): 
       try:
-       context0="Author: "+note['pubkey']
-       for xnote in tags_string(note,"title"):
-         if xnote!="":
+       context0=""
+       if note["tags"]!=[]:
+        if tags_string(note,"title")!=[]:  
+         for xnote in tags_string(note,"title"):
+          if xnote!="" and xnote!=" ":
             context0=context0+"\n"+"Title "+str(xnote)
        if note['tags']!=[]:
         if note["content"]!="": 
@@ -452,8 +491,14 @@ def show_noted():
        var_id=StringVar()
        label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
        var_id.set(context0)
-       label_id.grid(pady=1,padx=10,row=0,column=s1, columnspan=3)
-
+       
+       button_grid2=Button(scrollable_frame_1,text= "Author "+note['pubkey'][0:44], command=lambda val=note["pubkey"]: pubkey_id(val))
+       button_grid2.grid(row=0,column=s1,padx=5,pady=5, columnspan=3)   
+       if note["tags"]!=[]:
+        if tags_string(note,"title")!=[]:
+         if tags_string(note,"title")[0]!="":    
+          label_id.grid(pady=1,padx=10,row=1,column=s1, columnspan=3)
+      
        def print_photo_url(url):
              response = requests.get(url, stream=True)
              if response.ok==True:
@@ -474,16 +519,15 @@ def show_noted():
            label_image = Label(scrollable_frame_1,text="",background="#E3E0DD")
            photo=print_photo_url(url)
            if photo!=None:
-            label_image.grid(pady=2,row=1,column=s1, columnspan=3)
+            label_image.grid(pady=2,row=2,column=s1, columnspan=3)
        
        scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
-       scroll_bar_mini.grid( sticky = NS,column=s1+3,row=2)
+       scroll_bar_mini.grid( sticky = NS,column=s1+3,row=3)
        second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
        second_label10.insert(END,context1+"\n"+str(context2))
        scroll_bar_mini.config( command = second_label10.yview )
-       second_label10.grid(padx=10, column=s1, columnspan=3, row=2) 
+       second_label10.grid(padx=10, column=s1, columnspan=3, row=3) 
        
-
        def print_id(entry):
            print(entry['tags'])
            if photo_Show.get()==0:
@@ -499,14 +543,14 @@ def show_noted():
                     photo_print(entry)
                
        button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
-       button.grid(column=s1,row=3,padx=5,pady=5)
+       button.grid(column=s1,row=4,padx=5,pady=5)
        button_grid2=Button(scrollable_frame_1,text=f"Read Tags", command=lambda val=note: print_id(val))
-       button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
+       button_grid2.grid(row=4,column=s1+1,padx=5,pady=5)    
        
        if tags_string(note,"imeta")!=[]:
         
         button_grid3=Button(scrollable_frame_1,text=f"See this video", command=lambda val=note: balance_video(val))
-        button_grid3.grid(row=3,column=s1+2,padx=5,pady=5)  
+        button_grid3.grid(row=4,column=s1+2,padx=5,pady=5)  
        s=s+2  
        s1=s1+4
 
@@ -516,20 +560,25 @@ def show_noted():
    scrollbar_1.pack(side="bottom", fill="x",padx=20)
    scrollbar_2.pack(side=LEFT, fill="y",pady=5,padx=2)
    canvas_1.pack( fill="y", expand=True)
-   if len(hash_list_notes)<=3:
-        frame2.place(relx=0.35,rely=0.32,relwidth=0.32,relheight=0.35)
-   else:
-        frame2.place(relx=0.3,rely=0.32,relwidth=0.64,relheight=0.4)
-
    def close_frame():
         frame2.destroy()    
         button_frame.place_forget()
     
    button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
    if len(hash_list_notes)<=3:
-    button_frame.place(relx=0.45,rely=0.7,relwidth=0.1)      
+       if photo_Show.get()==1:
+         frame2.place(relx=0.3,rely=0.22,relwidth=0.32,relheight=0.58)
+         button_frame.place(relx=0.45,rely=0.82,relwidth=0.1)      
+       else:
+          button_frame.place(relx=0.6,rely=0.55,relwidth=0.1)   
+          frame2.place(relx=0.3,rely=0.32,relwidth=0.32,relheight=0.35)
    else:
-    button_frame.place(relx=0.45,rely=0.73,relwidth=0.1)      
+        if photo_Show.get()==1:
+            button_frame.place(relx=0.6,rely=0.55,relwidth=0.1)   
+            frame2.place(relx=0.3,rely=0.22,relwidth=0.64,relheight=0.58)
+        else:
+            button_frame.place(relx=0.45,rely=0.65,relwidth=0.1)      
+            frame2.place(relx=0.3,rely=0.32,relwidth=0.64,relheight=0.4)
 
 button_read=Button(root,text="Stamp", command=show_noted,font=("Arial",12,"normal"))
 entry_channel=StringVar()
@@ -574,7 +623,7 @@ def print_list_tag():
                     height = 2, 
                     font=('Arial',14,'bold'))
                 Alt_tag.place(relx=0.83,rely=0.1)  
-                
+                search_ver_channel(test)
                 search_for_channel(test)
                 entry_space=tk.Entry(root, textvariable=entry_channel, width=30)
                 entry_space.place(relx=0.57,rely=0.11,relwidth=0.12)
@@ -665,10 +714,8 @@ def layout():
             
         if note_text["content"] not in list_note_lib:
          list_note_lib.append(note_text["content"])
-         var_id=StringVar()
-         label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"),background="#D1C9C2")
-         label_id.grid(pady=1,padx=10,row=s,column=0, columnspan=3)
-         var_id.set(" Author: "+note_text["pubkey"])
+         button_grid2=Button(scrollable_frame,text= "Author "+note['pubkey'][0:44], command=lambda val=note["pubkey"]: pubkey_id_ver(val))
+         button_grid2.grid(row=s,column=0,padx=5,pady=5, columnspan=3)  
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
          scroll_bar_mini.grid( sticky = NS,column=4,row=s+2,pady=5)
 
@@ -735,10 +782,11 @@ def layout():
            button_grid3.grid(row=s+3,column=2,padx=5,pady=5)      
     s=1       
     n=0
-    for note in db_note:
-     n=n+1
-     create_note(note, s)
-     s += 4   
+    if vertical_note!=[]:
+     for note in vertical_note:
+      n=n+1
+      create_note(note, s)
+      s += 4   
     frame1.place(relx=0.3,rely=0.3, relheight=0.4,relwidth=0.31)  
 
     def close_canvas():
@@ -780,9 +828,11 @@ def balance_video(nota):
         if number:
          if int(number)<int(13000000):
           try: 
-           stream_uri(dim_photo[1][4:], "my_video.mp4")
+           response = requests.get(dim_photo[1][4:], stream=True)
+           if response.ok==True: 
+            stream_uri(dim_photo[1][4:], "my_video.mp4")
           
-           if messagebox.askyesno("Form", "Do you want to see the video?"): 
+            if messagebox.askyesno("Form", "Do you want to see the video?"): 
             
              print('playing video using native player')
              os.system('my_video.mp4')
@@ -868,6 +918,8 @@ def search_title(string):
        print(len(note_list),"\n",note_list[0])            
        return note_list    
 
+vertical_note=[]
+
 def search_for_note(note_found:list):
      if note_found!=[]:
         hash_list_notes.clear()
@@ -875,6 +927,14 @@ def search_for_note(note_found:list):
             if note_x not in hash_list_notes: 
                hash_list_notes.append(note_x)
         return hash_list_notes    
+     
+def search_v_note(note_found:list):
+     if note_found!=[]:
+        vertical_note.clear()
+        for note_x in note_found:
+            if note_x not in vertical_note: 
+               vertical_note.append(note_x)
+        return vertical_note        
 
 def search_title_c(string):
    if string!="":
@@ -934,20 +994,20 @@ def threeview_dict_l(list_words):
        db_list.append(value)
        for key_one in key_value:
         treeview.insert(level1, tk.END,text=str(key_one),values=f"{value}")
-  treeview.place(relx=0.6,rely=0.73)   
+  treeview.place(relx=0.6,rely=0.8,relheight=0.2)   
   
   def close_tree():
      treeview.place_forget()
      button_c2.place_forget()
 
   button_c2=Button(root,text="Close", command=close_tree,font=('Arial',12,'bold'))
-  button_c2.place(relx=0.91,rely=0.73)
+  button_c2.place(relx=0.91,rely=0.82)
        
 title_s=StringVar()
 entry_t=tk.Entry(root, textvariable=title_s, width=20,font=('Arial',12,'normal'))
-entry_t.place(relx=0.05,rely=0.8,relwidth=0.2)
+entry_t.place(relx=0.02,rely=0.8,relwidth=0.2)
 button_s=Button(root,text="search", command=lambda: search_title_c(entry_t.get()),font=('Arial',12,'normal'))
-button_s.place(relx=0.27,rely=0.79)
+button_s.place(relx=0.24,rely=0.79)
 button_s2=Button(root,text="Search Words", command=search_word_title,font=('Arial',12,'bold'))
 button_s2.place(relx=0.1,rely=0.9)
    
