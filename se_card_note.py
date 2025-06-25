@@ -5,6 +5,162 @@ from asyncio import get_event_loop
 from nostr_sdk import *
 import json
 
+def tags_string(x,obj):
+    f=x["tags"]
+    z=[]
+    if f!=[]:
+     for j in f:
+      if j[0]==obj:
+          z.append(j[1])
+     return z
+    
+def get_note(z):
+    f=[]
+    import json
+    for j in z:
+        f.append(json.loads(j))
+          
+    return f
+
+def convert_user(x):
+    other_user_pk = PublicKey.parse(x)
+    return other_user_pk
+
+def user_convert(x):
+    l=[]
+    for j in x:
+        l.append(convert_user(j))
+    return l
+
+def number_kind(tm):
+    z=[]
+    for v in tm:
+        if (v)['kind'] in z:
+              None  
+        else:
+              z.append((v)['kind'])
+    return z
+
+def nota_reply_id(nota):
+    e_id=[]
+    if nota["tags"]!=[]:
+      if tags_string(nota,'e')!=[]:
+            for event_id in tags_string(nota,'e'):
+                  if event_id not in e_id:
+                    e_id.append(event_id)   
+    return e_id  
+
+def tags_str_long(x,obj):
+    f=x['tags']
+    z=[]
+    for j in f:
+      if j[0]==obj:
+       if len(j)>2:
+         z.append(j[1:]) 
+       else:    
+          z.append(j[1])
+    return z   
+
+def tags_first(x):
+   tags_list=[]
+   tags_value=[]
+   if x["tags"]!=[]:
+      for jtags in x["tags"]:
+         if jtags[0] not in tags_list:
+            tags_list.append(jtags[0])
+   if tags_list!=[]:
+       for xtags in tags_list:
+         for ztags in tags_str(x,xtags):
+            tags_value.append(ztags)
+   return tags_list,tags_value 
+
+def tags_parameters(key,value,s):
+    list_q=[]
+    if s in key:
+        for xvalue in value:
+          if xvalue[0]==s:
+              list_q.append(xvalue[1:])
+    return list_q,s  
+
+def tags_str(x,obj):
+    f=x['tags']
+    z=[]
+    for j in f:
+      if j[0]==obj:
+          z.append(j)
+    return z 
+
+def search_3(note,x):
+    Z=[]
+    for r in note:
+       if (r)['kind']==x:
+          Z.append(r)
+    return Z
+
+def four_tags(x,obj):
+   tags_list=[]
+   
+   if tags_string(x,obj)!=[]:
+      for jtags in tags_str(x,obj):
+        if len(jtags)>2:
+          for xtags in jtags[2:]:
+           if jtags not in tags_list:
+             tags_list.append(jtags)
+      return tags_list 
+
+def new_note_time(list_new:list):
+   if timeline_list_kind!=[]:
+      new_note_2=[]
+      if list_new!=[]:
+       for new_x in list_new:
+        if new_x not in timeline_list_kind:
+          new_note_2.append(new_x)  
+       i=0
+    
+       while i<len(new_note_2):
+         j=0
+         while j< len(timeline_list_kind): 
+          if timeline_list_kind[j]["created_at"]>(new_note_2[i]["created_at"]):
+           j=j+1
+          else:
+           timeline_list_kind.insert(j,new_note_2[i])
+           break
+         i=i+1
+       return timeline_list_kind
+      else:
+          return None
+   else:
+        for list_x in list_new:
+            if list_x not in timeline_list_kind:
+             timeline_list_kind.append(list_x)
+        return timeline_list_kind 
+
+def timeline_created(list_new):
+  new_note=[] 
+  global kind_db_list
+ 
+  if kind_db_list!=[]:
+   for new_x in list_new:
+    if len(kind_db_list)<100: 
+     if new_x not in kind_db_list:
+        new_note.append(new_x) 
+   i=0
+    
+   while i<len(new_note):
+     j=0
+     while j< len(kind_db_list): 
+      if kind_db_list[j]["created_at"]>(new_note[i]["created_at"]):
+         j=j+1
+      else:
+         kind_db_list.insert(j,new_note[i])
+         break
+     i=i+1
+   return kind_db_list   
+  else:
+        for list_x in list_new:
+            kind_db_list.append(list_x)
+        return kind_db_list  
+
 async def get_event(client, event_):
     tag_event=[]
     tag_identifiers=[]
@@ -109,33 +265,6 @@ timeline_list_kind=[]
 timeline_people=[]
 block_id=[]
 
-def tags_string(x,obj):
-    f=x["tags"]
-    z=[]
-    if f!=[]:
-     for j in f:
-      if j[0]==obj:
-          z.append(j[1])
-     return z
-    
-def get_note(z):
-    f=[]
-    import json
-    for j in z:
-        f.append(json.loads(j))
-          
-    return f
-
-def convert_user(x):
-    other_user_pk = PublicKey.parse(x)
-    return other_user_pk
-
-def user_convert(x):
-    l=[]
-    for j in x:
-        l.append(convert_user(j))
-    return l
-
 def found_follow():
    if combo_box.get()!="Name": 
      type_event=""
@@ -149,13 +278,12 @@ def found_follow():
 
 def timelines(): 
  if combo_box.get()!="Name": 
-  type_event=[Kind(30023),Kind(1),Kind(7)]
+  type_event=[Kind(30023),Kind(1),Kind(7),Kind(6),Kind(9735)]
   if timeline_people!=[]:
    tm=get_note(asyncio.run(feed_cluster(user_convert(timeline_people),type_event)))
    new_note_time(tm)
-   #for tm_x in tm:
-   #   if tm_x not in timeline_list_kind:
-   #      timeline_list_kind.append(tm_x)
+   stamp_note()
+   combo_list.place(relx=0.11,rely=0.4)
   else:
      found_follow()
       
@@ -170,17 +298,18 @@ from tkinter import *
 from tkinter import ttk
 root = tk.Tk()
 root.geometry("1250x800")
-root.title("Trending See")
+root.title("See Note")
 
 frame1=tk.Frame(root,height=100,width=200,background="grey")
 label = tk.Label(frame1, text="Selected Item: ",font=('Arial',12,'bold'))
 label.grid(pady=10, column=0, columnspan=2, row=1)
-
 my_list = list(my_dict.values())
 my_name = list(my_dict.keys())
+
 def on_select(event):
     selected_item = combo_box.get()
     label.config(text="Selected Item: " + my_dict[selected_item][0:9])
+    combo_list.place_forget()
 
 combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","me"],font=('Arial',12,'bold'))
 combo_box.grid(pady=5,column=1, row=0,ipadx=1)
@@ -189,7 +318,7 @@ combo_box.bind("<<ComboboxSelected>>", on_select)
 label_name=tk.Label(frame1, text="Profile",font=('Arial',12))
 label_name.grid(column=0, row=0,ipadx=1, padx=5)
 
-label1=tk.Label(frame1, text= "Trending Note", font=('Arial',14,'bold'),background="grey", width=15)
+label1=tk.Label(frame1, text= "Se note", font=('Arial',14,'bold'),background="grey", width=15)
 label1.grid(column=4, row=0,padx=5,pady=5,ipadx=1,ipady=1,rowspan=2, columnspan=2)
 frame4=tk.Frame(root,height=25,width= 100)
 Channel_frame = ttk.LabelFrame(root, text="Relay", labelanchor="n", padding=10)
@@ -198,18 +327,16 @@ button3=tk.Button(root,text="Some Kinds",command=timelines,font=('Arial',14))  #
 button3.place(relx=0.12,rely=0.26)   
 button_2=tk.Button(root,text="kind 3",command=found_follow,font=('Arial',14))  #timeline
 button_2.place(relx=0.24,rely=0.26)  
-label_count=tk.Label(frame4, text="Timeline People: "+str(len(timeline_people)), font=('Arial',12,'bold'),foreground="darkgrey")
 
 def count_follow_list():
-       label_count.config(text="Timeline People: "+str(len(timeline_people)))
+       
        label_count_2.config(text=str(len(timeline_people)))
-       label_count.grid(column=4, row=2,ipadx=1,ipady=1)
        label_count_2.place(relx=0.45,rely=0.25)
        button_3_c.place(relx=0.33,rely=0.24)
 
 def clear_follow_list():
      timeline_people.clear()
-     label_count.config(text="Timeline People: "+str(len(timeline_people)))
+     
      button_3_c.place_forget()
      label_count_2.place_forget()
 
@@ -222,127 +349,13 @@ label2=tk.Label(frame4, text="", font=('Arial',12,'bold'),foreground="darkgrey")
 label_tm_1=tk.Label(root, text=str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
 
 def count_note_list():
-    label1=tk.Label(frame4, text="Number events: " +str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
-    label1.grid(column=4, row=3,padx=5,pady=5,ipadx=1,ipady=1)
     label_tm_1=tk.Label(root, text=str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
     label_tm_1.place(relx=0.44,rely=0.31)
-    event_number()
-
-def call_layoput_note():
-   if note_lile!=[]:
-        note=asyncio.run(Selected_event(note_lile))
-        lile_note=get_note(note)
-        timeline_created(lile_note)
-        #for zeta_l in lile_note:
-        #         if zeta_l not in kind_db_list:
-        #            if len(kind_db_list)<100:
-        #              kind_db_list.append(zeta_l)
-        print(len(kind_db_list))         
-
-def new_note_time(list_new:list):
-   if timeline_list_kind!=[]:
-      new_note_2=[]
-      if list_new!=[]:
-       for new_x in list_new:
-        if new_x not in timeline_list_kind:
-          new_note_2.append(new_x)  
-       i=0
-    
-       while i<len(new_note_2):
-         j=0
-         while j< len(timeline_list_kind): 
-          if timeline_list_kind[j]["created_at"]>(new_note_2[i]["created_at"]):
-           j=j+1
-          else:
-           timeline_list_kind.insert(j,new_note_2[i])
-           break
-         i=i+1
-       return timeline_list_kind
-      else:
-          return None
-   else:
-        for list_x in list_new:
-            if list_x not in timeline_list_kind:
-             timeline_list_kind.append(list_x)
-        return timeline_list_kind 
-
-def timeline_created(list_new):
-  new_note=[] 
-  global kind_db_list
-  if kind_db_list!=[]:
-   for new_x in list_new:
-    if len(kind_db_list)<100: 
-     if new_x not in kind_db_list:
-        new_note.append(new_x) 
-   i=0
-    
-   while i<len(new_note):
-     j=0
-     while j< len(kind_db_list): 
-      if kind_db_list[j]["created_at"]>(new_note[i]["created_at"]):
-         j=j+1
-      else:
-         kind_db_list.insert(j,new_note[i])
-         break
-     i=i+1
-   return kind_db_list   
-  else:
-        for list_x in list_new:
-            kind_db_list.append(list_x)
-        return kind_db_list  
 
 button_4=tk.Button(root,text="kind TM len",command=count_note_list,font=('Arial',12))  
 button_4.place(relx=0.36,rely=0.3)     
 kind_db_list=[]
 note_lile=[]
-
-def choice_kind(x):
-    Z=[]
-    if timeline_list_kind!=[]:
-     if check_seven.get()==0:
-      for r in timeline_list_kind:
-       if (r)['kind']==x:
-          Z.append(r)
-      if Z!=[]:
-      
-        for zeta_p in Z:
-           if zeta_p not in kind_db_list and zeta_p["id"] not in block_id:
-              if len(kind_db_list)<100:
-               kind_db_list.append(zeta_p)
-        print(len(kind_db_list))
-     else:
-       if x==1:
-          kind_1=like_note_7()
-         
-          if kind_1:
-             print("1")
-             for zeta_j in kind_1:
-               if zeta_j not in kind_db_list:
-                 if len(kind_db_list)<100:
-                  kind_db_list.append(zeta_j)
-             #print(len(kind_db_list))  
-          else:
-                test= like_note_seven()  
-                if test:
-                 for tex in test:
-                    note_lile.append(tex)
-                 #print("note lile ",len(note_lile))   
-
-       if x==30023:
-           kind_30023=like_long_thread()
-           if kind_30023:
-             for zeta_a in kind_30023:
-               if zeta_a not in kind_db_list:
-                 if len(kind_db_list)<100:
-                  kind_db_list.append(zeta_a)
-             print(len(kind_db_list))     
-            
-Channel_frame = ttk.LabelFrame(root, text="Type of Note", labelanchor="n", padding=10)
-Channel_frame.place(relx=0.1,rely=0.4,relheight=0.15,relwidth=0.22)         
-button_4=tk.Button(root,text="Note",command=lambda val=1: choice_kind(val),font=('Arial',14))  
-button_4.place(relx=0.12,rely=0.45) 
-button_4=tk.Button(root,text="Long Form",command=lambda val=30023: choice_kind(val),font=('Arial',14))  
-button_4.place(relx=0.2,rely=0.45) 
 button_3_c=tk.Button(root,text="C",command=clear_follow_list,font=('Arial',14, "bold"))  
 
 def clear_kind_scroll():
@@ -359,72 +372,6 @@ wall.grid(column=3, row=0,padx=10,pady=5, rowspan=2)
 frame1.place(relx=0.1,rely=0.06)
 frame4.place(relx=0.1,rely=0.7)
 
-def number_kind(tm):
-    z=[]
-    for v in tm:
-        if (v)['kind'] in z:
-              None  
-        else:
-              z.append((v)['kind'])
-    return z
-
-def event_number():
-   if timeline_list_kind!=[]: 
-    tm=timeline_list_kind
-    t=number_kind(tm)
-    i=0
-    number=[]
-    while i<len(t):
-        tip_i=[]
-        for v in tm:
-         if (v)['kind']==t[i]:
-           tip_i.append(v)
-        number.append(tip_i)
-        i=i+1
-    j=0
-    label_event=""
-    while j<len(number):
-     label_event=label_event+str("kind number ")+ str(t[j]) +str(" number event ")+ str(len(number[j]))+"\n"
-     
-     j=j+1 
-    label2["text"]=label_event 
-    label2.grid(column=4, row=4,padx=5,pady=5,ipadx=1,ipady=1, rowspan=j) 
-    button_5.grid(column=4, row=1,padx=5,pady=5,ipadx=1)    
-    return t, number
-
-def close_label():
-   label2.grid_forget()
-   button_5.grid_forget()
-   label_tm_1.place_forget()
-
-button_5=tk.Button(frame4,text="close x",command=close_label,font=('Arial',14))  
-Channel_frame_seven = ttk.LabelFrame(root, text="Like", labelanchor="n", padding=10)
-Channel_frame_seven.place(relx=0.32,rely=0.4,relheight=0.15,relwidth=0.17) 
-check_seven=IntVar()
-like_moed = Checkbutton(root, text = "Seven Like", variable = check_seven, onvalue = 1, 
-                    offvalue = 0, height = 2, command="",font=('Arial',12,'bold'))
-like_moed.place(relx=0.35,rely=0.42)     
-button_4_c=tk.Button(root,text="Call layout",command=call_layoput_note,font=('Arial',12))  
-button_4_c.place(relx=0.35,rely=0.48) 
-
-def search_3(note,x):
-    Z=[]
-    for r in note:
-       if (r)['kind']==x:
-          Z.append(r)
-    return Z
-
-def four_tags(x,obj):
-   tags_list=[]
-   
-   if tags_string(x,obj)!=[]:
-      for jtags in tags_str(x,obj):
-        if len(jtags)>2:
-          for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
-
 def layout():
    if kind_db_list!=[]: 
     frame1=Frame(root, width=360, height=100)
@@ -437,10 +384,8 @@ def layout():
     canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind(
     "<Configure>",
-    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-)
+    lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    # Frame scrollabile
     scrollable_frame = Frame(canvas)
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     list_note_lib=[]
@@ -456,8 +401,6 @@ def layout():
          else:
             var_npub.set("Pubkey "+note_text["pubkey"])
          Message_npub.grid(row=s+1, column=0, columnspan=3, padx=10, pady=2, sticky="w") 
-         
-            
          var_time =StringVar()
          Message_time= Message(scrollable_frame, textvariable=var_time, width=350,font=('Arial',12,'normal'))
          var_time.set("Time: "+(str((note_text)["created_at"])))
@@ -478,8 +421,11 @@ def layout():
              if len(F_note)>3:
               context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
          else:
-          pass            
-         second_label10.insert(END,note_text["content"]+"\n"+str(context2))
+          pass     
+         if note_text["kind"]==6:       
+           second_label10.insert(END,"RT "+str(note_text["kind"])+"\n"+json.loads(note_text["content"])["content"]+"\n"+str(context2))  
+         else:
+           second_label10.insert(END,note_text["content"]+"\n"+str(context2))  
          scroll_bar_mini.config( command = second_label10.yview )
          
          second_label10.grid(padx=10, column=0, columnspan=3, row=s+2)  
@@ -491,7 +437,7 @@ def layout():
          Button(scrollable_frame, text="Print Note", command=lambda: print(note_text), font=('Arial',12,'normal')).grid(row=s +3, column=2, padx=5, pady=2)
          
     s = 1
-    for note in kind_db_list: #reverse
+    for note in kind_db_list: 
      create_note(note, s)
      s += 4   
     
@@ -511,45 +457,9 @@ def layout():
         
     if list_note_lib==[]:
      close_canvas()    
-    def print_tags(entry):
-        
-                list_one,list_two=tags_first(entry)
-                var_id_2=StringVar()
-                label_id_2= Message(scrollable_frame,textvariable=var_id_2, relief=RAISED,width=300,font=("Arial",12,"normal"))
-                s=3
-                
-                def val_tag(val):
-                    s=3
-                    list_z,par=tags_parameters(list_one,list_two,val)
-                    var_id_2.set(str(list_z))
-                    value=list_one.index(par)
-                    label_id_2.grid(pady=2,column=1,row=s+value, columnspan=3)  
-        
-                if list_one:
-         
-                 z=0
-         
-                 while z<len(list_one):
-          
-                    button_grid2=Button(scrollable_frame,text=str(list_one[z]), command=lambda val=list_one[z]: val_tag(val))
-                    button_grid2.grid(row=s,column=0,padx=5,pady=5)    
-                    z=z+1
-                    s=s+1 
-                 button=Button(scrollable_frame,text="stamp", command=lambda val=var_id_2: stamp_var(val))
-                 button.grid(column=0,row=s+1,padx=5,pady=5)
-          
-                if 'mention' in tags_str_long(entry,"e"):
-                    print("e "+tags_str_long(entry,"e"))
-                if 'mention' in tags_str_long(entry,"a"):   
-                     print("a "+tags_str_long(entry,"a"))
-    def stamp_var(entry):
-                if entry.get()!="":
-                 
-                 print(entry.get())         
     
     button_close=Button(scrollable_frame, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
     button_close.grid(column=1,row=0, padx=5,pady=5)  
-    label_channel_id = tk.Label(root, text="Id ",font=("Arial",10,"bold"))
  
 button_open=Button(root, command=layout, 
                    text="scroll",
@@ -570,9 +480,7 @@ def show_print_test_tag(note):
    scrollable_frame_2.bind(
          "<Configure>",
             lambda e: canvas_2.configure(
-            scrollregion=canvas_2.bbox("all")
-    )
-)
+            scrollregion=canvas_2.bbox("all")))
 
    canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
    canvas_2.configure(yscrollcommand=scrollbar_2.set)
@@ -583,11 +491,9 @@ def show_print_test_tag(note):
             context0="Pubkey "+note["pubkey"]
    context0=context0+"\n"+"id: "+note["id"]+"\n"
    if note['tags']!=[]:
-        context1="Content "+"\n"+note['content']+"\n"
-        context2="\n"+"[ - [ - [ Tags ] - ] - ]"+"\n"+"\n"
+        context2="\n"+"[ [  Tags ] ]"+"\n"+"\n"
         context2=context2+"tags number: "+str(len(note["tags"])) +"\n"
    else: 
-        context1="content: "+"\n"+note['content']+"\n"
         context2=""
            
    var_id=StringVar()
@@ -600,6 +506,8 @@ def show_print_test_tag(note):
    scroll_bar_mini_2.grid( sticky = NS,column=3,row=s+2,rowspan=2,pady=5)
    second_label_2 = tk.Text(scrollable_frame_2, padx=8, height=5, width=30, yscrollcommand = scroll_bar_mini_2.set, font=('Arial',14,'bold'),background="#D9D6D3")
    if note["tags"]!=[]:
+         if note["kind"]==30023:
+          context2=create_tags(note,note["kind"])
          if tags_string(note,"t")!=[] :
             for note_tags in tags_string(note,"t"):
                context2=context2+str("#")+note_tags+" "
@@ -613,17 +521,11 @@ def show_print_test_tag(note):
           pass            
    second_label_2.insert(END,note["content"]+"\n"+str(context2))
    scroll_bar_mini_2.config( command = second_label_2.yview )
-         
    second_label_2.grid(padx=10, column=0, columnspan=3, row=s+2,rowspan=2)
 
-   def print_var(entry):
-        print("test1")
-   button_grid_1=Button(scrollable_frame_2,text="Zap", command=lambda val=note: print_var(val), width=10, height=3)
+   button_grid_1=Button(scrollable_frame_2,text="", width=10, height=3)
    button_grid_1.grid(row=s,column=5,padx=5,pady=5)    
                    
-   def print_content(entry):
-      print("test2 o 3")
-
    def print_media(entry):
       if len(more_spam(entry))<2: 
               photo_print(entry)
@@ -640,9 +542,10 @@ def show_print_test_tag(note):
    button_grid_3=Button(scrollable_frame_2,text="Open Media", command=lambda val=note: print_media(val),width=10, height=3)
    button_grid_3.grid(row=s+2,column=5,padx=5,pady=5)
    button_grid_4=Button(scrollable_frame_2,text="Reply", command=lambda val=note: print_content(val),width=10, height=3)
-   button_grid_4.grid(row=s+3,column=5,padx=5,pady=5)        
+   button_grid_4.grid(row=s+3,column=5,padx=5,pady=5)    
+       
    def print_tags(entry):
-        
+                
                 list_one,list_two=tags_first(entry)
                 var_id_2=StringVar()
                 label_id_2= Message(scrollable_frame_2,textvariable=var_id_2, relief=RAISED,width=220,font=("Arial",12,"normal"))
@@ -674,7 +577,6 @@ def show_print_test_tag(note):
                     for button2 in  button_list:
                      button2.grid_forget()
                     
-                    #button_grid2.destroy()
                     button_c_tags.grid_forget()
                     label_id_2.grid_forget()
                     
@@ -714,7 +616,8 @@ def show_print_test_tag(note):
              if tags_string(jresult,"e")!=[]:
               if four_tags(jresult,"e"):
                 for F_note in four_tags(note,"e"):
-                     context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+                     if len(F_note)>3:
+                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               else:
                  if tags_string(jresult,"e"):
                     context22=context22+str(len(tags_string(jresult,"e")))+ "\n"
@@ -726,8 +629,7 @@ def show_print_test_tag(note):
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
-                           
-      
+                          
    if tags_string(note,"e")!=[]:
     button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s,column=2,padx=5,pady=5)    
@@ -748,8 +650,7 @@ def show_print_test_tag(note):
 
 def show_note_from_id(note):
         result=note["id"]
-        #result1=ast.literal_eval(entry_note.get())
-        #print(result1)
+       
         replay=nota_reply_id(note)
         replay.append(result)
         if replay!=[]:
@@ -757,143 +658,6 @@ def show_note_from_id(note):
         else:
            items=get_note(asyncio.run(Selected_event(result)))
         return items   
-
-def nota_reply_id(nota):
-    e_id=[]
-    if nota["tags"]!=[]:
-      if tags_string(nota,'e')!=[]:
-            for event_id in tags_string(nota,'e'):
-                  if event_id not in e_id:
-                    e_id.append(event_id)   
-    return e_id  
-
-def tags_str_long(x,obj):
-    f=x['tags']
-    z=[]
-    for j in f:
-      if j[0]==obj:
-       if len(j)>2:
-         z.append(j[1:]) 
-       else:    
-          z.append(j[1])
-    return z   
-
-def tags_first(x):
-   tags_list=[]
-   tags_value=[]
-   if x["tags"]!=[]:
-      for jtags in x["tags"]:
-         if jtags[0] not in tags_list:
-            tags_list.append(jtags[0])
-   if tags_list!=[]:
-       for xtags in tags_list:
-         for ztags in tags_str(x,xtags):
-            tags_value.append(ztags)
-   return tags_list,tags_value 
-
-def tags_parameters(key,value,s):
-    list_q=[]
-    if s in key:
-        for xvalue in value:
-          if xvalue[0]==s:
-              list_q.append(xvalue[1:])
-    return list_q,s  
-
-def tags_str(x,obj):
-    f=x['tags']
-    z=[]
-    for j in f:
-      if j[0]==obj:
-          z.append(j)
-    return z 
-
-def choice_kind_to_list(x):
-    Z=[]
-    if timeline_list_kind!=[]:
-    
-     for r in timeline_list_kind:
-       if (r)['kind']==x:
-          Z.append(r)
-     if Z!=[]:
-        list_lind=[] 
-        for zeta_p in Z:
-           if zeta_p not in list_lind:
-              list_lind.append(zeta_p)
-     if list_lind!=[]:
-        return list_lind   
-
-def like_note_seven():
-   kind_7=choice_kind_to_list(7) 
-   if kind_7!=None:
-    vore_id=[]
-    core_id=[]
-    zore_id=[]
-    uore_id=[]
-    for x in kind_7:
-     if tags_string(x,'e')!=[]:
-      if (tags_string(x,'e')[0]) not in vore_id: 
-        vore_id.append(tags_string(x,'e')[0]) 
-      else:
-           if tags_string(x,'e')[0] not in core_id:
-            core_id.append(tags_string(x,'e')[0])
-           else:
-              if tags_string(x,'e')[0] not in zore_id:
-               zore_id.append(tags_string(x,'e')[0])
-              else:
-                 if tags_string(x,'e')[0] not in uore_id:
-                  uore_id.append(tags_string(x,'e')[0])
-              
-    print(len(vore_id), len(core_id),len(zore_id),len(uore_id))
-    if uore_id!=[]:
-       return uore_id
-    if zore_id!=[]:
-       return zore_id   
-
-def like_note_7():
-  kind_1=choice_kind_to_list(1)
-  kind_7=choice_kind_to_list(7) 
-  
-  if kind_7!=None and kind_1!=None:
-   vore_id=[]
-   for x in kind_7:
-    if tags_string(x,'e')!=[]:
-     if tags_string(x,'e')[0] in kind_1:  
-      if (tags_string(x,'e')[0]) not in vore_id: 
-       vore_id.append(tags_string(x,'e')[0]) 
-   print(len(vore_id))   
-   note_kind_one=[]
-   for note in kind_1:
-      if note["id"] in vore_id:
-         if note not in note_kind_one:
-            note_kind_one.append(note) 
-   if note_kind_one!=[]:
-      print("print ", len(note_kind_one))
-      return note_kind_one    
-
-def like_long_thread():
-   vore_id=[]
-   kind_long=choice_kind_to_list(30023) 
-   kind_7=choice_kind_to_list(7) 
-   if kind_7!=None and kind_long !=None:
-    for x in kind_7:
-     if tags_string(x,'a')!=[]:
-      name= tags_string(x,'a')[0]
-      if name[0:6]=="30023:":
-          print("note like",x["kind"],"\n", name)
-          if tags_string(x,'a')[0] not in vore_id:   
-            vore_id.append(tags_string(x,'a')[0])
-   if vore_id!=[]:
-      for vore_x in vore_id:
-         if vore_x not in note_lile:
-            note_lile.append(vore_x)
-      long_article=[]
-      for j in kind_long:
-       if tags_string(j,"d")!=None:
-            if tags_string(j,"d")!=[]:
-                if str("30023:")+str(j["pubkey"])+str(":")+str(tags_string(j,"d")[0]) in vore_id:
-                  long_article.append(j)   
-      if long_article!=[]:
-         return long_article                 
 
 from PIL import Image, ImageTk
 import requests
@@ -917,7 +681,7 @@ def photo_list_2(note):
   if list_note1!=None and balance!=None:
    
    def next_number():
-      #lbel_var.grid(column=1,row=3,pady=2) 
+      
       if int((int(lbel_var.get())+1))< len(list_note1):
        int_var.set(int(lbel_var.get())+1)
        print_photo()
@@ -925,13 +689,13 @@ def photo_list_2(note):
           int_var.set(int(0)) 
           print_photo()
        
-    #while int(lbel_var.get())<len(list_note1):  
+    
    stringa_pic=StringVar()
    def print_photo():
      s=0  
      stringa_pic.set(list_note1[int(lbel_var.get())])
      label_pic = Entry(frame_pic, textvariable=stringa_pic)
-     #label_pic.grid(column=1,row=2,pady=2)
+   
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
@@ -977,8 +741,7 @@ def photo_list_2(note):
      print("error", "none")        
  else:
      pass
-     #print("error", "[]","maybe a video")
-
+     
 def is_video(nota):
    if nota["tags"]!=[]: 
     if tags_str(nota,"imeta")!=[]:
@@ -1108,8 +871,7 @@ def photo_list(list_note):
 def photo_print(note):
   
   if codifica_link(note)=="pic":
-   #morespam
-
+  
    frame_pic=tk.Frame(root,height=20,width= 80)
    stringa_pic=StringVar()
    stringa_pic.set(url_spam(note))
@@ -1159,8 +921,8 @@ def search_kind(user,x):
 
 def list_people_fun():
     people_list=[]
-    if kind_db_list!=[]:
-        for note_x in kind_db_list:
+    if timeline_list_kind!=[]:
+        for note_x in timeline_list_kind:
             if note_x["pubkey"] not in people_list:
                         people_list.append(note_x["pubkey"])
         return people_list       
@@ -1176,19 +938,20 @@ def pubkey_id(test):
        single=metadata_note[0]
        single_1=json.loads(single["content"])
        try:
-        if single_1["name"]!="":
-           print("Pubkey", test,"\n","Npub ",PublicKey.parse(test).to_bech32())
+        if "name" in list(single_1.keys()):
+         if single_1["name"]!="":
+           
            
            if test not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[test]=single_1["name"]
-              print(single_1["name"])
+             
         else:   
+           if "display_name" in list(single_1.keys()):
             if single_1["display_name"]!="":
                     
                 if test not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[test]=single_1["display_name"]    
-                  print("Pubkey", test,"\n","Npub ",PublicKey.parse(test).to_bech32())
-                  print(single_1["display_name"])  
+                   
        except KeyError as e:
           print("KeyError ",e)     
 
@@ -1201,77 +964,317 @@ def list_pubkey_id():
        for single in metadata_note:
         single_1=json.loads(single["content"])
         try:
-         if single_1["name"]!="":
-           #print("Pubkey", single["pubkey"],"\n","Npub ",PublicKey.parse(single["pubkey"]).to_bech32())
+         if "name" in list(single_1.keys()):
+          if single_1["name"]!="":
+           
            
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
-              print(single_1["name"])
+              
          else:   
-            if single_1["display_name"]!="":
-                #print("Pubkey", single["pubkey"],"\n","Npub ",PublicKey.parse(single["pubkey"]).to_bech32())
+            if "display_name" in list(single_1.keys()):
+             if single_1["display_name"]!="":
+               
                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]   
-                  print(single_1["display_name"])       
+                  
         except KeyError as e:
           print("KeyError ",e)             
    
-def print_people(): 
-   if kind_db_list!=[]:  
-    frame3=tk.Frame(root)
-    canvas = tk.Canvas(frame3,width=280)
-    scrollbar = ttk.Scrollbar(frame3, orient="vertical", command=canvas.yview)
-    scrollable_frame = ttk.Frame(canvas,border=2)
-
-    scrollable_frame.bind(
-    "<Configure>",
-    lambda e: canvas.configure(
-        scrollregion=canvas.bbox("all")
-    )
-)
-     
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
-    
-    s=1     
-    
-    test1=list_people_fun()
-    ra=0
-    se=2
-            
-    while ra<len(test1):
-            
-                button_grid1=Button(scrollable_frame,text=f"{test1[ra][0:9]} ", command=lambda val=test1[ra]: pubkey_id(val))
-                button_grid1.grid(row=s,column=1,padx=5,pady=5)
-                
-                if len(test1)>se:
-                 button_grid2=Button(scrollable_frame,text=f"{test1[ra+1][0:10]}", command= lambda val=test1[ra+1]: pubkey_id(val))
-                 button_grid2.grid(row=s,column=2,padx=5,pady=5)
-                if len(test1)>se:
-                 button_grid2=Button(scrollable_frame,text=f"{test1[ra+2][0:10]}", command= lambda val=test1[ra+2]: pubkey_id(val))
-                 button_grid2.grid(row=s,column=3,padx=5,pady=5) 
-            
-                root.update()  
-                root.after(100)
-                s=s+1
-                se=se+3
-                ra=ra+3   
-
-    canvas.pack(side="left", fill="y", expand=True)
-    if len(test1)>5:
-     scrollbar.pack(side="right", fill="y")  
-    frame3.place(relx=0.33,rely=0.65,relwidth=0.3, relheight=0.3)      
-    def Close_print():
-       frame3.destroy()  
-       
-    button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
-    button_close_.pack(pady=5,padx=5)                 
-
-button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
-button_people_.place(relx=0.12,rely=0.58) 
-
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
-button_people_2.place(relx=0.22,rely=0.58) 
+button_people_2.place(relx=0.11,rely=0.50) 
+sad_people=[]
+sum_classification={}
+list_kind_event=[]
+
+def list_sad_people():
+   if timeline_list_kind!=[]:
+      for note_x in timeline_list_kind:
+       if note_x["pubkey"] not in sad_people:
+        sad_people.append(note_x["pubkey"])  
+         
+def pubkey_tot_id(test):
+   note_pubkey=[]
+   for note_x in timeline_list_kind:
+       if note_x["pubkey"] == test:
+          if note_x not in note_pubkey:
+             note_pubkey.append(note_x)
+   return len(note_pubkey),note_pubkey  
+
+def pubkey_test_id(test):
+   lenght,notes=pubkey_tot_id(test)
+   if lenght>0 and notes!=[]:
+    list_kind=[]
+    for note_x in notes:
+       list_kind.append(note_x["kind"])
+    sum_notes=sum(list_kind)     
+    sum_classification[test]=sum_notes
+
+def sum_test_id(test):
+   lenght,notes=pubkey_tot_id(test)
+   if lenght>0 and notes!=[]:
+    list_kind=[]
+    for note_x in notes:
+       list_kind.append(note_x["kind"])
+    print(list_kind)
+
+def numb_event_pubkey(test):
+    lenght,tm=pubkey_tot_id(test)
+    t=number_kind(tm)
+    i=0
+    number=[]
+    while i<len(t):
+        tip_i=[]
+        for v in tm:
+         if (v)['kind']==t[i]:
+           tip_i.append(v)
+        number.append(tip_i)
+        i=i+1
+    j=0
+    label_event=""
+    while j<len(number):
+     label_event=label_event+str("kind number ")+ str(t[j]) +str(" number event ")+ str(len(number[j]))+"\n"
+     
+     j=j+1 
+    if Pubkey_Metadata!={}: 
+     if test in list(Pubkey_Metadata.keys()):
+        print(Pubkey_Metadata[test],"\n",label_event) 
+     else:
+        print(label_event)   
+    else:
+       print(label_event) 
+   
+    return t, number    
+
+def stamp_classification():
+     if timeline_list_kind!=[]:
+      list_sad_people()
+      if sad_people!=[]:
+       for person in sad_people:
+          pubkey_test_id(person)
+       print("ok") 
+      else:
+         print("error 2")
+     else:
+        print("error 1")       
+
+def print_test_classification(test):
+    #List
+    if sum_classification=={}:
+       stamp_classification()
+    print(sum_classification[test])
+    numb_event_pubkey(test)
+
+def stamp_note():
+       list_kind=[]
+       for numb_x in timeline_list_kind:
+          if numb_x["kind"] not in list_kind:
+             list_kind.append(numb_x["kind"])  
+       combo_list.set("Kind Event")      
+       order_list=list_kind.sort()
+       combo_list['values']=list_kind
+
+def read_kind_note(n:int):
+       list_kind_event.clear()
+       list_kind=[]
+       number_event=timeline_list_kind
+       
+       for numb_x in number_event:
+          if numb_x["kind"]==n:
+            list_kind_event.append(numb_x)
+          if numb_x["kind"] not in list_kind:
+             list_kind.append(numb_x["kind"])  
+       if list_kind_event!=[]:  
+        print("kind number ", n, " number of events ",len(list_kind_event))
+
+def on_selection(event):
+    selected_item = combo_list.get()
+    kind_note.set(int(selected_item))
+    read_kind_note(kind_note.get())
+    show_Teed()
+
+combo_list = ttk.Combobox(root, values=[],width=10, font=('Arial',12,'bold'))
+combo_list.set("")
+combo_list.bind("<<ComboboxSelected>>", on_selection)
+kind_note=IntVar()
+
+def create_contentxt(note,n):
+   contentxt=""
+   if n==1 or n==7:
+      if len(note["content"])<100:
+       contentxt=contentxt+note["content"]
+      else:
+          contentxt=contentxt+note["content"][0:100]+"\n" +"More..."
+   if n==6: 
+      contentxt=contentxt+"RT "+json.loads(note["content"])["content"]   
+   if n==30023:
+      contentxt=contentxt+"Lenght "+str(len(note["content"]))  
+   if n in [1,6,7,30023]:   
+    return contentxt 
+   else:
+      return str("kind ")+str(n)  
+
+def create_tags(note,n):
+   contentag=""
+   if note["tags"]!=[]:
+    if n==1: 
+      if tags_string(note,"e")!=[]:
+       contentag=contentag+"\n"+ "Reply" +"\n"
+      if tags_string(note,"t")!=[]:
+       contentag=contentag+"\n"+str(tags_string(note,"t")) +"\n" 
+    
+    if n==30023:
+      if tags_string(note,"title")!=[]:
+       contentag=contentag+"\n"+"Title "+str(tags_string(note,"title")[0])  
+      if tags_string(note,"sumamry")!=[]:
+       contentag=contentag+"\n"+"Summary "+str(tags_string(note,"summary")[0])   
+    if n in [1,30023]:   
+     return contentag 
+   else:
+      return str("\n"+"kind "+str(n))     
+
+def show_Teed():
+ frame2=tk.Frame(root)  
+ canvas_1 = tk.Canvas(frame2)
+ scrollbar_1 = ttk.Scrollbar(frame2, orient="vertical", command=canvas_1.yview)
+ scrollable_frame_1 = ttk.Frame(canvas_1)
+
+ scrollable_frame_1.bind(
+         "<Configure>",
+            lambda e: canvas_1.configure(
+            scrollregion=canvas_1.bbox("all")))
+
+ canvas_1.create_window((0, 0), window=scrollable_frame_1, anchor="nw")
+ canvas_1.configure(yscrollcommand=scrollbar_1.set)
+
+ def create_page(db_list_):
+  if db_list_!=[] and db_list_!=None:
+   if len(db_list_)>200:
+    db_list_=db_list_[0:200] 
+   s=1
+   for note in db_list_:
+     try:
+      if note["pubkey"] in list(Pubkey_Metadata.keys()):
+            context0="Nickname " +Pubkey_Metadata[note["pubkey"]]+" "+str(note["created_at"])+"\n"
+      else:
+            context0="Pubkey "+note['pubkey']+"\n"
+      context1=create_contentxt(note,note["kind"])
+      context2=create_tags(note,note["kind"])
+           
+      var_id=StringVar()
+      label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
+      if context2!=None:
+       var_id.set(context0+str(context1)+context2)
+      else:
+         var_id.set(context0+str(context1))
+      
+      label_id.grid(pady=2,column=0, columnspan=3)
+
+      def print_id(entry):
+            show_print_test(entry)       
+                          
+      def print_var(entry):
+                Pubkey_layout(entry["pubkey"])
+           
+      button=Button(scrollable_frame_1,text=f"Other Notes", command=lambda val=note: print_var(val))
+      button.grid(column=0,row=s,padx=5,pady=5)
+      button_grid2=Button(scrollable_frame_1,text=f"Read Note!", command=lambda val=note: print_id(val))
+      button_grid2.grid(row=s,column=1,padx=5,pady=5) 
+      button_grid3=Button(scrollable_frame_1,text=f"Value!", command=lambda val=note["pubkey"]: print_test_classification(val))
+      button_grid3.grid(row=s,column=2,padx=5,pady=5)     
+       
+      s=s+2  
+
+     except NostrSdkError as c:
+           print(c, "maybe there is an Error") 
+
+   scrollbar_1.pack(side="right", fill="y",pady=20)
+   canvas_1.pack( fill="y", expand=True)
+   frame2.place(relx=0.22,rely=0.45,relwidth=0.28,relheight=0.4)
+    
+   def close_number() -> None :
+        frame2.destroy()    
+        button_f_close.place_forget()
+        
+   button_f_close=Button(root,command=close_number,text=" ❌ ",font=("Arial",12,"normal"))
+   button_f_close.place(relx=0.45,rely=0.4)      
+     
+ create_page(list_kind_event)
+ root.update_idletasks()
+ 
+def show_print_test(note):
+   frame3=tk.Frame(root,height=150,width=200)  
+   canvas_2 = tk.Canvas(frame3)
+   scrollbar_2 = ttk.Scrollbar(frame3, orient="vertical", command=canvas_2.yview)
+   scrollable_frame_2 = ttk.Frame(canvas_2)
+
+   scrollable_frame_2.bind(
+         "<Configure>",
+            lambda e: canvas_2.configure(
+            scrollregion=canvas_2.bbox("all")))
+   canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
+   canvas_2.configure(yscrollcommand=scrollbar_2.set)
+   s=1
+   context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]
+   try:
+    context1=note['content']+"\n"
+    if note['tags']!=[]:
+        tag_note=""
+        for note_x in note["tags"]:
+           tag_note=tag_note+ str(note_x)+"\n"
+        context2="[[ Tags ]]"+"\n" +tag_note
+
+    else: 
+        context2=""
+   except TypeError as e:
+      print(e)        
+   var_id=StringVar()
+   label_id = Message(scrollable_frame_2,textvariable=var_id, relief=RAISED,width=320,font=("Arial",12,"normal"))
+   var_id.set(context0)
+   label_id.grid(pady=2,column=0, columnspan=3)
+   scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
+   scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
+   second_label10 = tk.Text(scrollable_frame_2, padx=8, height=5, width=28, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+   second_label10.insert(END,context1+"\n"+str(context2))
+   scroll_bar_mini.config( command = second_label10.yview )
+   second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
+      
+   def print_note(entry):
+           print(entry)
+
+   def print_var(entry):
+        if entry["tags"]!=[]:
+          if tags_string(entry,"image")!=[]: 
+           print("see this photo: ", tags_string(entry,"image")[0])
+           photo_list_2(entry)
+
+   if tags_string(note,"imeta")!=[]:      
+    button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+    button.grid(column=0,row=s+2,padx=5,pady=5)
+   button_grid2=Button(scrollable_frame_2,text="Stamp", command=lambda val=note: print_note(val))
+   button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
+   scrollbar_2.pack(side="right", fill="y",pady=20) 
+   canvas_2.pack( fill="y", expand=True)
+   
+   def close_frame():
+     frame3.destroy()    
+
+   button_frame=Button(scrollable_frame_2,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
+   button_frame.grid(row=s+3,column=1,padx=5,pady=5)
+   frame3.place(relx=0.67,rely=0.6,relwidth=0.3,relheight=0.35 ) 
+
+def Pubkey_layout(test):
+   note_pubkey=[]
+   for note_x in timeline_list_kind:
+       if note_x["pubkey"] == test:
+          if note_x not in note_pubkey:
+             note_pubkey.append(note_x)
+   if len(note_pubkey)>1:      
+    kind_db_list.clear() 
+    timeline_created(note_pubkey)
+    layout()
+
+button_id=tk.Button(root,command=show_Teed,text="Go Kind")
 
 root.mainloop()
