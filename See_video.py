@@ -170,11 +170,14 @@ def tags_str(x,obj):
 def more_link(f):
    
    list=['mov','mp4']
+   list1=["webm"]
    img=['png','jpg','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
    if f[-3:] in list:
+        return "video"
+   if f[-4:] in list1:
         return "video"
    if f[-3:] in img:
            return "pic" 
@@ -574,10 +577,10 @@ def show_noted():
           frame2.place(relx=0.3,rely=0.32,relwidth=0.32,relheight=0.35)
    else:
         if photo_Show.get()==1:
-            button_frame.place(relx=0.6,rely=0.55,relwidth=0.1)   
+            button_frame.place(relx=0.6,rely=0.82,relwidth=0.1)   
             frame2.place(relx=0.3,rely=0.22,relwidth=0.64,relheight=0.58)
         else:
-            button_frame.place(relx=0.45,rely=0.65,relwidth=0.1)      
+            button_frame.place(relx=0.45,rely=0.66,relwidth=0.1)      
             frame2.place(relx=0.3,rely=0.32,relwidth=0.64,relheight=0.4)
 
 button_read=Button(root,text="Stamp", command=show_noted,font=("Arial",12,"normal"))
@@ -820,12 +823,14 @@ def stream_uri(uri_in, uri_out, chunk_size=1 << 18):  # 256kB chunks
 def balance_video(nota):
   if tags_str(nota,"imeta")!=[]:
    for dim_photo in tags_str(nota,"imeta"):
+     print(more_link(dim_photo[1][4:]))
      if more_link(dim_photo[1][4:])=="video": 
       for jdim in dim_photo:
        if jdim[0:4]=="size":
         list_number=dim_photo.index(jdim)   
         number=dim_photo[list_number][5:]
         if number:
+         
          if int(number)<int(13000000):
           try: 
            response = requests.get(dim_photo[1][4:], stream=True)
