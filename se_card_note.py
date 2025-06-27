@@ -195,7 +195,9 @@ async def Selected_event(event_):
     # Add relays and connect
     await client.add_relay("wss://nostr.mom/")
     await client.add_relay("wss://nos.lol/")
-    
+    if relay_list!=[]:
+        for xrelay in relay_list:
+            await client.add_relay(xrelay)
     await client.connect()
     
     if isinstance(event_, list):
@@ -226,7 +228,9 @@ async def get_metadata(user):
     await client.add_relay("wss://nostr.mom/")
     await client.add_relay("wss://nos.lol/")
     await client.add_relay("wss://nostr-pub.wellorder.net/")
-   
+    if relay_list!=[]:
+        for xrelay in relay_list:
+            await client.add_relay(xrelay)
     await client.connect()
     if isinstance(user,list):
      f = Filter().authors(user).kind(Kind(0))
@@ -245,11 +249,17 @@ async def feed_cluster(authors,type_of_event):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
 
-    # Add relays and connect
     await client.add_relay("wss://nostr.mom/")
     await client.add_relay("wss://nos.lol/")
     await client.add_relay("wss://nostr-pub.wellorder.net/")
-   
+    if relay_list!=[]:
+        for xrelay in relay_list:
+            await client.add_relay(xrelay)
+    else:
+       relay_list.append("wss://nostr.mom/")
+       relay_list.append("wss://nos.lol/")
+       combo_list_lay["values"]=relay_list
+     
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -363,10 +373,10 @@ def clear_kind_scroll():
       block_id.append(kind_x["id"])  
    kind_db_list.clear() 
    label_count_id=Label(root,text="Block Id "+ str(len(block_id)),font=('Arial',14),fg="grey") 
-   label_count_id.place(relx=0.6,rely=0.02) 
+   label_count_id.place(relx=0.75,rely=0.02) 
 
 button_3_z=tk.Button(root,text="Scrolless",command=clear_kind_scroll,font=('Arial',14), background="grey") 
-button_3_z.place(relx=0.75,rely=0.10, anchor="n") 
+button_3_z.place(relx=0.85,rely=0.10, anchor="n") 
 wall=tk.Label(frame1, text="",background="lightgrey",height=4)
 wall.grid(column=3, row=0,padx=10,pady=5, rowspan=2)
 frame1.place(relx=0.1,rely=0.06)
@@ -407,8 +417,8 @@ def layout():
          Message_time.grid(row=s, column=0, columnspan=3, padx=50, pady=5,sticky="w")
 
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
-         scroll_bar_mini.grid( sticky = NS,column=4,row=s+2,pady=5)
          second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=35, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+         scroll_bar_mini.config( command = second_label10.yview )
          context2=""   
          if note["tags"]!=[]:
           if tags_string(note_text,"t")!=[] :
@@ -426,10 +436,16 @@ def layout():
            second_label10.insert(END,"RT "+str(note_text["kind"])+"\n"+json.loads(note_text["content"])["content"]+"\n"+str(context2))  
          else:
            second_label10.insert(END,note_text["content"]+"\n"+str(context2))  
-         scroll_bar_mini.config( command = second_label10.yview )
          
+         scroll_bar_mini.grid( sticky = NS,column=4,row=s+2,pady=5)
          second_label10.grid(padx=10, column=0, columnspan=3, row=s+2)  
-         
+         if note_text["kind"]==7:
+            scroll_bar_mini.grid_forget()
+            second_label10.grid_forget()    
+            var_plus =StringVar()
+            Message_plus= Message(scrollable_frame, textvariable=var_plus, width=350,font=('Arial',12,'normal'))
+            var_plus.set("Note: "+(str((note_text)["content"])))
+            Message_plus.grid(column=0, columnspan=4, row=s+2, pady=5,sticky="w")
          # Button down
          Button(scrollable_frame, text="Open", command=lambda: show_print_test_tag(note_text),font=('Arial',12,'normal')).grid(row=s+3, column=0, padx=5, pady=5)
          blo_label = Button(scrollable_frame, text="Share",font=('Arial',12,'normal'), command=lambda: share_note(note_text))
@@ -468,7 +484,54 @@ button_open=Button(root, command=layout,
                   width=8,height=1,border=2, cursor='hand1',
                   font=('Arial',14,'bold'))
 
-button_open.place(relx=0.65,rely=0.10, anchor="n")
+button_open.place(relx=0.75,rely=0.10, anchor="n")
+
+def on_server(event):
+    label_r_lay.config(text="Relay: "+ str(len(relay_list)))
+    call_r_lay()
+    combo_list_lay["values"]=relay_list
+    label_r_lay.config(text="Relay: "+ str(len(relay_list)))
+
+async def get_result_(client,relay_1):
+    
+    f = Filter().kind(Kind(10002)).reference(relay_1).limit(10)
+   
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec()]
+    return z
+
+async def Search_r_lay(relay_1):
+       init_logger(LogLevel.INFO)
+       client = Client(None)
+       uniffi_set_event_loop(asyncio.get_running_loop())
+       await client.add_relay(relay_1)
+       await client.connect()
+       await asyncio.sleep(2.0)
+
+       combined_results = await get_result_(client,relay_1)
+       if combined_results:
+        return combined_results
+     
+def call_r_lay():
+  if combo_list_lay.get()!="Relay List":
+   if __name__ == "__main__":
+    response=asyncio.run( Search_r_lay(combo_list_lay.get()))
+    if response:
+
+     note_=get_note(response)
+     for jnote in note_:
+      for relay_x in tags_string(jnote,"r"):
+         if relay_x[0:6]=="wss://" and relay_x[-1]=="/" and relay_x not in relay_list:
+            if len(relay_list)<6:
+                relay_list.append(relay_x)
+
+relay_list=[]
+label_r_lay = tk.Label(frame1, text="Relay: ", font=('Arial',12,'bold'))
+label_r_lay.grid(column=7, row=0,padx=20,pady=5,ipadx=1,ipady=1)
+combo_list_lay = ttk.Combobox(frame1, values=relay_list,font=('Arial',12,'bold'))
+combo_list_lay.grid(column=7, row=1,padx=20,pady=5,ipadx=2,ipady=1)
+combo_list_lay.set("Relay List")
+combo_list_lay.bind("<<ComboboxSelected>>", on_server) 
 
 def show_print_test_tag(note):
    
