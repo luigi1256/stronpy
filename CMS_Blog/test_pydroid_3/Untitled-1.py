@@ -9,7 +9,7 @@ import tkinter.font as tkFont
 from tkinter import messagebox 
 
 root = Tk() 
-root.state('zoomed')
+root.geometry('350x800')
 root.title("Markdown test") 
 
  
@@ -55,7 +55,7 @@ def OpenColumn():
     entry_t.grid(column=0, row=1, columnspan=2)
     scroll_bar_mini = tk.Scrollbar(frame3)
     
-    Text_t=Text(frame3, width=45,height=8,wrap="word",undo=True,yscrollcommand = scroll_bar_mini.set)
+    Text_t=Text(frame3, width=30,height=8,wrap="word",undo=True,yscrollcommand = scroll_bar_mini.set)
     scroll_bar_mini.config( command = Text_t.yview )
     scroll_bar_mini.grid( sticky = NS,column=2,row=2,rowspan=3,pady=5)
     Text_t.grid(column=0, row=2, columnspan=2,rowspan=3)
@@ -248,8 +248,8 @@ def OpenColumn():
     #new things 
 
     def create_button_1():
-     frame_open_2=Frame(frame3,width=40,height=20, border=5)
-     frame_box=Frame(frame_open_2,width=40,height=5, border=5) 
+     frame_open_2=Frame(frame3,width=30,height=20, border=5)
+     frame_box=Frame(frame_open_2,width=30,height=5, border=5) 
      
      Checkbutton_6 = IntVar() 
      Button_6 = Checkbutton(frame_box, text = "lock", 
@@ -350,10 +350,10 @@ def OpenColumn():
                     height = 2, 
                     width = 10)
      Button_time.grid(column=3,row=0)
-     Text_t2=Text(frame_open_2, width=40,height=10,wrap="word",undo=True)
+     Text_t2=Text(frame_open_2, width=25,height=10,wrap="word",undo=True)
      Text_t2.grid(column=0, row=2, columnspan=2)
      frame_box.grid(pady=2)
-     frame_open_2.grid(column=0,row=0,rowspan=2,padx= 5,pady=5)
+     frame_open_2.grid(column=0,row=0,rowspan=2,pady=5)
      def Clicked(event):
         if Checkbutton_6.get() == 0:
          frame_open_2.grid(column=4,row=4,rowspan=2,padx= 5,pady=5)
@@ -381,13 +381,13 @@ def OpenColumn():
     button_open2.grid(column=0, row=0,pady=5,padx=2) 
 
     button_open3=Button(frame4, command=create_button_test, text= "New Send tab")
-    button_open3.grid(column=1, row=0,pady=5,padx=2,columnspan=2) 
+    button_open3.grid(column=1, row=0,pady=5,padx=2) 
 
 y=1
 x=4
 
 def create_button_test():
-    frame_open=Frame(root,width=70,height=60, border=5)
+    frame_open=Frame(root,width=60,height=60, border=5)
     def select(event):
         stringa.set(combo_tag_note.get())
         label_note.config(text=combo_tag_note.get())
@@ -405,7 +405,7 @@ def create_button_test():
     label_id = Label(frame_box,text="Send a note with tag", width=20, relief=RAISED,font=("Arial",12,"normal"))
     label_id.grid(pady=5,padx=2,row=1,column=0, columnspan=3)
     scroll_bar_mini = tk.Scrollbar(frame_box)
-    text_note2=Text(frame_box,height=10,width=30, yscrollcommand = scroll_bar_mini.set,font=("Arial",12,"normal"))
+    text_note2=Text(frame_box,height=10,width=20, yscrollcommand = scroll_bar_mini.set,font=("Arial",12,"normal"))
     text_note2.grid(row=2, rowspan=2,columnspan=2)
     scroll_bar_mini.config( command = text_note2.yview )
     scroll_bar_mini.grid( row=2,column=2,rowspan=2,padx=2,sticky="n",pady=5,ipady=65)    
@@ -474,7 +474,7 @@ def OpenColumn3():
     frame7=Frame(frame6,width=25,height=4, background="darkgrey")   
     frame8=Frame(frame6,width=25,height=2,background="lightgrey")  
     Checkbutton8 = IntVar() 
-    Button8 = Checkbutton(frame7, text = "lock",  variable = Checkbutton8, onvalue = 1, offvalue = 0, font=button_font)
+    Button8 = Checkbutton(frame7, text = "lock",  variable = Checkbutton8, onvalue = 1, offvalue = 0)
     
     def eight_event():
      if Checkbutton8.get() == 1:
@@ -482,9 +482,9 @@ def OpenColumn3():
      else:
         pass
         
-    input_8 = Button(frame7, text =str("Size"), command =eight_event,font=button_font)
-    input_8.grid(column=1, row=0,ipadx=2,ipady=2)
-    Button8.grid(column=0, row=0,ipadx=2,ipady=2)
+    input_8 = Button(frame7, text =str("Size"), command =eight_event)
+    input_8.grid(column=1, row=0,ipady=2)
+    Button8.grid(column=0, row=0,ipady=2)
     
     def get_i_text():
      try:
@@ -492,13 +492,12 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+      
        Text_t3.insert(sel_end,"*")
        Text_t3.insert(sel_start,"*")
 
        
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+      
       else:
          print("no") 
      except ValueError as e:
@@ -510,13 +509,12 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+       
        Text_t3.insert(sel_end,"</u>")
        Text_t3.insert(sel_start," <u>")
 
        
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+       
       else:
          print("no") 
      except ValueError as e:
@@ -542,12 +540,11 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+      
        Text_t3.insert(sel_end,"**")
        Text_t3.insert(sel_start,"**")
       
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+       
       else:
          print("no") 
      except ValueError as e:
@@ -562,8 +559,7 @@ def OpenColumn3():
        Text_t3.insert(sel_end," ")
        Text_t3.insert(sel_start,"\n"+str(">"))
        
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+      
       else:
          print("no") 
      except ValueError as e:
@@ -594,10 +590,9 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
-       #Text_t3.insert("1.0",selected_text)
+       
        Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+      
       else:
          print("no") 
      except ValueError as e:
@@ -609,7 +604,7 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+      
        if len(selected_text)<15:
          Text_t3.insert(sel_end,"`")
          Text_t3.insert(sel_start,"`")
@@ -633,12 +628,11 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+     
        
        Text_t3.insert(sel_start,"## ")
       
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+     
       else:
          print("no") 
      except ValueError as e:
@@ -650,7 +644,7 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+      
             
       if button_type3.cget('text')in combo_box['values']:
          i=0
@@ -662,9 +656,7 @@ def OpenColumn3():
                break
             else:
              i=i+1
-       #  Text_t3.insert(sel_start,str(string)+ str(" "))
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+     
       else:
          print("no") 
      except ValueError as e:
@@ -677,15 +669,10 @@ def OpenColumn3():
      selected_item = combo_box.get()
      button_type3['text']=selected_item
 
-    #label = tk.Label(frame6, text="Item: ")
-    #label.grid(column=3, row=2)
-    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"])
+    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"],width=5)
     combo_box.grid(column=1, row=1,ipadx=2,ipady=2)
     combo_box.set("H1")
     combo_box.bind("<<ComboboxSelected>>", on_select)
-    #text_var3 = StringVar()
-    #entry_t3= Entry(frame6, textvariable=text_var3,width=50)
-    #entry_t3.grid(column=0, row=1, columnspan=4)
     font_font = tkFont.Font(family="sans-serif", size=12, weight="normal")
 
     def increase_font_size():
@@ -718,13 +705,12 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+      
        Text_t3.insert(sel_end,"(url)")
        Text_t3.insert(sel_start,"[text]")
        
        
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+      
       else:
          print("no") 
      except ValueError as e:
@@ -736,22 +722,21 @@ def OpenColumn3():
       sel_start,sel_end=Text_t3.tag_ranges("sel")
       if sel_start and sel_end:
        selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
+     
        Text_t3.insert(sel_end,"(url image)")
        Text_t3.insert(sel_start,"![text image]")
        
        
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
+   
       else:
          print("no") 
      except ValueError as e:
         print(e)      
     
-    button_input2=Button(frame7, text = "Link", command =get_link_text,font=button_font)
-    button_input2.grid(column=3, row=1,ipadx=2,ipady=2)
-    button_input3=Button(frame7, text = "Image",command =get_image_text,font=button_font)
-    button_input3.grid(column=3, row=0,ipadx=2,ipady=2)
+    button_input2=Button(frame7, text = "Link", command =get_link_text)
+    button_input2.grid(column=3, row=1,ipady=2)
+    button_input3=Button(frame7, text = "Image",command =get_image_text)
+    button_input3.grid(column=3, row=0,ipady=2)
 
     label_scroll=tk.Scrollbar(frame6, width=10)
     Text_t3=Text(frame6, wrap=WORD,undo=True,font=font_font, background="darkgrey",width=100,yscrollcommand = label_scroll.set)
@@ -759,9 +744,9 @@ def OpenColumn3():
     
     label_scroll.place(relx=0.85,rely=0.55, relheight=0.4,relwidth=0.05 )
     label_scroll.config( command = Text_t3.yview )
-    frame7.pack(side="top",padx=1)
+    frame7.pack()
     text_var = StringVar()
-    entry_1= Entry(frame7, textvariable=text_var)
+    entry_1= Entry(frame7, textvariable=text_var,width=18)
     entry_1.grid(column=1, row=2,ipadx=2,ipady=2)
     tag_var = StringVar()
     entry_2= Entry(frame8, textvariable=tag_var, font=font_font)
@@ -771,7 +756,7 @@ def OpenColumn3():
        entry_1.delete(0, END)
 
     delete_send_3=Button(frame7, text = "Del Text",command=delete_option)
-    delete_send_3.grid(column=2, row=2,ipadx=2,ipady=2)
+    delete_send_3.grid(column=2, row=2,padx=2,ipadx=2,ipady=2)
 
     #save in md
     import io
