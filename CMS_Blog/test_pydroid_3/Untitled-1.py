@@ -9,8 +9,9 @@ import tkinter.font as tkFont
 from tkinter import messagebox 
 
 root = Tk() 
+root.state('zoomed')
 root.title("Markdown test") 
-root.minsize(400,400)
+
  
 #Menù Layout
 frame3=Frame(root,width=70,height=60, border=5)  
@@ -30,12 +31,12 @@ def OpenColumn():
     Checkbutton5 = IntVar() 
     frame3.config(background="lightgrey")
 
-    Button5 = Checkbutton(frame3, text = "🔒", 
+    Button5 = Checkbutton(frame3, text = "Lock", 
                     variable = Checkbutton5, 
                     onvalue = 1, 
                     offvalue = 0, 
-                    height = 2, 
-                    width = 10)
+                    
+                    )
 
     def five_event():
      if Checkbutton5.get() == 1:
@@ -46,11 +47,11 @@ def OpenColumn():
 
     input_PC = Button(frame3, text = "Pcenter", 
                     command =five_event, 
-                    height = 2, 
-                    width = 10)
+                    
+                    )
     input_PC.grid(column=0, row=0)
     Button5.grid(column=1, row=0)
-    entry_t= Entry(frame3, textvariable=text_var,width=60)
+    entry_t= Entry(frame3, textvariable=text_var, width=45)
     entry_t.grid(column=0, row=1, columnspan=2)
     scroll_bar_mini = tk.Scrollbar(frame3)
     
@@ -251,7 +252,7 @@ def OpenColumn():
      frame_box=Frame(frame_open_2,width=40,height=5, border=5) 
      
      Checkbutton_6 = IntVar() 
-     Button_6 = Checkbutton(frame_box, text = "🔒", 
+     Button_6 = Checkbutton(frame_box, text = "lock", 
                     variable = Checkbutton_6, 
                     onvalue = 1, 
                     offvalue = 0, 
@@ -352,7 +353,7 @@ def OpenColumn():
      Text_t2=Text(frame_open_2, width=40,height=10,wrap="word",undo=True)
      Text_t2.grid(column=0, row=2, columnspan=2)
      frame_box.grid(pady=2)
-     frame_open_2.grid(column=0,row=1,rowspan=2,padx= 5,pady=5)
+     frame_open_2.grid(column=0,row=0,rowspan=2,padx= 5,pady=5)
      def Clicked(event):
         if Checkbutton_6.get() == 0:
          frame_open_2.grid(column=4,row=4,rowspan=2,padx= 5,pady=5)
@@ -451,7 +452,7 @@ def create_button_test():
     button_note=Button(frame_box,text= "send tag note", command=add_tag_event_1)
     button_note.grid(row=4,column=0,pady=2, padx=3)        
     frame_box.grid(column=4,row=0,columnspan=3,rowspan=5)
-    frame_open.place(relx=0.1,rely=0.1)
+    frame_open.place(relx=0.01,rely=0.01)
 
     def delete_create_note(): 
        frame_open.destroy()
@@ -473,7 +474,7 @@ def OpenColumn3():
     frame7=Frame(frame6,width=25,height=4, background="darkgrey")   
     frame8=Frame(frame6,width=25,height=2,background="lightgrey")  
     Checkbutton8 = IntVar() 
-    Button8 = Checkbutton(frame7, text = "🔒",  variable = Checkbutton8, onvalue = 1, offvalue = 0, font=button_font)
+    Button8 = Checkbutton(frame7, text = "lock",  variable = Checkbutton8, onvalue = 1, offvalue = 0, font=button_font)
     
     def eight_event():
      if Checkbutton8.get() == 1:
@@ -1018,7 +1019,7 @@ def Notebook_():
  button_close=Button(Frame_block,text="Close",command=close_n, border=1,highlightbackground="white")
  button_close.grid(row=0, column=3) 
  Frame_block.pack(pady=5)
- frame1.pack(fill='both', expand=True)
+ frame1.place(relx=0.01,rely=0.01)
  notebook.add(frame1, text='General Settings')
    
 color_list=["red","blue","grey","darkgrey","black","white","yellow","green"]     
