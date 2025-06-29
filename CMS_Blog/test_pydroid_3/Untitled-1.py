@@ -242,7 +242,7 @@ def OpenColumn():
      else:
         print("Error "+" ") 
 
-    button_delete=Button(frame3,command=delete_column,text="❌")  
+    button_delete=Button(frame3,command=delete_column,text="C")  
     button_delete.grid(column=2,row=0)
     
     #new things 
@@ -374,7 +374,7 @@ def OpenColumn():
       else:
          messagebox.showerror("showerror", "Error") 
 
-     button_delete1=Button(frame_box,command=delete_column_1,text="❌")  
+     button_delete1=Button(frame_box,command=delete_column_1,text="C")  
      button_delete1.grid(column=2,row=0)
      
     button_open2=Button(frame4,command=create_button_1,text="New Tab button")
@@ -457,7 +457,7 @@ def create_button_test():
     def delete_create_note(): 
        frame_open.destroy()
     
-    button_delete1=Button(frame_box,command=delete_create_note,text="❌", fg="red")  
+    button_delete1=Button(frame_box,command=delete_create_note,text="C", fg="red")  
     button_delete1.grid(column=2,row=0)   
  
 def since_day(number):
@@ -746,7 +746,7 @@ def OpenColumn3():
     label_scroll.config( command = Text_t3.yview )
     frame7.pack()
     text_var = StringVar()
-    entry_1= Entry(frame7, textvariable=text_var,width=18)
+    entry_1= Entry(frame7, textvariable=text_var,width=10)
     entry_1.grid(column=1, row=2,ipadx=2,ipady=2)
     tag_var = StringVar()
     entry_2= Entry(frame8, textvariable=tag_var, font=font_font)
@@ -908,7 +908,7 @@ def OpenColumn3():
      else:
         print("Error "+" ")
 
-    button_delete3=Button(frame7,command=delete_column_3,text= "Close❌")  
+    button_delete3=Button(frame7,command=delete_column_3,text= "Close")  
     button_delete3.grid(column=0,row=4,ipadx=2,ipady=2)
    
 frame2=Frame(root,width=20,height=1)

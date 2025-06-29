@@ -98,7 +98,32 @@ def pubkey_id_ver(test):
    if len(note_pubkey)>1:       
     search_v_note(note_pubkey)
     layout()
-  
+
+
+def timeline_created(list_new):
+  new_note=[] 
+  global db_note
+  if db_note!=[]:
+   for new_x in list_new:
+     if new_x not in db_note:
+        new_note.append(new_x) 
+   i=0
+    
+   while i<len(new_note):
+     j=0
+     while j< len(db_note): 
+      if db_note[j]["created_at"]>(new_note[i]["created_at"]):
+         j=j+1
+      else:
+         db_note.insert(j,new_note[i])
+         break
+     i=i+1
+   return db_note   
+  else:
+        for list_x in list_new:
+            db_note.append(list_x)
+        return db_note  
+
 def Open_source(value_kind):
      test=[]
      if __name__ == "__main__":
@@ -106,10 +131,9 @@ def Open_source(value_kind):
       test = asyncio.run(Get_event_from(test_kinds))
      if test!=[]:
       note= get_note(test)
-      for xnote in note:
-        if xnote not in db_note:
-         db_note.append(xnote)
-         hash_list_notes.append(xnote)         
+      timeline_created(note)
+      search_for_kind(my_kind[value_kind])
+               
 
 async def get_kind_relay(client, event_):
     f = Filter().kinds(event_).limit(16)
