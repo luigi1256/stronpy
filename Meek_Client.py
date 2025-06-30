@@ -256,6 +256,10 @@ def send_event():
       list_pow.clear()
       list_content.clear()
       list_h.clear()
+      pow_show()
+      h_show()
+      content_show()
+      check_square()
     else:
       messagebox.showerror("Fail", "Error, write something")
       entry4.delete(0, END)
@@ -586,11 +590,11 @@ Check_raw =IntVar()
 def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
-        stuff_frame.place(relx=0.02,rely=0.47,relheight=0.45,relwidth=0.3)  
-        h_tag.place(relx=0.04,rely=0.5)
-        h_tag_entry.place(relx=0.1,rely=0.5,relwidth=0.1)
-        h_button.place(relx=0.21,rely=0.49)
-        h_view.place(relx=0.05,rely=0.55 )
+        stuff_frame.place(relx=0.02,rely=0.5,relheight=0.45,relwidth=0.3)  
+        h_tag.place(relx=0.04,rely=0.53)
+        h_tag_entry.place(relx=0.1,rely=0.53,relwidth=0.1)
+        h_button.place(relx=0.21,rely=0.52)
+        h_view.place(relx=0.05,rely=0.57 )
         content_tag.place(relx=0.04,rely=0.65 )
         entry_content.place(relx=0.12,rely=0.65,relwidth=0.1 )
         content_button.place(relx=0.23,rely=0.64)
@@ -599,8 +603,8 @@ def raw_label():
         pow_view.place(relx=0.05,rely=0.85 )
         pow_tag.place(relx=0.04,rely=0.8 )
         pow_button.place(relx=0.23,rely=0.79)
-        button_list_id.place(relx=0.45,rely=0.7,anchor='n' )
-        button_entry1.place(relx=0.38,rely=0.7,relwidth=0.05, relheight=0.05,anchor="n" )
+        button_list_id.place(relx=0.45,rely=0.8,anchor='n' )
+        button_entry1.place(relx=0.38,rely=0.8,relwidth=0.05, relheight=0.05,anchor="n" )
        
    else:
       Check_raw.set(0)
@@ -628,7 +632,7 @@ h_tag_entry=ttk.Entry(root,justify='left',font=("Arial",12))
 pow_tag = tk.Label(root, text="pow-Tag",font=("Arial",12,"bold"))
 var_number=IntVar()
 entrypow_tag=ttk.Entry(root,justify='left',textvariable=var_number ,font=("Arial",12))
-pow_view = tk.Label(root, text="pow tag?: ", font=("Arial",12))
+pow_view = tk.Label(root, text="pow tag?: ", font=("Arial",12,"bold"))
 
 list_pow=[]
 
@@ -663,6 +667,9 @@ def pow_show():
        entrypow_tag.delete(0, END) 
        if len(list_pow)>0:
         pow_view.config(text=str(len(list_pow)))
+       else:
+         pow_view.config(text=str("pow tag?: "))
+
 
 pow_button = tk.Button(root, text="pow_show", font=("Arial",12,"bold"), command=pow_show)
 
@@ -693,9 +700,11 @@ def h_show():
               return list_h
         
     else:
-          
-          h_tag_entry.delete(0, END) 
-          return list_h       
+          if len(list_h)>0:   
+           h_tag_entry.delete(0, END) 
+           return list_h 
+          else:
+             h_view.config(text=str("h tag?: "))      
     
 list_content=[]
 
