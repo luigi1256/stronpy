@@ -9,7 +9,7 @@ import tkinter.font as tkFont
 from tkinter import messagebox 
 
 root = tk.Tk() 
-root.geometry('300x800')
+root.geometry('300x650')
 root.title("Markdown test") 
 
  
@@ -372,7 +372,7 @@ y=1
 x=4
 
 def create_button_test():
-    frame_open=Frame(root,width=60,height=60, border=5)
+    frame_open=Frame(root,width=60,height=50, border=2)
     def select(event):
         stringa.set(combo_tag_note.get())
         label_note.config(text=combo_tag_note.get())
@@ -388,12 +388,12 @@ def create_button_test():
     tag_note_text=Label(frame_box,text="Tag :")
     tag_note_text.grid(column=0,row=0)
     label_id = Label(frame_box,text="Send a note with tag", width=20, relief=RAISED,font=("Arial",12,"normal"))
-    label_id.grid(pady=5,padx=2,row=1,column=0, columnspan=3)
+    label_id.grid(pady=2,padx=2,row=1,column=0, columnspan=3)
     scroll_bar_mini = tk.Scrollbar(frame_box)
-    text_note2=Text(frame_box,height=10,width=20, yscrollcommand = scroll_bar_mini.set,font=("Arial",12,"normal"))
+    text_note2=Text(frame_box,height=8,width=20, yscrollcommand = scroll_bar_mini.set,font=("Arial",12,"normal"))
     text_note2.grid(row=2, rowspan=2,columnspan=2)
     scroll_bar_mini.config( command = text_note2.yview )
-    scroll_bar_mini.grid( row=2,column=2,rowspan=2,padx=2,sticky="n",pady=5,ipady=65)    
+    scroll_bar_mini.grid( row=2,column=2,rowspan=2,padx=2,sticky="n",pady=2,ipady=35)    
     label_note=Label(frame_box,text= "test", font=("Arial",12,"normal"))
     label_note.grid(row=4,column=1,pady=2)
     
@@ -468,8 +468,8 @@ def OpenColumn3():
         pass
         
     input_8 = Button(frame7, text =str("Size"), command =eight_event)
-    input_8.grid(column=1, row=0,ipady=2)
-    Button8.grid(column=0, row=0,ipady=2)
+    input_8.grid(column=0, row=0,ipady=2)
+    Button8.grid(column=2, row=5,ipady=2)
     
     def get_i_text():
      try:
@@ -505,11 +505,6 @@ def OpenColumn3():
      except ValueError as e:
         print(e)  
     
-    button_type=Button(frame7, text = "<i>", command = get_i_text)
-    button_type.grid(column=4, row=0,ipadx=2,ipady=2)
-    button_down4=Button(frame7, text = "<u>", command =get_u_text)
-    button_down4.grid(column=4, row=1,ipadx=2,ipady=2)
-
     #General Character Bold
     def Update_B():
      if font_font.actual()['weight']=="bold":
@@ -549,12 +544,7 @@ def OpenColumn3():
          print("no") 
      except ValueError as e:
         print(e)      
-
-    button_type1=Button(frame7, text = "B", command =get_bold_text)
-    button_type1.grid(column=0, row=5,ipadx=2,ipady=2)
-    button_down3=Button(frame7, text = "Quote", command =get_quote_text)
-    button_down3.grid(column=1, row=5,ipadx=2,ipady=2)
-   
+    
     def get_selected_text():
      try:
       sel_start, sel_end = Text_t3.tag_ranges("sel")
@@ -602,11 +592,6 @@ def OpenColumn3():
      except ValueError as e:
         print(e)  
     
-    button_type2=Button(frame7, text = "Get", command = get_selected_text)
-    button_type2.grid(column=4, row=2,ipadx=2,ipady=2)
-    button_down2=Button(frame7, text = "Code", command =get_code_text)
-    button_down2.grid(column=3, row=2,ipadx=2,ipady=2)
-
     def get_headings_text():
      try:
       Text_t3.tag_configure("warning")
@@ -653,13 +638,7 @@ def OpenColumn3():
     def on_select(event):
      selected_item = combo_box.get()
      button_type3['text']=selected_item
-
-    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"],width=5)
-    combo_box.grid(column=1, row=1,ipadx=2,ipady=2)
-    combo_box.set("H1")
-    combo_box.bind("<<ComboboxSelected>>", on_select)
-    font_font = tkFont.Font(family="sans-serif", size=12, weight="normal")
-
+    
     def increase_font_size():
      font_font.config(size=min(20,font_font.actual()['size'] + 2))
      input_8["text"]=str(font_font.actual()['size'])
@@ -678,11 +657,8 @@ def OpenColumn3():
      Text_t3.configure(font=("sans-serif", 10, "normal")) 
      
       # Ensure font 
-    button_input=Button(frame7, text = "+",command =increase_font_size,font=button_font)
-    button_input.grid(column=2, row=0,ipadx=2,ipady=2)
-    button_input1=Button(frame7, text = "-",  
-                    command =decrease_font_size,font=button_font)
-    button_input1.grid(column=2, row=1,ipadx=2,ipady=2) 
+
+    
    
     def get_link_text():
      try:
@@ -718,6 +694,27 @@ def OpenColumn3():
      except ValueError as e:
         print(e)      
     
+    button_type=Button(frame7, text = "<i>", command = get_i_text)
+    button_type.grid(column=4, row=0,ipady=2)
+    button_down4=Button(frame7, text = "<u>", command =get_u_text)
+    button_down4.grid(column=4, row=1,ipady=2)
+    button_type1=Button(frame7, text = "B", command =get_bold_text)
+    button_type1.grid(column=0, row=5,ipady=2)
+    button_down3=Button(frame7, text = "Quote", command =get_quote_text)
+    button_down3.grid(column=1, row=5,ipady=2)
+    button_type2=Button(frame7, text = "Get", command = get_selected_text)
+    button_type2.grid(column=2, row=1,ipady=2)
+    button_down2=Button(frame7, text = "Code", command =get_code_text)
+    button_down2.grid(column=3, row=2,ipady=2)
+    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"],width=3)
+    combo_box.grid(column=1, row=1,ipady=2)
+    combo_box.set("H1")
+    combo_box.bind("<<ComboboxSelected>>", on_select)
+    font_font = tkFont.Font(family="sans-serif", size=12, weight="normal")  
+    button_input=Button(frame7, text = "+",command =increase_font_size)
+    button_input.grid(column=2, row=0,ipady=2)
+    button_input1=Button(frame7, text = "-",  command =decrease_font_size)
+    button_input1.grid(column=1, row=0,ipady=2) 
     button_input2=Button(frame7, text = "Link", command =get_link_text)
     button_input2.grid(column=3, row=1)
     button_input3=Button(frame7, text = "Image",command =get_image_text)
@@ -725,14 +722,14 @@ def OpenColumn3():
 
     label_scroll=tk.Scrollbar(frame6, width=10)
     Text_t3=Text(frame6, wrap=WORD,undo=True,font=font_font, background="darkgrey",width=100,yscrollcommand = label_scroll.set)
-    Text_t3.place(relx=0.12,rely=0.3,relheight=0.4,relwidth=0.7 )
+    Text_t3.place(relx=0.12,rely=0.35,relheight=0.4,relwidth=0.7 )
     
-    label_scroll.place(relx=0.9,rely=0.3, relheight=0.4,relwidth=0.05 )
+    label_scroll.place(relx=0.9,rely=0.35, relheight=0.4,relwidth=0.05 )
     label_scroll.config( command = Text_t3.yview )
-    frame7.pack()
+    
     text_var = StringVar()
-    entry_1= Entry(frame7, textvariable=text_var,width=10)
-    entry_1.grid(column=1, row=2,ipadx=2,ipady=2)
+    entry_1= Entry(frame7, textvariable=text_var,width=4)
+    entry_1.grid(column=1, row=2,ipady=2)
     tag_var = StringVar()
     entry_2= Entry(frame8, textvariable=tag_var, font=font_font)
     entry_2.grid(column=1, row=3,ipadx=2,ipady=2,columnspan=3)
@@ -742,7 +739,7 @@ def OpenColumn3():
 
     delete_send_3=Button(frame7, text = "Del Text",command=delete_option)
     delete_send_3.grid(column=2, row=2,padx=2,ipadx=2,ipady=2)
-
+    frame7.pack()
     #save in md
     import io
     from tkinter.filedialog import asksaveasfilename
@@ -878,7 +875,7 @@ def OpenColumn3():
     button_send_5=Button(frame7, text = "Last Post",command=read_long_form)
     button_send_5.grid(column=3, row=4,ipadx=2,ipady=2)
     button_send_6=Button(frame7, text = "Delete",command=del_text)
-    button_send_6.grid(column=4, row=4,ipadx=2,ipady=2)
+    button_send_6.grid(column=3, row=5,ipady=2)
     tag_text=Label(frame7,text="Text :")
     tag_text.grid(column=0,row=2,ipadx=2,ipady=2)
     tag_text_2=Label(frame8,text="Tag :")
