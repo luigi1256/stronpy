@@ -8,8 +8,8 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import messagebox 
 
-root = Tk() 
-root.geometry('350x800')
+root = tk.Tk() 
+root.geometry('300x800')
 root.title("Markdown test") 
 
  
@@ -51,7 +51,7 @@ def OpenColumn():
                     )
     input_PC.grid(column=0, row=0)
     Button5.grid(column=1, row=0)
-    entry_t= Entry(frame3, textvariable=text_var, width=45)
+    entry_t= Entry(frame3, textvariable=text_var, width=30)
     entry_t.grid(column=0, row=1, columnspan=2)
     scroll_bar_mini = tk.Scrollbar(frame3)
     
@@ -231,7 +231,7 @@ def OpenColumn():
     numb_lab.grid(column=0,row=8)
     numb_lab_2=Label(frame3,text="")
     numb_lab_2.grid(column=1,row=8)
-    numb_test=Label(frame4,text="",width=50,background="darkgrey")
+    numb_test=Label(frame4,text="",width=30)
     numb_test.grid(column=0, row=9,pady=2,columnspan=3,rowspan=2) 
     frame4.grid(column=0,row=9,columnspan=3,rowspan=2,sticky="n",pady=5)
     frame3.place(relx=0.01,rely=0.01)
@@ -257,7 +257,7 @@ def OpenColumn():
                     onvalue = 1, 
                     offvalue = 0, 
                     height = 2, 
-                    width = 10)
+                    width = 5)
      def six_event_1():
       if Checkbutton_6.get() == 1:
        if Checkbutton_time.get()==1:
@@ -331,8 +331,7 @@ def OpenColumn():
         
      input_6 = Button(frame_box, text = "Read Note", 
                     command =six_event_1, 
-                    height = 2, 
-                    width = 10)
+                    height = 2)
      input_6.grid(column=0, row=0)
      Button_6.grid(column=1, row=0)
      combo_to_do_list = ttk.Combobox(frame_open_2, values=["To do","Wish list", "Done", "To complete" ],font=button_font,width=10 )
@@ -347,27 +346,13 @@ def OpenColumn():
                     variable = Checkbutton_time, 
                     onvalue = 1, 
                     offvalue = 0, 
-                    height = 2, 
-                    width = 10)
+                    height = 2)
      Button_time.grid(column=3,row=0)
      Text_t2=Text(frame_open_2, width=25,height=10,wrap="word",undo=True)
      Text_t2.grid(column=0, row=2, columnspan=2)
      frame_box.grid(pady=2)
-     frame_open_2.grid(column=0,row=0,rowspan=2,pady=5)
-     def Clicked(event):
-        if Checkbutton_6.get() == 0:
-         frame_open_2.grid(column=4,row=4,rowspan=2,padx= 5,pady=5)
-     frame_open_2.bind("<Button-1>" ,Clicked)
-    
-     def Clicked2(event):
-        if Checkbutton_6.get() == 0:
-         frame_open_2.grid(column=5,row=1,rowspan=2,padx= 5,pady=5)
-     frame_open_2.bind("<Button-3>" ,Clicked2)
-     def Clicked3(event):
-        if Checkbutton_6.get() == 0:
-         frame_open_2.grid(column=5,row=4,rowspan=2,padx= 5,pady=5)
-     frame_open_2.bind("<Double-Button-3>" ,Clicked3)  
-
+     frame_open_2.grid(column=0,row=12,columnspan=3,rowspan=2,pady=5)
+     
      def delete_column_1(): 
       if Checkbutton_6.get() == 0:
        frame_open_2.destroy()
@@ -452,7 +437,7 @@ def create_button_test():
     button_note=Button(frame_box,text= "send tag note", command=add_tag_event_1)
     button_note.grid(row=4,column=0,pady=2, padx=3)        
     frame_box.grid(column=4,row=0,columnspan=3,rowspan=5)
-    frame_open.place(relx=0.01,rely=0.01)
+    frame_open.place(relx=0.01,rely=0.5)
 
     def delete_create_note(): 
        frame_open.destroy()
@@ -520,9 +505,9 @@ def OpenColumn3():
      except ValueError as e:
         print(e)  
     
-    button_type=Button(frame7, text = "<i>", command = get_i_text,font=button_font)
+    button_type=Button(frame7, text = "<i>", command = get_i_text)
     button_type.grid(column=4, row=0,ipadx=2,ipady=2)
-    button_down4=Button(frame7, text = "<u>", command =get_u_text,font=button_font)
+    button_down4=Button(frame7, text = "<u>", command =get_u_text)
     button_down4.grid(column=4, row=1,ipadx=2,ipady=2)
 
     #General Character Bold
@@ -734,15 +719,15 @@ def OpenColumn3():
         print(e)      
     
     button_input2=Button(frame7, text = "Link", command =get_link_text)
-    button_input2.grid(column=3, row=1,ipady=2)
+    button_input2.grid(column=3, row=1)
     button_input3=Button(frame7, text = "Image",command =get_image_text)
-    button_input3.grid(column=3, row=0,ipady=2)
+    button_input3.grid(column=3, row=0)
 
     label_scroll=tk.Scrollbar(frame6, width=10)
     Text_t3=Text(frame6, wrap=WORD,undo=True,font=font_font, background="darkgrey",width=100,yscrollcommand = label_scroll.set)
-    Text_t3.place(relx=0.2,rely=0.55,relheight=0.4,relwidth=0.6 )
+    Text_t3.place(relx=0.12,rely=0.3,relheight=0.4,relwidth=0.7 )
     
-    label_scroll.place(relx=0.85,rely=0.55, relheight=0.4,relwidth=0.05 )
+    label_scroll.place(relx=0.9,rely=0.3, relheight=0.4,relwidth=0.05 )
     label_scroll.config( command = Text_t3.yview )
     frame7.pack()
     text_var = StringVar()
@@ -943,39 +928,24 @@ fg_color=""
 
 def Notebook_():
  notebook = ttk.Notebook(root)
- notebook.place(relx=0.4,rely=0.1,relheight=0.395)
+ notebook.place(relx=0.01,rely=0.1,relheight=0.395)
 
  # create frames
- frame1 = Frame(notebook, width=370, height=280)
+ frame1 = Frame(notebook, width=250, height=280)
  import random
 
  def palette():
      if Check_1.get()==1:
          Check_1.set(0)
-         number=random.randint(0,8)
+         number=random.randint(0,7)
          root.config(bg=color_list[number])
      else:
         Check_1.set(1)
         root.config(bg="grey")
 
- def palette_fg():
-       if Check_0.get()==1:
-        Check_0.set(0)
-        number=random.randint(0,8)
-        for widget in root.winfo_children():  
-         if isinstance(widget, tk.Button):  
-            
-            widget["foreground"] = color_list[number]
-      
-       else:
-          Check_0.set(1)
-          for widget in root.winfo_children():  
-           if isinstance(widget, tk.Button):  
-            widget["foreground"] = "black"
-          
+
  Frame_block=Frame(frame1)
- Check_0 = IntVar()
- Check_0.set(1)
+
  Check_1= IntVar()
  Check_1.set(1)
 
@@ -985,24 +955,22 @@ def Notebook_():
  menu_slider1=Scale(Frame_block,orient=HORIZONTAL)
  menu_slider1.grid(column=0, row=0) 
  button_slider1=Button(Frame_block,command=slide_r1, text="zoom", font=button_font)
- button_slider1.grid(column=0,row=3,padx=3)                   
+ button_slider1.grid(column=1,row=0,padx=3)                   
  entry_A= Label(Frame_block, text="A",width=10,font=font_font)
  entry_A.grid(column=0, row=1,rowspan=2)
  button_palette=Button(Frame_block,text="BG palette",command=palette,font=button_font)
- button_palette.grid(column=2,row=2,padx=5,pady=5)
- button_col_palette=tk.Button(Frame_block,text="FG button",command=palette_fg,font=button_font)
- button_col_palette.grid(column=3,row=2,padx=5,pady=5)
- button_input=Button(Frame_block, text = "+",width=6,command =increase_font_size,font=("Roboto Mono", 12,"bold"))
- button_input.grid(column=2, row=4,ipadx=2,ipady=2)
- button_input1=Button(Frame_block, text = "-", width=6, command =decrease_font_size,font=("Roboto Mono", 12,"bold"))
- button_input1.grid(column=3, row=4,ipadx=2,ipady=2) 
+ button_palette.grid(column=0,row=3,padx=5,pady=5)
+ button_input=tk.Button(Frame_block, text = "+",width=5,command =increase_font_size,font=("Roboto Mono", 12,"bold"))
+ button_input.grid(column=2, row=3,ipadx=2,ipady=2)
+ button_input1=tk.Button(Frame_block, text = "-", width=5, command =decrease_font_size,font=("Roboto Mono", 12,"bold"))
+ button_input1.grid(column=2, row=4,ipadx=2,ipady=2) 
   
  def close_n():
     notebook.place_forget()
     button_close.place_forget()
  
- button_close=Button(Frame_block,text="Close",command=close_n, border=1,highlightbackground="white")
- button_close.grid(row=0, column=3) 
+ button_close=Button(Frame_block,text="Close",command=close_n, border=1,font=button_font)
+ button_close.grid(row=0, column=2) 
  Frame_block.pack(pady=5)
  frame1.place(relx=0.01,rely=0.01)
  notebook.add(frame1, text='General Settings')
