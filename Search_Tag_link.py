@@ -177,7 +177,7 @@ def open_profile():
     button_close=tk.Button(frame_account, background='red', text='❌',font=('Arial',12,'bold'))    
     button_close.bind("<Double-Button-1>" ,Close_profile) 
     button_close.grid(column=13, row=1, padx=5, columnspan=1) 
-    frame_account.place(relx=0.48,relheight=0.2,relwidth=0.45)
+    frame_account.place(relx=0.5,rely=0.001,relheight=0.21,relwidth=0.45)
 
 button_beau=tk.Button(frame1,highlightcolor='WHITE',text='Account',font=('Arial',12,'bold'),command=open_profile)
 button_beau.grid(column=9, row=0, padx=10, columnspan=4,pady=5) 

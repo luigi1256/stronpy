@@ -183,19 +183,22 @@ def link_kind1():
 def codifica_link_str(string):
    f=string
    list=['mov','mp4']
+   list1=['webm']
    audio=['mp3']
    img=['png','jpg','gif']
    img1=['jpeg','webp']
-   ytube=['https://youtu.be',"https://www.youtube.com/","https://m.youtube.com/"] 
+   ytube=['https://youtu.be',"https://www.youtube.com/","https://m.youtube.com/","https://youtube.com/"] 
    if f==None:
                  return "no spam"
    if f[-3:] in list:
+        return "video"
+   if f[-4:] in list1:
         return "video"
    if f[-3:] in audio:
         return "audio"
    if f[-3:] in img:
            return "pic" 
-   if f[0:16] in ytube or  f[0:24] in ytube or f[0:22] in ytube:
+   if f[0:16] in ytube or  f[0:24] in ytube or f[0:22] in ytube or f[0:20] in ytube:
             return 'ytb'
    if f[-4:] in img1:
             return "pic"
@@ -215,6 +218,10 @@ def invidious(url):
       string=str("https://inv.nadeko.net/")+str(url[22:])
       string2=str("https://yewtu.be/")+str(url[22:])
       print(string,"\n",string2)  
+   if url[0:20]=="https://youtube.com/": 
+      string=str("https://inv.nadeko.net/")+str(url[20:])
+      string2=str("https://yewtu.be/")+str(url[20:])
+      print(string,"\n",string2)     
 
 def show_link():
     result=link_kind1()

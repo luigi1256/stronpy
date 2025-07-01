@@ -769,9 +769,17 @@ def reply_note(note):
 
 button_reply=tk.Button(root,text="send reply", background="darkgrey", font=('Arial',12,'normal'))
 
+def share_note(note_text):
+      test=EventId.parse(note_text["id"])
+      test1=Nip19Event(test,PublicKey.parse(note_text["pubkey"]),Kind(note_text["kind"]),[])
+      print(test1.to_nostr_uri())
+      
+      print(str(test.to_nostr_uri()))
+
 def share(note_text):
     print(f"Note:\n{note_text}")
     note_invidious(note_text)
+    share_note(note_text)
 
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
