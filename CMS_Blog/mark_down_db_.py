@@ -499,20 +499,15 @@ def since_day(number):
 
 def OpenColumn3():
     frame6=Frame(root,width=120,height=53, border=5,background="lightgrey")    
-    frame7=Frame(frame6,width=110,height=20, background="darkgrey")   
+    frame7=Frame(frame6,width=110,height=10, background="darkgrey")   
+    frame7_5=Frame(frame6,width=110,height=10) 
     frame8=Frame(frame6,width=110,height=10,background="lightgrey")  
     Checkbutton8 = IntVar() 
-    Button8 = Checkbutton(frame7, text = "🔒", width=10, variable = Checkbutton8, onvalue = 1, offvalue = 0, font=button_font)
-    
-    def eight_event():
-     if Checkbutton8.get() == 1:
-          print( "Check bar:PC ") 
-     else:
-        pass
-        
-    input_8 = Button(frame7, text =str("Size"), command =eight_event, width=10,font=button_font)
-    input_8.grid(column=0, row=0,ipadx=2,ipady=2)
-    Button8.grid(column=1, row=0,ipadx=2,ipady=2)
+    Button8 = Checkbutton(frame7_5, text = "🔒", variable = Checkbutton8, onvalue = 1, offvalue = 0,font=button_font)
+            
+    input_8 = Label(frame7, text =str("Size"),font=("sans-serif", 14, "bold"))
+    input_8.grid(column=1, row=1)
+    Button8.grid(column=1, row=2,ipadx=2,ipady=2)
     
     def get_i_text():
      try:
@@ -550,10 +545,10 @@ def OpenColumn3():
      except ValueError as e:
         print(e)  
     
-    button_type=Button(frame7, text = "<i>", command = get_i_text,width=6,font=button_font)
-    button_type.grid(column=4, row=0,ipadx=2,ipady=2)
-    button_down4=Button(frame7, text = "<u>", command =get_u_text,width=6,font=button_font)
-    button_down4.grid(column=4, row=1,ipadx=2,ipady=2)
+    button_type=Button(frame7, text = "<i>", command = get_i_text,font=("sans-serif", 12, "normal"))
+    button_type.grid(column=4, row=0)
+    button_down4=Button(frame7, text = "<u>", command =get_u_text,font=("sans-serif", 12, "normal"))
+    button_down4.grid(column=4, row=1)
 
     #General Character Bold
     def Update_B():
@@ -597,10 +592,10 @@ def OpenColumn3():
      except ValueError as e:
         print(e)      
 
-    button_type1=Button(frame7, text = "B", command =get_bold_text,width=6,font=button_font)
+    button_type1=Button(frame7, text = "B", command =get_bold_text,font=("sans-serif", 12, "normal"))
     button_type1.grid(column=5, row=0,ipadx=2,ipady=2)
-    button_down3=Button(frame7, text = "Quote", command =get_quote_text,width=6,font=button_font)
-    button_down3.grid(column=5, row=1,ipadx=2,ipady=2)
+    button_down3=Button(frame7, text = "Quote", command =get_quote_text,font=("sans-serif", 12, "normal"))
+    button_down3.grid(column=6, row=0,ipadx=2,ipady=2)
    
     def get_selected_text():
      try:
@@ -650,10 +645,10 @@ def OpenColumn3():
      except ValueError as e:
         print(e)  
     
-    button_type2=Button(frame7, text = "Get", command = get_selected_text,width=5,font=button_font)
-    button_type2.grid(column=6, row=0,ipadx=2,ipady=2)
-    button_down2=Button(frame7, text = "Code", command =get_code_text,width=5,font=button_font)
-    button_down2.grid(column=6, row=1,ipadx=2,ipady=2)
+    button_type2=Button(frame7, text = "E", command = get_selected_text,font=("sans-serif", 12, "normal"))
+    button_type2.grid(column=5, row=1)
+    button_down2=Button(frame7, text = "Code", command =get_code_text,font=("sans-serif", 12, "normal"))
+    button_down2.grid(column=3, row=0)
 
     def get_headings_text():
      try:
@@ -698,8 +693,8 @@ def OpenColumn3():
      except ValueError as e:
         print(e)     
 
-    button_type3=Button(frame7, text = "H",command =get_headings_text,width=10,font=button_font)
-    button_type3.grid(column=0, row=1,ipadx=2,ipady=2)
+    button_type3=Button(frame7, text = "H",command =get_headings_text,font=("sans-serif", 12, "normal"))
+    button_type3.grid(column=1, row=0)
 
     def on_select(event):
      selected_item = combo_box.get()
@@ -707,13 +702,12 @@ def OpenColumn3():
 
     #label = tk.Label(frame6, text="Item: ")
     #label.grid(column=3, row=2)
-    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"],width=12,font=button_font,height=5)
-    combo_box.grid(column=1, row=1,ipadx=2,ipady=2)
+    combo_box = ttk.Combobox(frame7, values=["H1","H2","H3","H4","H5"],font=("sans-serif", 12, "normal"),width=2)
+    combo_box.grid(column=0, row=0)
     combo_box.set("H1")
     combo_box.bind("<<ComboboxSelected>>", on_select)
     #text_var3 = StringVar()
-    #entry_t3= Entry(frame6, textvariable=text_var3,width=50)
-    #entry_t3.grid(column=0, row=1, columnspan=4)
+  
     font_font = tkFont.Font(family="sans-serif", size=12, weight="normal")
 
     def increase_font_size():
@@ -734,11 +728,10 @@ def OpenColumn3():
      Text_t3.configure(font=("sans-serif", 10, "normal")) 
      
       # Ensure font 
-    button_input=Button(frame7, text = "+",width=9,command =increase_font_size,font=button_font)
-    button_input.grid(column=2, row=0,ipadx=2,ipady=2)
-    button_input1=Button(frame7, text = "-", width=9, 
-                    command =decrease_font_size,font=button_font)
-    button_input1.grid(column=2, row=1,ipadx=2,ipady=2) 
+    button_input=Button(frame7, text = "+ Size",command =increase_font_size,font=("sans-serif", 12, "normal"))
+    button_input.grid(column=2, row=0)
+    button_input1=Button(frame7, text = "- Size", command =decrease_font_size,font=("sans-serif", 12, "normal"))
+    button_input1.grid(column=2, row=1) 
    
     def get_link_text():
      try:
@@ -776,10 +769,10 @@ def OpenColumn3():
      except ValueError as e:
         print(e)      
     
-    button_input2=Button(frame7, text = "Link", command =get_link_text,width=10,font=button_font)
-    button_input2.grid(column=3, row=1,ipadx=2,ipady=2)
-    button_input3=Button(frame7, text = "Image",command =get_image_text,width=10,font=button_font)
-    button_input3.grid(column=3, row=0,ipadx=2,ipady=2)
+    button_input2=Button(frame7, text = "Link", command =get_link_text,font=("sans-serif", 12, "normal"),width=5)
+    button_input2.grid(column=3, row=1)
+    button_input3=Button(frame7, text = "Image",command =get_image_text,font=("sans-serif", 12, "normal"))
+    button_input3.grid(column=6, row=1)
 
     label_scroll=tk.Scrollbar(frame6, width=10)
     Text_t3=Text(frame6, wrap=WORD,undo=True,font=font_font, background="darkgrey",width=100,yscrollcommand = label_scroll.set)
@@ -787,19 +780,19 @@ def OpenColumn3():
     
     label_scroll.place(relx=0.9,rely=0.3, relheight=0.5,relwidth=0.05 )
     label_scroll.config( command = Text_t3.yview )
-    frame7.pack(side="top",padx=1)
     text_var = StringVar()
-    entry_1= Entry(frame7, textvariable=text_var,width=50, font=button_font)
-    entry_1.grid(column=1, row=2,ipadx=2,ipady=2,columnspan=3)
+    entry_1= Entry(frame7_5, textvariable=text_var, font=button_font)
+    entry_1.grid(column=2, row=2,ipadx=2,ipady=2,columnspan=5)
+    frame7.pack(side="top",padx=1)
     tag_var = StringVar()
-    entry_2= Entry(frame8, textvariable=tag_var,width=40, font=font_font)
+    entry_2= Entry(frame8, textvariable=tag_var,width=30, font=font_font)
     entry_2.grid(column=1, row=3,ipadx=2,ipady=2,columnspan=3)
 
     def delete_option():
        entry_1.delete(0, END)
 
-    delete_send_3=Button(frame7, text = "Del Text",command=delete_option, font=button_font)
-    delete_send_3.grid(column=5, row=2,ipadx=2,ipady=2)
+    delete_send_3=Button(frame7_5, text = "Canc",command=delete_option, font=button_font)
+    delete_send_3.grid(column=7, row=2,padx=2)
 
     #save in md
     import io
@@ -928,20 +921,21 @@ def OpenColumn3():
 
     def del_text():
       Text_t3.delete("1.0", "end")
+      entry_2.delete(0, END)
                 
-    button_send_3=Button(frame7, text = "Save ✔",command=SaveFile,width=10, font=button_font)
+    button_send_3=Button(frame7_5, text = "Save ✔",command=SaveFile,width=6, font=button_font)
     button_send_3.grid(column=1, row=4,ipadx=2,ipady=2)
-    button_send_4=Button(frame7, text = "Save DB",command=Save_in_DB,width=10, font=button_font)
-    button_send_4.grid(column=2, row=4,ipadx=2,ipady=2)
-    button_send_5=Button(frame7, text = "Last Post",command=read_long_form, font=button_font)
-    button_send_5.grid(column=3, row=4,ipadx=2,ipady=2)
-    button_send_6=Button(frame7, text = "Delete",command=del_text, font=button_font)
-    button_send_6.grid(column=4, row=4,ipadx=2,ipady=2)
-    tag_text=Label(frame7,text="Text :",font=button_font,width=10)
+    button_send_4=Button(frame7_5, text = "Save DB",command=Save_in_DB,width=6, font=button_font)
+    button_send_4.grid(column=3, row=4,ipadx=2,ipady=2)
+    button_send_5=Button(frame7_5, text = "Last Post",command=read_long_form, font=button_font)
+    button_send_5.grid(column=5, row=4,ipadx=2,ipady=2)
+    button_send_6=Button(frame8, text = "Delete",command=del_text, font=button_font)
+    button_send_6.grid(column=4, row=3,padx=2)
+    tag_text=Label(frame7_5,text="Text :",font=button_font,width=6)
     tag_text.grid(column=0,row=2,ipadx=2,ipady=2)
     tag_text_2=Label(frame8,text="Tag :",font=button_font,width=10)
     tag_text_2.grid(column=0,row=3,ipadx=2,ipady=2,pady=2,padx=2)
-       
+    frame7_5.pack(side="top",padx=1)   
     frame8.pack(side="top",padx=1,pady=5)
     frame6.pack(side="right",padx=2,fill="both", expand=0.5)
     
@@ -951,8 +945,8 @@ def OpenColumn3():
      else:
         print("Error "+" ")
 
-    button_delete3=Button(frame7,command=delete_column_3,text= "Close❌",width=10, font=button_font)  
-    button_delete3.grid(column=0,row=4,ipadx=2,ipady=2)
+    button_delete3=Button(frame7,command=delete_column_3,text= "Close❌",width=6, font=button_font)  
+    button_delete3.grid(column=7,row=0,ipadx=2,ipady=2,rowspan=2)
    
 frame2=Frame(root,width=20,height=1)
 menu = Menu(frame2)
