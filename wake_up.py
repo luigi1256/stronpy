@@ -156,7 +156,8 @@ def event_string_note(note):
               
 async def wake_note(tag,status):
    
-   init_logger(LogLevel.INFO)
+  init_logger(LogLevel.INFO)
+  try:
    key_string=log_these_key()
    if key_string!=None: 
     keys = Keys.parse(key_string)
@@ -186,6 +187,8 @@ async def wake_note(tag,status):
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
      print(event.as_json())
+  except NostrSdkError as e:
+     print (e)  
        
 def Gm_status():
    check_square()
@@ -210,12 +213,25 @@ def Gm_status():
             lists_id.append(Tag.expiration(Timestamp.from_secs(int(until_hour_time(10)))))
             
             
-    print(lists_id)  
+    #print(lists_id)  
     if __name__ == '__main__':
                
         if combo_lab.get()!="Type of wake":
          asyncio.run(wake_note(lists_id,combo_lab.get()))
-
+         combo_lab.set("Type of wake")
+         button_entry1.cget('foreground')=="grey"
+         error_label.config(text="Problem:")
+         print_label.config(text="Wait for the status")
+         list_e.clear()
+         list_a.clear()
+         list_p.clear()
+         list_r.clear()
+         e_show()
+         a_show()
+         r_show()
+         p_show()
+         check_square()
+         
 since_variable=IntVar(value=0)
 since_entry=Entry(root,textvariable=since_variable,font=("Arial",12,"normal"),width=6)
 text_var=StringVar()
@@ -236,7 +252,7 @@ def return_data_action(until:int,since:int):
        suff=data[i+1:]
      i=i+1  
     if int(name)<since and int(name)>until:
-     print(name,suff)
+     #print(name,suff)
      since_variable.set(str(name+":"+suff)) 
      result=until_hour_time(since)
      text_var.set(result)
@@ -246,7 +262,7 @@ def until_hour_time(until_time:int):
     import datetime
     date = datetime.date.today() + datetime.timedelta(hours=int(until_time))
     date_1=datetime.datetime.combine(date, datetime.time(until_time, 0, 0)).timestamp()
-    print(int(float(date_1)))
+    #print(int(float(date_1)))
     return date_1
 
 button_1=tk.Button(root,text="Time",command=lambda:return_data_action(6,10),font=("Arial",12))
@@ -297,7 +313,7 @@ button_entry1.place(relx=0.57,rely=0.35,relwidth=0.05, relheight=0.08,anchor="n"
 frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
 error_label = tk.Label(frame1, text="Problem:",font=("Arial",12))
 error_label.grid(column=3, rowspan=2, row=0, pady=5,padx=5)
-print_label = ttk.Label(frame1, text="Wait for the label",font=("Arial",12))
+print_label = ttk.Label(frame1, text="Wait for the status",font=("Arial",12))
 print_label.grid(column=3, columnspan=2, row=2, pady=5,padx=10)
 frame1.pack(side=TOP,fill=X)
 p_tag = tk.Label(root, text="p-Tag",font=("Arial",12,"bold"))
@@ -346,6 +362,8 @@ def p_show():
        entryp_tag.delete(0, END) 
        if len(list_p)>0:
         p_view.config(text=str(len(list_p)))
+       else: 
+         p_view.config(text="p tag?: ")          
 
 p_button = tk.Button(root, text="p_show", font=("Arial",12,"bold"), command=p_show)
 
@@ -377,6 +395,11 @@ def e_show():
     else:
           
           e_tag_entry.delete(0, END) 
+          if len(list_e)>0:
+           e_view.config(text=str(len(list_e)))
+          else:
+             e_view.config(text="e tag?: ")
+              
           return list_e      
      
 list_a=[]
@@ -436,7 +459,11 @@ def r_show():
             r_view.config(text="Sorry, this is uncorrect: ")             
             r_summary.delete(0, END)
     else:
-        r_summary.delete(0, END)        
+        r_summary.delete(0, END)     
+        if len(list_r)>0:
+         r_view.config(text=str(len(list_r)))
+        else: 
+         r_view.config(text="link: ")             
 
 Check_raw =IntVar()
 
@@ -503,7 +530,7 @@ r_summary=ttk.Entry(root,justify='left',font=("Arial",12))
 r_button = tk.Button(root, text="R tag", font=("Arial",12,"bold"), command=r_show)
 r_view = tk.Label(root, text="link: ", font=("helvetica",13,"bold"),justify="center")
 entry_Home_title=ttk.Label(frame1,text="Send Status", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
-entry_Home_title.place(relx=0.4,rely=0.05,relwidth=0.2)
+entry_Home_title.place(relx=0.4,rely=0.2,relwidth=0.2)
 str_test=StringVar()
 entry_note=ttk.Entry(root,justify='left', textvariable=str_test,font=("Arial",12,"normal"))
 
@@ -711,11 +738,9 @@ def Open_source(key:int):
          db_note.append(xnote)
          list_notes.append(xnote) 
       show_noted()   
-     if list_notes!=[]:
-        show_noted()
-
+   
 button4=tk.Button(frame1,text="Search Status",command=lambda: Open_source(2222),font=('Arial',12,'bold'))
-button4.place(relx=0.25,rely=0.15)
+button4.place(relx=0.6,rely=0.2)
 
 async def Get_event_from(event_):
     # Init logger
@@ -860,7 +885,7 @@ def show_noted():
         button_frame.place_forget()
     
     button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
-    button_frame.place(relx=0.5,rely=0.45,relwidth=0.1)      
+    button_frame.place(relx=0.55,rely=0.47,relwidth=0.1)      
 
 button_read=Button(root,text="Stamp", command=show_noted,font=("Arial",12,"normal"))
 
