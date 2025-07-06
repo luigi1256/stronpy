@@ -171,7 +171,7 @@ test_check = IntVar()
 
 def check_dash():
  if combo_note.get()!="Type of feed":
-  if combo_note.get()=="my_time":
+  if combo_note.get()=="my time":
    if test_check.get()==1:
     since_entry.place(relx=0.42,rely=0.04)
     button_mov.place(relx=0.46,rely=0.04,relwidth=0.03)
