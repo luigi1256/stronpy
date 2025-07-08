@@ -231,7 +231,7 @@ def show_noted():
                   if len(more_spam(entry))==2:
                     photo_list(more_spam(entry))         
                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me 1!", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=se+2,padx=5,pady=5)
        button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
        button_grid2.grid(row=se+2,column=s1+1,padx=5,pady=5)    
