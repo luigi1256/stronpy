@@ -1170,7 +1170,12 @@ def create_contentxt(note,n):
       else:
           contentxt=contentxt+note["content"][0:100]+"\n" +"More..."
    if n==6: 
-      contentxt=contentxt+"RT "+json.loads(note["content"])["content"]   
+      z=(note)['content']
+      import json
+      if z!= "":
+             j = json.loads(z)
+             contentxt=contentxt + "RT "+ str(j["content"]) 
+     
    if n==30023:
       contentxt=contentxt+"Lenght "+str(len(note["content"]))  
    if n in [1,6,7,30023]:   
