@@ -73,16 +73,18 @@ async def Article_new(note,tag):
     try:   
         # Send an event using the Nostr Signer
         builder = EventBuilder.long_form_text_note(note).tags(tag)
-        #await client.send_event_builder(builder,tag)
+      
         testNote= await client.send_event_builder(builder)
         
         messagebox.showinfo("Result",str(testNote.failed.keys)+"\n"+str(testNote.success))
         write_json_fake_note("article",testNote.id.to_hex())
         metadata = metadata_get()
-
-        await client.set_metadata(metadata)
+        if metadata!=None:
+         await client.set_metadata(metadata)
     except NostrSdkError as e:
-       print (e)
+           print (e)
+    except TypeError as b:
+       print(b)
 
 def user_convert(x):
     l=[]
@@ -149,17 +151,23 @@ def long_form():
     p2=call_function()
     if p2:
        
-       tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.IMAGE(), [image]),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
+       if image=="":
+        tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
+       else:
+          tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.IMAGE(), [image]),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
        l_list=list(tags)
        
        for p2_x in  p2:
         l_list.append(Tag.parse(p2_x))
        tags=tuple(l_list)
     else:    
-       tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.IMAGE(), [image]),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
+       if image=="":
+        tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
+       else:
+          tags=Tag.custom(TagKind.SUMMARY(), [summary]),Tag.custom(TagKind.TITLE(), [title]),Tag.identifier(url_uid),Tag.custom(TagKind.IMAGE(), [image]),Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )])   #Tag.custom
   
     note=entry4.get(1.0, "end-1c")
-    print(tags)
+    
    
     if __name__ == '__main__':
      note=entry4.get(1.0, "end-1c")
@@ -172,13 +180,12 @@ def long_form():
      button_entry1.config(text="■",foreground="grey")
      error_label.config(text="Problem:")
      print_label.config(text="Wait for the article", font=("Arial",12))
+     summary_view.config(text="Summary: ")
+     title_view.config(text= "view?: ")
+     
    else:
        print("error")
        check_square() 
-
-#tag hashtag missing
-
-#entry_layout
 
 def check_square():
     Text=entry4.get(1.0, "end-1c")
@@ -214,7 +221,7 @@ def check_square():
         
 entry4=tk.Text(root,border=2,highlightbackground="grey")
 entry4.place(relx=0.5,rely=0.2,relwidth=0.3,relheight=0.4,anchor='n' )
-button_send=tk.Button(root,text="send long_form",command=long_form, background="darkgrey",font=("Arial",14,"bold"))
+button_send=tk.Button(root,text="send long form",command=long_form, background="darkgrey",font=("Arial",14,"bold"))
 button_send.place(relx=0.525,rely=0.65,relwidth=0.15,relheight=0.1,anchor='n' )
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
 button_entry1.place(relx=0.62,rely=0.65,relwidth=0.05, relheight=0.1,anchor="n" )
@@ -309,7 +316,10 @@ def Raw_tag():
          relay_view.place_forget()
          show_button.place_forget()
 
-raw_button = tk.Button(root, text="Open Tag", font=("Arial",12,"bold"), command=Raw_tag)         
+raw_button = tk.Button(root, text="Open Tag", font=("Arial",12,"bold"), command=Raw_tag,
+                background=colour2, foreground=colour4, activebackground=colour3,
+                  activeforeground=colour4, highlightbackground=colour2)
+
 raw_button.place(relx=0.9, rely=0.02)
 
 def url_link():
