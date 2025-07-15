@@ -1073,7 +1073,7 @@ def open_new_user():
  if len(my_dict)==5:
   if Check_open_2.get()==1:
    Check_open_2.set(0)
-  frame_user.place(relx=0.5,rely=0.01,relheight=0.43,relwidth=0.28)
+  frame_user.place(relx=0.02,rely=0.45,relheight=0.2,relwidth=0.28)
 
 def close_new_user():
    if Check_open_2.get()==0:  

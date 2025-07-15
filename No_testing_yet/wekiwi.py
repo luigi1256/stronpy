@@ -799,7 +799,7 @@ button_mov.grid(column=2, row=5,padx=5,pady=5)
 button_back.grid(column=2, row=6,padx=5,pady=5)
         
 entry_variable=StringVar()
-entry_var=Entry(root, textvariable=entry_variable,font=("Arial",12,"bold"))
+entry_var=Entry(root, textvariable=entry_variable,font=("Arial",12,"bold"),width=15)
 entry_var.place(relx=0.35,rely=0.25)
 
 frame1.grid(column=5,columnspan=11, row=0, rowspan=3)
@@ -865,7 +865,7 @@ public_list=[]
 label_d_search=tk.Label(root, text='d Tag',font=('Arial',12,'bold'))    
 label_d_search.place(relx=0.38,rely=0.21 ) 
 button_close_search=tk.Button(root, text='Search Relay',font=('Arial',12,'bold'), command=call_text)    
-button_close_search.place(relx=0.51,rely=0.24 ) 
+button_close_search.place(relx=0.48,rely=0.24 ) 
 
 async def get_search_relay(client):
    if public_list!=[]:
@@ -984,7 +984,7 @@ def show_Teed():
         button_f_close.place_forget()
         
     button_f_close=Button(root,command=close_number,text=" ❌ ",font=("Arial",12,"normal"),fg="red")
-    button_f_close.place(relx=0.6,rely=0.24)      
+    button_f_close.place(relx=0.58,rely=0.24)      
        
  s=1
  create_page(db_list_note, s)
