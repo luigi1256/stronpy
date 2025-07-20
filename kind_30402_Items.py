@@ -92,12 +92,12 @@ async def get_kind(client, event_):
            
 def more_link(f):
    
-   list=['mov','mp4']
+   list_video=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_video:
         return "video"
    if f[-3:] in img:
            return "pic" 

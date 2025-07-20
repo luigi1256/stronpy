@@ -97,7 +97,7 @@ def more_spam(x):
 
 def codifica_link(x):
    f=url_spam(x)
-   list=['mov','mp4']
+   list_video=['mov','mp4']
    img=['png','jpg','JPG','gif']
    img1=['jpeg','webp'] 
    ytube=['https://youtu.be']
@@ -105,7 +105,7 @@ def codifica_link(x):
    xtwitter=["https://x.com/"]
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_video:
         return "video"
    if f[-3:] in img:
            return "pic" 
@@ -127,11 +127,11 @@ def url_strange(url):
    else:
       return "no spam"
 
-def block_url_spam(x):
+def block_url_spam(x:dict):
    z=x['content']
    for j in z.split():
     if j[0:5]=="https":
-       if len(x['content'])==len(j) or len(x['content'])+5==len(j):
+       if len(j)+5>=len(z):
            return "no context"  
        else:
              return codifica_link(x)
@@ -891,12 +891,12 @@ def photo_print(note):
 
 def more_link(f):
    
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-3:] in img:
            return "pic" 

@@ -182,7 +182,7 @@ def link_kind1():
 
 def codifica_link_str(string):
    f=string
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    list1=['webm']
    audio=['mp3']
    img=['png','jpg','gif']
@@ -190,7 +190,7 @@ def codifica_link_str(string):
    ytube=['https://youtu.be',"https://www.youtube.com/","https://m.youtube.com/","https://youtube.com/"] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-4:] in list1:
         return "video"

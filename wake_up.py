@@ -62,12 +62,12 @@ def url_bookmark():
     
 def codifica_spam():
    f=url_bookmark()
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jepg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-3:] in img:
            return "pic" 

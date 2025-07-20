@@ -847,12 +847,12 @@ def balance_photo_print(nota):
 
 def more_link(f):
    
-   list=['mov','mp4']
+   list_video=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_video:
         return "video"
    if f[-3:] in img:
            return "pic" 
@@ -863,14 +863,14 @@ def more_link(f):
 
 def codifica_link(x):
    f=url_spam(x)
-   list=['mov','mp4']
+   list_video=['mov','mp4']
    img=['png','jpg','JPG','gif']
    img1=['jpeg','webp'] 
    tme=["https://t.me/"]
    xtwitter=["https://x.com/"]
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_video:
         return "video"
    if f[-3:] in img:
            return "pic" 

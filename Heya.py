@@ -850,7 +850,7 @@ def more_spam(x):
 
 def codifica_link(x):
    f=url_spam(x)
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    img=['png','jpg','JPG','gif']
    img1=['jpeg','webp'] 
    ytube=['https://youtu.be']
@@ -858,7 +858,7 @@ def codifica_link(x):
    xtwitter=["https://x.com/"]
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-3:] in img:
            return "pic" 
@@ -957,12 +957,12 @@ def photo_list(list_note):
 
 def more_link(f):
    
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-3:] in img:
            return "pic" 
