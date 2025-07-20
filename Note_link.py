@@ -638,7 +638,7 @@ def open_relay():
     structure_relay = tk.Label(frame_account, text="relay",font=("Arial",12,"bold"))
     entry_relay=ttk.Entry(frame_account,justify='left',font=("Arial",12,"bold"))
     structure_relay.grid(column=11, row=1, padx=5,pady=5) 
-    button_beau.destroy()
+    button_beau.place_forget()
     
     def relay_class():
      if entry_relay.get()!="":
@@ -665,19 +665,37 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list
 
+    def remove_one_relay():
+     if combo_bo_r.get()!="":
+        if combo_bo_r.get() in relay_list:
+            number=relay_list.index(combo_bo_r.get())
+            relay_list.pop(number)
+            counter_relay['text']=str(len(relay_list)) 
+            counter_relay.grid(column=12,row=1)
+            combo_bo_r['value']=relay_list
+            return relay_list  
+     else:
+       if relay_list!=[]:  
+          counter_relay['text']=str(len(relay_list)) 
+          counter_relay.grid(column=12,row=1)
+          combo_bo_r['value']=relay_list
+           
+       else:
+          upload_relay_list("relay")  
+          counter_relay['text']=str(len(relay_list)) 
+          counter_relay.grid(column=12,row=1)
+          combo_bo_r['value']=relay_list        
+
     relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)
+    relay_d_button = tk.Button(frame_account, text="Remove [R]", font=("Arial",12,"normal"),background="grey", command=remove_one_relay)
+    relay_d_button.grid(column=13, row=3, padx=10,pady=5)
 
     def Close_profile(event):
        frame_account.destroy()
-       button_beau=tk.Button(root, 
-                  highlightcolor='WHITE',
-                  text='Relay',
-                  font=('Arial',12,'bold'),
-                  command=open_relay            
-                  )
+       
        button_beau.place(relx=0.55,rely=0.02) 
         
     button_close=tk.Button(frame_account, background='red', text='❌',font=('Arial',12,'bold'))    
@@ -693,7 +711,7 @@ def open_relay():
     combo_bo_r.grid(column=13,row=2,pady=5)
     combo_bo_r.set("Relays set")
     combo_bo_r.bind("<<ComboboxSelected>>", on_server)
-    frame_account.place(relx=0.5,rely=0.001,relheight=0.2,relwidth=0.4)
+    frame_account.place(relx=0.5,rely=0.001,relheight=0.23,relwidth=0.4)
 
 button_beau=tk.Button(root, highlightcolor='WHITE',text='Relay',font=('Arial',12,'bold'),command=open_relay )
 button_beau.place(relx=0.55,rely=0.02) 

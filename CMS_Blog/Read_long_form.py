@@ -994,14 +994,14 @@ def url_spam_image(x):
 
 def codifica_link(x):
    f=url_spam_image(x)
-   list=['mov','mp4']
+   list_v=['mov','mp4']
    img=['png','jpg','JPG','gif']
    img1=['jpeg','webp'] 
    tme=["https://t.me/"]
    xtwitter=["https://x.com/"]
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_v:
         return "video"
    if f[-3:] in img:
            return "pic" 

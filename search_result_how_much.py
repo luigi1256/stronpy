@@ -1034,9 +1034,10 @@ def print_list_tag():
     def Close_print():
        frame3.destroy()  
        button_close_.place_forget()
-
+    
+    button_close_=tk.Button(root,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     if test1!=[]:   
-     button_close_=tk.Button(root,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
+     
      button_close_.place(relx=0.25,rely=0.24)
     else:
        Close_print() 

@@ -146,7 +146,6 @@ def open_relay():
             relay_list.pop(number)
             counter_relay['text']=str(len(relay_list)) 
             counter_relay.grid(column=12,row=1)
-            entry_relay.delete(0, END)
             combo_bo_r['value']=relay_list
             return relay_list  
      else:
