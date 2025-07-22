@@ -183,8 +183,11 @@ def show_noted():
         if tags_string(note,"e")!=[]:
               if four_tags(note,"e"):
                 for F_note in four_tags(note,"e"):
+                  if len(F_note)==4:   
                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
-              
+                  else:
+                     context2=context2+str(" < "+ F_note[0]+" > ")+"no NIP-10"+ "\n"
+                     
         else:
                context2="---> Root  <--- "+"\n"
         for xnote in tags_string(note,"alt"):
@@ -287,7 +290,7 @@ def show_noted():
        s=s+2  
        s1=s1+4
        root.update() 
-      except NostrSdkError as c:
+      except NostrSdkError and IndexError as c:
            print(c, "maybe there is an Error") 
 
    scrollbar_1.pack(side="bottom", fill="x",padx=20)
@@ -1000,27 +1003,57 @@ def show_lst_ntd(list_note_p):
   button_frame.place(relx=0.74,rely=0.83,relwidth=0.1)      
 
 test_note=[]
+list_note_read=[]
 
 def search_note():
    if len(list_note_save)==12:
-     
-         
-                 result_note=show_from_id(list_note_save) 
-                 if result_note!=None:
-                  for result_x in result_note:
-                    if result_x not in test_note:
-                       test_note.append(result_x)     
-   print(len(test_note))    
-   layout()                
+    for list_x in list_note_save:
+      if list_x not in list_note_read:
+        list_note_read.append(list_x)                       
+    result_note=show_from_id(list_note_save) 
+    if result_note!=None:
+      for result_x in result_note:
+        if result_x not in test_note:
+          test_note.append(result_x) 
+   if test_note!=[]:
+    for test_x in test_note:
+       if test_x not in list_note_read: 
+          list_note_read.append(test_x)  
+    timeline_created(test_note)      
+    user_pub=tag_npub(list_note_read)
+    print(len(user_pub))       
+    note_npub=search_note_from(user_pub,1)  
+    if note_npub!=[]:
+      for test_y in note_npub:
+        if test_y not in list_note_read: 
+          list_note_read.append(test_y)  
+      timeline_created(note_npub)                                    
+    print(len(test_note),len(note_npub))    
+    layout()                
 
 button_search_n=Button(root,command=search_note,text="Note",font=("Arial",12,"normal"))
 button_search_n.place(relx=0.05,rely=0.83)      
+
+def tag_npub(l):
+    z=[]
+    pub_key=[]
+    for v in l:
+        if v["pubkey"] not in pub_key:
+          z.append(PublicKey.parse(v["pubkey"]))
+          pub_key.append(v["pubkey"]) 
+        if tags_string(v,'p')!=[] and tags_string(v,'p')!=None:
+              for pubkey_x in tags_string(v,'p'):
+               if pubkey_x not in pubkey_x:
+                z.append(PublicKey.parse(pubkey_x))
+                pub_key.append(pubkey_x) 
+              
+    return z
 
 def layout():
    """Widget function \n
    Vertical feed 
    """
-   if test_note!=[]: 
+   if list_note_save!=[]: 
     frame1=Frame(root, width=400, height=100)
     canvas = Canvas(frame1)
     canvas.pack(side="left", fill=BOTH, expand=True)
@@ -1050,12 +1083,17 @@ def layout():
         if note_text["content"] not in list_note_lib:
          list_note_lib.append(note_text["content"])
          lenght,note_p=pubkey_id(note_text["pubkey"])
+         if note['pubkey'] in list(Pubkey_Metadata.keys()):
+         
+          context0="Nickname " +Pubkey_Metadata[note["pubkey"]]
+         else: 
+          context0="Author: "+note['pubkey'][0:44]
          if lenght>1:
                          
                  
-            button_grid2=Button(scrollable_frame,text= "Author "+note['pubkey'][0:44], command= lambda val=note_p: show_lst_ntd(val))
+            button_grid2=Button(scrollable_frame,text= context0, command= lambda val=note_p: show_lst_ntd(val))
          else:
-             button_grid2=Button(scrollable_frame,text= "Author "+note['pubkey'][0:44])           
+             button_grid2=Button(scrollable_frame,text= context0)           
          
          button_grid2.grid(row=s,column=0,padx=5,pady=5, columnspan=3)  
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
@@ -1098,7 +1136,7 @@ def layout():
     s=1       
     n=0
     if test_note!=[]:
-     for note in test_note:
+     for note in list_note_read:
       n=n+1
       create_note(note, s)
       s += 4   
@@ -1152,6 +1190,7 @@ def list_pubkey_id():
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+     try:  
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
@@ -1181,6 +1220,8 @@ def list_pubkey_id():
         except KeyError as e:
           print("KeyError ",e) 
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
+     except json.decoder.JSONDecodeError as e:
+        print(e,single)  
 
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
 
@@ -1218,5 +1259,52 @@ async def feed(authors):
         combined_results = await get_relay_z(client, authors)
     await client.disconnect()
     return combined_results    
+
+async def get_relays_1(client, authors):
+    f = Filter().authors(authors).kind(Kind(1)).limit(10*len(authors))
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec()]
+    return z
+
+async def get_relay_1(client, user):
+    f = Filter().author(user).kind(Kind(1)).limit(10)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec()]
+    return z
+
+async def feed_note(authors):
+      
+    client = Client(None)
+    
+    # Add relays and connect
+    await client.add_relay("wss://relay.damus.io/")
+    await client.add_relay("wss://nos.lol/")
+    
+    if relay_list!=[]:
+       
+       for jrelay in relay_list:
+          await client.add_relay(jrelay)
+    await client.connect()
+
+    await asyncio.sleep(2.0)
+
+    if isinstance(authors, list):
+        combined_results = await get_relays_1(client, authors)
+    else:
+        combined_results = await get_relay_1(client, authors)
+    await client.disconnect()
+    return combined_results    
+
+def search_note_from(user,x):
+    if __name__ == "__main__":
+     # Example usage with a single key
+     single_author = user 
+     single_results = asyncio.run(feed_note(single_author))
+    Z=[]
+    note=get_note(single_results)
+    for r in note:
+       if (r)['kind']==x:
+          Z.append(r)
+    return Z  
 
 root.mainloop()
