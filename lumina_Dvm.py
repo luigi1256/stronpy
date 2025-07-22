@@ -204,46 +204,53 @@ def photo_list_frame_2(note):
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-         
+      if codifica_link_(label_pic.get())=="pic":   
+       print(label_pic.get())
        response = requests.get(label_pic.get(), stream=True)
        if response.ok==True:
-        with open('my_image.png', 'wb') as file:
-         shutil.copyfileobj(response.raw, file)
-        del response
-        from PIL import Image
-        image = Image.open('my_image.png')
-        if balance!=[]:
-         number=balance[int(lbel_var.get())]
-        else:
+        try:
+         with open('my_image.png', 'wb') as file:
+          shutil.copyfileobj(response.raw, file)
+         del response
+         from PIL import Image,UnidentifiedImageError
+         image = Image.open('my_image.png','r')
+        
+         if balance!=[]:
+          number=balance[int(lbel_var.get())]
+         else:
            number=float(image.width//image.height) 
-        test1=int(float(number)*250)
-        if test1>400:
+         test1=int(float(number)*250)
+         if test1>400:
            test1=int(400)
-        if test1<150:
+         if test1<150:
            test1=int(160)   
-        image.thumbnail((test1, 250))  # Resize image if necessary
-        photo = ImageTk.PhotoImage(image)
-        image_label.config(image=photo)
-        image_label.image_names= photo
-  
-        def close_pic():
+         image.thumbnail((test1, 250))  # Resize image if necessary
+         photo = ImageTk.PhotoImage(image)
+         image_label.config(image=photo)
+         image_label.image_names= photo
+        
+         def close_pic():
             image_label.config(image="")
             button_close.place_forget()
             label_pic.delete(0, END)
             frame_pic.destroy()
 
-        def close_one_pic():
+         def close_one_pic():
             image_label.config(image="")
             button_close.place_forget()
             label_pic.delete(0, END)    
             next_number()
-
-        s=s+3
-        button_close=Button(frame_pic,command=close_pic,text="close",font=("Arial",12,"bold"))
-        button_close.grid(column=2,columnspan=1,row=s+1,pady=5)
-        button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
-        button_close_photo.grid(column=1,row=s+1,pady=5)
-        s=s+2
+        
+         s=s+3
+         button_close=Button(frame_pic,command=close_pic,text="close",font=("Arial",12,"bold"))
+         button_close.grid(column=2,columnspan=1,row=s+1,pady=5)
+         button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
+         button_close_photo.grid(column=1,row=s+1,pady=5)
+         s=s+2
+        except (requests.exceptions.RequestException, ConnectionRefusedError,UnidentifiedImageError) as e:
+           print(e) 
+      else:
+          print(label_pic.get())
    print_photo()
    frame_pic.place(relx=0.62,rely=0.2,relwidth=0.3) 
   else:
@@ -666,7 +673,7 @@ def codifica_link_(url):
    f=url_link(url)
    list_video=['mov','mp4']
    audio=['mp3']
-   img=['png','jpg','gif']
+   img=['jpg','png','gif']
    img1=['jpeg','webp'] 
    if f==None:
                  return "no spam"
