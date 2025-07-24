@@ -1,8 +1,6 @@
 #search result B0
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, EventBuilder, Metadata,Kind
 from nostr_sdk import *
-from nostr_sdk import Keys,Filter,Client, Event,EventBuilder,Metadata,PublicKey,EventId,Nip19Event,Nip19,Nip19Profile,Nip21,Timestamp
 from datetime import timedelta 
 import textwrap
 import json
@@ -12,8 +10,6 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import datetime
-import calendar
 from bs4 import BeautifulSoup
 import requests
 
@@ -225,13 +221,38 @@ def d_url_speed(string):
  if j[0:7]=="http://":
       return str(j)  
  return str("https://"+string)  
- 
+
+def timeline_created(db_list,list_new):
+  new_note=[] 
+  if db_list!=[]:
+   for new_x in list_new:
+     if new_x not in db_list:
+        new_note.append(new_x) 
+   i=0
+    
+   while i<len(new_note):
+     j=0
+     while j< len(db_list): 
+      if db_list[j]["created_at"]>(new_note[i]["created_at"]):
+         j=j+1
+      else:
+         db_list.insert(j,new_note[i])
+         break
+     i=i+1
+   return db_list   
+  else:
+        for list_x in list_new:
+            db_list.append(list_x)
+        return db_list     
+
+block_hashtag_word=[]
+
 def add_db_list():
         """Widget function \n
         Add notes to pin list"""
         
         Frame_block=Frame(root,width=50, height=20)
-        db_frame.place(relx=0.69, rely=0.22,relwidth=0.24,relheight=0.23)       
+        db_frame.place(relx=0.69, rely=0.22,relwidth=0.24,relheight=0.3)       
         button10=tk.Button(Frame_block, highlightcolor='Blue',text='PINs',font=('Arial',12,'bold'),command=move_to_pin)
 
         def Close_block(event):
@@ -240,7 +261,7 @@ def add_db_list():
         
         button_b_close=Button(Frame_block, background='red', text='❌',font=('Arial',12,'bold'))    
         button_b_close.bind("<Double-Button-1>" ,Close_block)
-        button_b_close.grid(column=4, row=0, padx=5, columnspan=2,rowspan=2) 
+        button_b_close.grid(column=0, row=2, padx=5) 
             
         def search_block_list():
             label_string_block1.set(len(db_list_note))    
@@ -255,6 +276,11 @@ def add_db_list():
         def clear_db_pin():
             db_pin.clear()
             label_link_var.set(len(db_pin))   
+        def block_hashtag():   
+           if delete_entry.get()!="":
+            if delete_entry.get() not in block_hashtag_word:
+               block_hashtag_word.append(str(delete_entry.get()))
+               delete_hashtag.set("")    
                  
         clear_block=Button(Frame_block, command=delete_block_list, text= "Clear DB: ",background="darkgrey",font=('Arial',12,'normal'))
         clear_block.grid(column=0,row=0,padx=5,pady=5)    
@@ -266,12 +292,17 @@ def add_db_list():
         random_count.grid(column=1,row=1,padx=5,pady=5)
         label_string_block1=StringVar()
         label_link_var=StringVar()
+        delete_hashtag=StringVar()
+        delete_entry=Entry(Frame_block, textvariable=delete_hashtag,font=('Arial',12,'normal'),width=15)
+        delete_entry.grid(column=0,row=3,pady=5)
+        delete_h_button1=Button(Frame_block, command=block_hashtag, text="remove #",font=('Arial',12,'normal'))
+        delete_h_button1.grid(column=1,row=3,padx=5,pady=5)
         label_block_list1=Label(Frame_block, textvariable=label_string_block1,font=('Arial',12,'normal'))
         label_block_list1.grid(column=2,row=0,pady=5)
         label_var_list1=Label(Frame_block, textvariable=label_link_var,font=('Arial',12,'normal'))
         label_var_list1.grid(column=2,row=1,pady=5)
         button10.grid(column=1, row=2, pady=5)
-        Frame_block.place(relx=0.7,rely=0.25,relheight=0.19,relwidth=0.2)
+        Frame_block.place(relx=0.7,rely=0.25,relheight=0.26,relwidth=0.2)
         
 button_block=tk.Button(root, highlightcolor='WHITE', text='DB count',font=('Arial',12,'bold'),command=add_db_list )
 button_block.place(relx=0.75,rely=0.3)
@@ -397,10 +428,9 @@ def call_text():
     if response:
 
      note_=get_note(response)
+     timeline_created(db_list_note,note_)
      for jnote in note_:
-       if jnote not in db_list_note:
-          db_list_note.append(jnote)
-          
+              
        if len(jnote["content"])<300:
           second_label10.insert(END, str("https://")+str(tags_string(jnote,"d")[0]+"\n"+jnote["content"]))
                     
@@ -423,9 +453,8 @@ def call_hashtag():
    if __name__ == "__main__":
     response=asyncio.run(Get_kind_number(39701))
     if response!= None and response!=[]:
-       for resp_x in get_note(response):
-          if resp_x not in db_list_note:
-             db_list_note.append(resp_x) 
+       response_list= get_note(response)
+       timeline_created(db_list_note,response_list) 
        move_to_pin()
 
 def five_event():
@@ -646,8 +675,14 @@ def show_Teed():
            
       var_id=StringVar()
       label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
-      var_id.set(context0+context1+context2)
-      label_id.grid(pady=2,column=0, columnspan=3)
+      var_id.set(context0)
+      label_id.grid(pady=2,column=0, columnspan=3,row=s)
+      scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
+      scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
+      second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=28, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+      second_label10.insert(END,context1+"\n"+str(context2))
+      scroll_bar_mini.config( command = second_label10.yview )
+      second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
       
       def print_id_2(entry):
            number=list(db_pin).index(entry)
@@ -674,10 +709,10 @@ def show_Teed():
                  print(e)
           
       button=Button(scrollable_frame_1,text=f"Click me for info!", command=lambda val=note: print_var_2(val))
-      button.grid(column=0,row=s,padx=5,pady=5)
+      button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"Number note", command=lambda val=note: print_id_2(val))
-      button_grid2.grid(row=s,column=1,padx=5,pady=5)      
-      s=s+2  
+      button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
+      s=s+3  
 
      except NostrSdkError as c:
            print(c, "maybe there is an Error") 
@@ -734,7 +769,7 @@ def show_noted():
   
     s=1
     
-    for note in hash_list_notes:
+    for note in hash_list_notes[0:100]:
      try:
       context0="id: "+note["id"]+"\n"+"Pubkey: "+note['pubkey']+"\n"+"\n"
       if note['tags']!=[]:
@@ -756,8 +791,14 @@ def show_noted():
            
       var_id=StringVar()
       label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
-      var_id.set(context0+context1+context2)
-      label_id.grid(pady=2,column=0, columnspan=3)
+      var_id.set(context0)
+      label_id.grid(pady=2,column=0, columnspan=3,row=s)
+      scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
+      scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
+      second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=28, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+      second_label10.insert(END,context1+"\n"+str(context2))
+      scroll_bar_mini.config( command = second_label10.yview )
+      second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
       
       def print_id(entry):
            number=list(hash_list_notes).index(entry)
@@ -777,11 +818,11 @@ def show_noted():
                  print(e)
                               
       button=Button(scrollable_frame_1,text=f"Click me for info!", command=lambda val=note: print_var(val))
-      button.grid(column=0,row=s,padx=5,pady=5)
+      button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"Number note!", command=lambda val=note: print_id(val))
-      button_grid2.grid(row=s,column=1,padx=5,pady=5)      
-      s=s+2  
-
+      button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
+      s=s+3  
+      root.update_idletasks()
      except NostrSdkError as c:
            print(c, "maybe there is an Error") 
 
@@ -884,7 +925,7 @@ def print_people():
     button_close_.pack(pady=5,padx=5)                 
 
 button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
-button_people_.place(relx=0.75,rely=0.5) 
+button_people_.place(relx=0.75,rely=0.55) 
 
 def print_list_tag(): 
    """Widget function \n
@@ -940,8 +981,13 @@ def print_list_tag():
            
             ra=0
             se=1
-            while ra<len(test1):
+            for word in test1:
+               if word in block_hashtag_word:
+                  test1.remove(word)
+            test1.sort()
             
+            while ra<len(test1):
+               
                 button_grid1=Button(scrollable_frame,text=f"{test1[ra]} ", command=lambda val=test1[ra]: print_id(val))
                 button_grid1.grid(row=s,column=1,padx=5,pady=5)
                 
@@ -1006,8 +1052,12 @@ async def get_kind(client, event_):
     if hashtag_list==[]:
      
      print(entry_channel.get())
-     if entry_channel.get() not in hashtag_list:
-       hashtag_list.append(str(entry_channel.get()))
+     if entry_channel.get() not in block_hashtag_word:
+        hashtag_list.append(str(entry_channel.get()))
+    else:
+       for hash_word in hashtag_list:
+            if hash_word in block_hashtag_word:
+                  hashtag_list.remove(hash_word)    
     f = Filter().kind(Kind(event_)).hashtags(hashtag_list)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
