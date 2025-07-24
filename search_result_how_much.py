@@ -10,10 +10,6 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import datetime
-import calendar
-from bs4 import BeautifulSoup
-import requests
 
 # Widget funtion 
 # open_profile # add_db_list # print_text # show_Teed #show_noted #print_people #print_list_tag
@@ -219,8 +215,7 @@ def add_db_list():
         
         Frame_block=Frame(root,width=50, height=20)
         db_frame.place(relx=0.69, rely=0.22,relwidth=0.3,relheight=0.26)       
-        #button10=tk.Button(Frame_block, highlightcolor='Blue',text='PINs',font=('Arial',12,'bold'),command=move_to_pin)
-
+        
         def Close_block(event):
             Frame_block.destroy()
             db_frame.place_forget()
@@ -350,7 +345,7 @@ async def outboxes():
           await client.add_relay(jrelay)
        await client.connect()   
        note= await get_public_pin(client) 
-       await client.disconnect()
+       
        return note     
     else:
        await client.add_relay("wss://nostr.mom/")
@@ -359,7 +354,7 @@ async def outboxes():
        await client.add_relay("wss://relay.primal.net/")
        await client.connect()
        relay_add=get_note(await get_outbox(client))
-       await client.disconnect()
+       
        if relay_add !=None and relay_add!=[]:
            i=0
            while i<len(relay_add):
@@ -385,7 +380,7 @@ async def search_box_relay():
        
     await client.connect()
     relay_add=get_note(await get_search_relay(client))
-    await client.disconnect()
+    
     if relay_add !=None and relay_add!=[]:
            i=0
            while i<len(relay_add):
@@ -408,12 +403,12 @@ async def Search_text():
        await asyncio.sleep(2.0)
 
        combined_results = await get_result_(client)
-       await client.disconnect()
+       
        if combined_results:
         return combined_results
      
     await search_box_relay()
-    await client.disconnect()
+    
     print("found ", len(relay_search_list), " relays")
 
 #call function
@@ -554,7 +549,7 @@ async def Get_id(event_):
         print("errore")
     else:
         test_kind = await get_one_Event(client, event_)
-    await client.disconnect()    
+    
     return test_kind
 
 async def get_relays(client, authors):
@@ -585,7 +580,7 @@ async def feed(authors):
         combined_results = await get_relays(client, authors)
     else:
         combined_results = await get_relay(client, authors)
-    await client.disconnect()
+    
     return combined_results    
 
 def print_text():  
@@ -1023,9 +1018,6 @@ def print_list_tag():
               s=s+1
               ra=ra+1   
 
-    else:
-         print("error") #It didn't find a channel
-         
     if test1!=None and test1!=[]:
      scrollbar.pack(side="bottom", fill="x",padx=20)
      canvas.pack(side="left", fill="x", expand=True)
@@ -1108,7 +1100,7 @@ async def Get_kind_number(event_):
         test_kind = await get_kind(client, event_)
     
     await asyncio.sleep(2.0)
-    await client.disconnect()
+    
     return test_kind
 
 frame2=Frame(root,width=20,height=1)

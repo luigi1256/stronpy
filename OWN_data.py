@@ -214,7 +214,8 @@ def Notebook_():
     select_name=combo_name.get()
     list_note_select=[]
     for note_name in kind_0:
-     if note_name["name"]==select_name:
+     if "name" in list(note_name.keys()):
+      if note_name["name"]==select_name:
        try: 
         for test_0 in list_note_zer0:
            if json.loads(test_0["content"])==note_name:
