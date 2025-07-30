@@ -168,8 +168,8 @@ async def wake_note(tag,status):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
-    
+            relay_url = RelayUrl.parse(jrelay)
+            await client.add_relay(relay_url)
 
     await client.connect()
      
@@ -600,13 +600,17 @@ async def Get_id(event_):
     
     client = Client(None)
     if relay_list!=[]:
-       
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
     else:
-     await client.add_relay(" wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+     relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+     relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+     relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+     await client.add_relay(relay_url_1)
+     await client.add_relay(relay_url_2)
+     await client.add_relay(relay_url_4)    
+
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -768,12 +772,15 @@ async def Get_event_from(event_):
     client = Client(None)
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://wot.utxo.one/")
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://wot.utxo.one/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+        for jrelay in relay_list:
+            relay_url = RelayUrl.parse(jrelay)
+            await client.add_relay(relay_url)
     await client.connect()
     await asyncio.sleep(2.0)
     try:   

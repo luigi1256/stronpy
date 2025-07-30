@@ -73,7 +73,12 @@ async def new_entry_wiki(note,tag):
     write_json_fake_note(d_identifier+"-wiki",testNote.id.to_hex())
     metadata = metadata_get()
     if metadata:
-     await client.set_metadata(metadata)
+       try:
+        metadata_obj = Metadata.from_record(metadata)
+        await client.set_metadata(metadata_obj)
+        await asyncio.sleep(2.0) 
+       except NostrSdkError as e:
+          print(e)
 
 def convert_user(x):
     other_user_pk = PublicKey.parse(x)
@@ -453,20 +458,23 @@ def Look_profile():
             s=s+1
         
         if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-           .set_name(Metadata_dict['name']) \
-           .set_display_name(Metadata_dict['display_name']) \
-           .set_about(Metadata_dict['about']) \
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
+        else:    
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
            
-        else:
-            metadata = Metadata()\
-            .set_name(Metadata_dict['name']) \
-            .set_display_name(Metadata_dict['display_name']) \
-            .set_about(Metadata_dict['about']) \
-            .set_picture(Metadata_dict['picture']) \
-            .set_lud16(Metadata_dict['lud16'])
-            
-        write_json("metadata",metadata.as_json())
+        metadata_obj = Metadata.from_record(metadata)              
+        write_json("metadata_2",metadata_obj.as_json())
         
     button_view_note=tk.Button(frame_pic, highlightcolor='WHITE',text='Save!',font=('Arial',12,'bold'),command=call_profile_)
     button_view_note.grid(column=11, row=1, padx=5, pady=5) 
@@ -484,7 +492,7 @@ def Look_profile():
             messagebox.showerror("Error file", f" Error \n {e}")
 
     def Open_json():
-                data=open_json_metadata("metadata")  
+                data=open_json_metadata("metadata_2")  
                 if "picture" in data.keys():
                  stringa_pic.set(data["picture"])
                 stringa_name.set(data["name"])
@@ -562,23 +570,23 @@ def log_these_key():
 def metadata_get():
   if Metadata_dict!={}: 
    if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_lud16(Metadata_dict['lud16'])
-
-                     
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
             return metadata     
    else:
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_picture(Metadata_dict['picture']) \
-                .set_lud16(Metadata_dict['lud16'])
-            
-            return metadata     
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
+           
+            return metadata    
 
 def metadata_stress():
     if Check_open.get()==0:

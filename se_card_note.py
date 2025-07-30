@@ -193,11 +193,13 @@ async def Selected_event(event_):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    for jrelay in relay_list:
+      relay_url = RelayUrl.parse(jrelay)
+      await client.add_relay(relay_url)
     await client.connect()
     
     if isinstance(event_, list):
@@ -225,12 +227,18 @@ async def get_metadata(user):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_2)
+    
     if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+        for jrelay in relay_list:
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
+
     await client.connect()
     if isinstance(user,list):
      f = Filter().authors(user).kind(Kind(0))
@@ -249,15 +257,23 @@ async def feed_cluster(authors,type_of_event):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
 
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_2)
+    
     if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+        for jrelay in relay_list:
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
+
     else:
-       relay_list.append("wss://nostr.mom/")
-       relay_list.append("wss://nos.lol/")
+       relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+       await client.add_relay(relay_url_1)
+       relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+       await client.add_relay(relay_url_x)
        combo_list_lay["values"]=relay_list
      
     await client.connect()
@@ -504,7 +520,9 @@ async def Search_r_lay(relay_1):
        init_logger(LogLevel.INFO)
        client = Client(None)
        uniffi_set_event_loop(asyncio.get_running_loop())
-       await client.add_relay(relay_1)
+       relay_url_1 = RelayUrl.parse(relay_1)
+       await client.add_relay(relay_url_1)
+    
        await client.connect()
        await asyncio.sleep(2.0)
 

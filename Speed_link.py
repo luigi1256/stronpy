@@ -191,43 +191,47 @@ async def link_it(tag,description):
     if relay_list!=[]:
        
      for jrelay in relay_list:
-       await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
      await client.connect()
     
      builder = EventBuilder(Kind(39701),description).tags(tag)
      test_result_post= await client.send_event_builder(builder)
      metadata = metadata_get()
-     if metadata!=None:
-      await client.set_metadata(metadata)
-      await asyncio.sleep(2.0) 
-
-      f = Filter().authors([keys.public_key()])
-      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-      for event in events.to_vec():
+     if metadata:
+       try:
+        metadata_obj = Metadata.from_record(metadata)
+        await client.set_metadata(metadata_obj)
+        await asyncio.sleep(2.0) 
+       except NostrSdkError as e:
+          print(e)
+     f = Filter().authors([keys.public_key()])
+     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+     for event in events.to_vec():
        print(event.as_json())
      return test_result_post    
 
 def metadata_get():
   if Metadata_dict!={}: 
    if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_lud16(Metadata_dict['lud16'])
-
-                     
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
             return metadata     
    else:
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_picture(Metadata_dict['picture']) \
-                .set_lud16(Metadata_dict['lud16'])
-            
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
+           
             return metadata     
-
+   
 def link_share():
    check_square()
    lists_id=[] 
@@ -421,20 +425,23 @@ def Look_profile():
             s=s+1
         
         if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-           .set_name(Metadata_dict['name']) \
-           .set_display_name(Metadata_dict['display_name']) \
-           .set_about(Metadata_dict['about']) \
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
+        else:    
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
            
-        else:
-            metadata = Metadata()\
-            .set_name(Metadata_dict['name']) \
-            .set_display_name(Metadata_dict['display_name']) \
-            .set_about(Metadata_dict['about']) \
-            .set_picture(Metadata_dict['picture']) \
-            .set_lud16(Metadata_dict['lud16'])
-            
-        write_json("metadata",metadata.as_json())
+        metadata_obj = Metadata.from_record(metadata)              
+        write_json("metadata_2",metadata_obj.as_json())
         
     button_view_note=tk.Button(frame_pic,
                   highlightcolor='WHITE',
@@ -457,7 +464,7 @@ def Look_profile():
             messagebox.showerror("Error file", f" Error \n {e}")
 
     def Open_json():
-                data=open_json_metadata("metadata")  
+                data=open_json_metadata("metadata_2")  
                 if "picture" in data.keys():
                  stringa_pic.set(data["picture"])
                 stringa_name.set(data["name"])
@@ -684,11 +691,16 @@ async def Get_id(event_):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
     else:
-     await client.add_relay(" wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+     await client.add_relay(relay_url_1)
+     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+     await client.add_relay(relay_url_x)
+     relay_url_2 = RelayUrl.parse("wss://relay.primal.net")
+     await client.add_relay(relay_url_2)
+
     await client.connect()
 
     await asyncio.sleep(2.0)

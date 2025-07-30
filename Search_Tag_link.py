@@ -356,15 +356,20 @@ async def outboxes():
     client = Client(None)
     if relay_list!=[]:
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
        await client.connect()   
        note= await get_public_pin(client) 
        return note     
     else:
-       await client.add_relay("wss://nostr.mom/")
-       await client.add_relay("wss://relay.damus.io/")
-       await client.add_relay("wss://nostr.wine/")
-       await client.add_relay("wss://relay.primal.net/")
+       relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+       relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+       relay_url_3 = RelayUrl.parse("wss://nostr.wine/")
+       relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+       await client.add_relay(relay_url_1)
+       await client.add_relay(relay_url_2)
+       await client.add_relay(relay_url_3)
+       await client.add_relay(relay_url_4)  
        await client.connect()
        relay_add=get_note(await get_outbox(client))
        if relay_add !=None and relay_add!=[]:
@@ -385,10 +390,12 @@ async def search_box_relay():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
              
     else:
-       await client.add_relay("wss://nostr.mom/")
+       relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+       await client.add_relay(relay_url_x)
        
     await client.connect()
     relay_add=get_note(await get_search_relay(client))
@@ -407,8 +414,9 @@ async def Search_text():
     client = Client(None)
     
     if relay_search_list!=[]:
-       for jrelay in relay_search_list:
-          await client.add_relay(jrelay)
+       for jrelay in relay_list:
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
        await client.connect()
        await asyncio.sleep(2.0)
 
@@ -533,8 +541,10 @@ async def Get_id(event_):
     
     client = Client(None)
     
-    await client.add_relay("wss://relay.damus.io/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     await client.connect()
     
     await asyncio.sleep(2.0)
@@ -561,9 +571,12 @@ async def feed(authors):
     init_logger(LogLevel.INFO)
     client = Client(None)
     
-    await client.add_relay("wss://nos.lol")
-    await client.add_relay("wss://nostr.mom")
-    await client.add_discovery_relay("wss://purplerelay.com/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_discovery_relay(relay_url_2)
 
     await client.connect()
 
@@ -866,15 +879,19 @@ def pubkey_id(test):
     asyncio.run(run_metadata(client,test))   
    
 async def run_metadata(client,test):
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://relay.mostr.pub/")
+    relay_url_1 = RelayUrl.parse("wss://relay.mostr.pub/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+   
     await client.connect()
     metadata = await Client.fetch_metadata(client,PublicKey.parse(test),timeout=timedelta(seconds=10))  
     if metadata!=None: 
-     if metadata.get_name()!=None:
-       print("name ",metadata.get_name())
+     if metadata.as_record().name:
+       print("name ", metadata.as_record().name)
+      
      else:  
-        print("display name ",metadata.get_display_name())
+        print("display name ", metadata.as_record().display_name)
     else:
        print("undefined ")    
     

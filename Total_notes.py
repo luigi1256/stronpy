@@ -8,7 +8,7 @@ import json
 import requests
 import time
 from asyncio import get_event_loop
-from nostr_sdk import Kind,Nip19Event,Nip19Enum,SubscribeOutput,SubscribeOptions,FilterRecord,Alphabet,Nip21,Coordinate
+from nostr_sdk import Kind,Nip19Event,Nip19Enum,SubscribeOutput,SubscribeOptions,FilterRecord,Alphabet,Nip21,Coordinate,RelayUrl
 from nostr_sdk import TagKind
 import requests
 import shutil
@@ -479,11 +479,13 @@ async def Get_notes():
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     else:
-     await client.add_relay("wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-       
+     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+     await client.add_relay(relay_url_1)
+     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+     await client.add_relay(relay_url_x)
     await client.connect()
     await asyncio.sleep(2.0)
    

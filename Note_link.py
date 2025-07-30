@@ -90,13 +90,17 @@ async def main(authors):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     if relay_list!=[]:
        s=0
        for relay_x in relay_list:
           if s<3:
-           await client.add_relay(relay_x)
+            relay_url = RelayUrl.parse(relay_x)
+            await client.add_relay(relay_url)
+
           s=s+1 
     await client.connect()
     await asyncio.sleep(1.0)

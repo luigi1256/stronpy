@@ -8,7 +8,7 @@ import json
 import requests
 import time
 from asyncio import get_event_loop
-from nostr_sdk import Kind,Nip19Event,Nip19Enum,SubscribeOutput,SubscribeOptions,FilterRecord,Alphabet,Nip21,Coordinate
+from nostr_sdk import Kind,Nip19Event,Nip19Enum,SubscribeOutput,SubscribeOptions,FilterRecord,Alphabet,Nip21,Coordinate,RelayUrl
 from nostr_sdk import TagKind
 import requests
 import shutil
@@ -233,12 +233,14 @@ async def Nostr_coord_feed(tag_nostr_):
         if event_relay:
           for xrelay in event_relay:
            try: 
+                relay_url = RelayUrl.parse(xrelay)
+                await client.add_relay(relay_url)
      
-                await client.add_relay(xrelay)
-      
+            
            except:
                 print("error",xrelay)
-    await client.add_relay("wss://relay.primal.net")
+    relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+    await client.add_relay(relay_url_4)  
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -385,8 +387,10 @@ async def Get_id(event_):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://relay.damus.io/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     await client.connect()
    
     await asyncio.sleep(2.0)
@@ -428,9 +432,12 @@ async def feed(authors):
     
     # Add relays and connect
     
-    await client.add_relay("wss://nos.lol")
-    await client.add_relay("wss://nostr.mom")
-    await client.add_discovery_relay("wss://purplerelay.com/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_discovery_relay(relay_url_2)
 
     await client.connect()
 
@@ -513,9 +520,12 @@ async def Get(event_):
     client = Client(None)
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr.land/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr.land/")
+    await client.add_relay(relay_url_2)
     await client.connect()
     await asyncio.sleep(2.0)
 

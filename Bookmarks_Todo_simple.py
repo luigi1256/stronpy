@@ -268,15 +268,17 @@ async def Get_event_id(e_id):
     init_logger(LogLevel.INFO)
    
     client = Client(None)
-    
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://purplerelay.com/")
-   
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+       
     if relay_list!=[]:
         for xrelay in relay_list:
           if xrelay[0:6]=="wss://" and xrelay[-1]=="/":  
-            await client.add_relay(xrelay)
+            relay_url = RelayUrl.parse(xrelay)
+            await client.add_relay(relay_url)
     await client.connect()
     
     await asyncio.sleep(2.0)
@@ -307,9 +309,13 @@ async def Get_coord_str(a_nostr_tag):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://thecitadel.nostr1.com")
+    
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_3 = RelayUrl.parse("wss://thecitadel.nostr1.com")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -375,10 +381,12 @@ async def Search_d_tag():
     if relay_list!=[]:
        client = Client(None)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+           relay_url = RelayUrl.parse(jrelay)
+           await client.add_relay(relay_url)
        await client.connect()
        await asyncio.sleep(2.0)
-       await client.add_relay("wss://nostr.mom/")
+       relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+       await client.add_relay(relay_url_1)
        if public_list!=[]:
         await client.connect()
         combined_results = await get_result_w(client)
@@ -386,8 +394,8 @@ async def Search_d_tag():
     # Init logger
     init_logger(LogLevel.INFO)
     client = Client(None)
-     
-    await client.add_relay("wss://nostr.mom/")
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/") 
+    await client.add_relay(relay_url_1)
     await client.connect()
     await search_box_relay()
     print("found ", len(relay_list), " relays")
@@ -408,11 +416,13 @@ async def search_box_relay():
     if relay_list!=[]:
        #print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
-             
+          relay_url = RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url)
     else:
-       await client.add_relay("wss://nos.lol/")
-       await client.add_relay("wss://purplerelay.com/")
+       relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+       relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
+       await client.add_relay(relay_url_1)
+       await client.add_relay(relay_url_2)
     await client.connect()
     relay_add=get_note(await get_outbox_relay(client))
     if relay_add !=None and relay_add!=[]:

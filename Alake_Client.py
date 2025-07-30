@@ -217,10 +217,13 @@ async def Get():
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     else:
-     await client.add_relay("wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
+      relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+      await client.add_relay(relay_url_1)
+      relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+      await client.add_relay(relay_url_x)
        
     await client.connect()
     await asyncio.sleep(2.0)
@@ -802,9 +805,12 @@ async def Get_id(event_):
        for jrelay in relay_list:
           await client.add_relay(jrelay)
     else:
-     await client.add_relay("wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net/")
+     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+     await client.add_relay(relay_url_1)
+     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+     await client.add_relay(relay_url_x)
+     relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+     await client.add_relay(relay_url_4)   
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -827,10 +833,14 @@ async def reply(note,tag,test):
           await client.add_relay(jrelay)
     else:
      pass
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr.oxtr.dev/")
-    await client.add_relay("wss://nostr.stakey.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr.oxtr.dev/")
+    relay_url_3 = RelayUrl.parse("wss://nostr.stakey.net/")
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
     await client.connect()
     try:
      builder = EventBuilder.text_note_reply(note,test,test,relay_list[0])  #.tags(tag) 
@@ -985,11 +995,16 @@ async def Get_event_id(e_id):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     else:
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://nostr.mom/")
-     await client.add_relay("wss://purplerelay.com/")
+     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+     await client.add_relay(relay_url_1)
+     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+     await client.add_relay(relay_url_x)
+     relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
+     await client.add_relay(relay_url_2)
+
     
     await client.connect()
 

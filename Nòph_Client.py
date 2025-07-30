@@ -68,7 +68,8 @@ async def Article_new(note,tag):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
        await client.connect()
     try:   
         # Send an event using the Nostr Signer
@@ -79,8 +80,11 @@ async def Article_new(note,tag):
         messagebox.showinfo("Result",str(testNote.failed.keys)+"\n"+str(testNote.success))
         write_json_fake_note("article",testNote.id.to_hex())
         metadata = metadata_get()
-        if metadata!=None:
-         await client.set_metadata(metadata)
+        if metadata:
+            metadata_obj = Metadata.from_record(metadata)
+            await client.set_metadata(metadata_obj)
+            await asyncio.sleep(2.0) 
+  
     except NostrSdkError as e:
            print (e)
     except TypeError as b:
@@ -182,6 +186,11 @@ def long_form():
      print_label.config(text="Wait for the article", font=("Arial",12))
      summary_view.config(text="Summary: ")
      title_view.config(text= "view?: ")
+     print_label.config(foreground="black")  
+     p_view.config(text="")
+     relay_view.config(text="")
+     list_p.clear()
+     list_zap_relay.clear()
      
    else:
        print("error")
@@ -506,20 +515,23 @@ def Look_profile():
             s=s+1
         
         if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-           .set_name(Metadata_dict['name']) \
-           .set_display_name(Metadata_dict['display_name']) \
-           .set_about(Metadata_dict['about']) \
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
+        else:    
+            metadata = MetadataRecord(
+                name= Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
            
-        else:
-            metadata = Metadata()\
-            .set_name(Metadata_dict['name']) \
-            .set_display_name(Metadata_dict['display_name']) \
-            .set_about(Metadata_dict['about']) \
-            .set_picture(Metadata_dict['picture']) \
-            .set_lud16(Metadata_dict['lud16'])
-            
-        write_json("metadata",metadata.as_json())
+        metadata_obj = Metadata.from_record(metadata)              
+        write_json("metadata_2",metadata_obj.as_json())
         
     button_view_note=tk.Button(frame_pic, background=colour2, foreground=colour4, activebackground=colour3,
                   activeforeground=colour4, highlightbackground=colour2,
@@ -543,7 +555,7 @@ def Look_profile():
             messagebox.showerror("Error file", f" Error \n {e}")
 
     def Open_json():
-                data=open_json_metadata("metadata")  
+                data=open_json_metadata("metadata_2")  
                 if "picture" in data.keys():
                  stringa_pic.set(data["picture"])
                 stringa_name.set(data["name"])
@@ -598,24 +610,24 @@ button_b0.place(relx=0.7,rely=0.01,relwidth=0.15)
 def metadata_get():
   if Metadata_dict!={}: 
    if Metadata_dict['picture']=="":  #checkimage
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_lud16(Metadata_dict['lud16'])
-
-                     
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                lud16 =Metadata_dict['lud16'])
+          
+                      
             return metadata     
    else:
-            metadata = Metadata()\
-                .set_name(Metadata_dict['name']) \
-                .set_display_name(Metadata_dict['display_name']) \
-                .set_about(Metadata_dict['about']) \
-                .set_picture(Metadata_dict['picture']) \
-                .set_lud16(Metadata_dict['lud16'])
-            
+            metadata = MetadataRecord(
+                name=Metadata_dict['name'],
+                display_name=Metadata_dict['display_name'],
+                about=Metadata_dict['about'],
+                picture=Metadata_dict['picture'],
+                lud16 =Metadata_dict['lud16'])
+           
             return metadata     
-
+   
 def metadata_stress():
     if Check_open.get()==0:
        Check_open.set(1)

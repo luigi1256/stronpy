@@ -57,8 +57,9 @@ async def get_result_(client,relay_1):
 async def Search_r_lay(relay_1):
        init_logger(LogLevel.INFO)
        client = Client(None)
-    
-       await client.add_relay(relay_1)
+       relay_url = RelayUrl.parse(relay_1)
+       await client.add_relay(relay_url)
+      
        await client.connect()
        await asyncio.sleep(2.0)
 
@@ -283,12 +284,15 @@ async def Get_event_from(event_):
     client = Client(None)
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+     for jrelay in relay_list:
+       relay_url = RelayUrl.parse(jrelay)
+       await client.add_relay(relay_url)
     else:
        relay_list.append("wss://nostr.mom/")
        relay_list.append("wss://nos.lol/")

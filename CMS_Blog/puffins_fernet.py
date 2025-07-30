@@ -166,18 +166,17 @@ async def reply(note,tag):
 
        first_reply.append(test.id.to_hex())
 
-      metadata = Metadata() \
-        .set_name("Just The Second") \
-        .set_display_name("Just The Second") \
-        #.set_about("") \
-        #.set_picture("") \
-        #.set_banner("") \
-        #.set_nip05("") \
-        #.set_lud16("")
+      metadata = MetadataRecord(
+        name="Just The Second",
+        display_name="Just The Second") 
+        #about="",
+        #picture="",
+        #banner="", 
+        #nip05="",
+        #lud16="")
 
-      print(f"Setting profile metadata for {keys.public_key().to_bech32()}")
-      print(metadata.as_json())
-      #await client.set_metadata(metadata)
+      metadata_obj = Metadata.from_record(metadata)
+      await client.set_metadata(metadata_obj)
 
       print("Event sent:")
     
@@ -371,18 +370,17 @@ async def the_second_reply(note,tag, root):
      else:
       
       other_reply.append(test.id.to_hex())
-     metadata = Metadata() \
-        .set_name("Just The Second") \
-        .set_display_name("Just The Second") \
-        #.set_about("") \
-        #.set_picture("") \
-        #.set_banner("") \
-        #.set_nip05("") \
-        #.set_lud16("")
+     metadata = MetadataRecord(
+        name="Just The Second",
+        display_name="Just The Second") 
+        #about="",
+        #picture="",
+        #banner="", 
+        #nip05="",
+        #lud16="")
 
-     print(f"Setting profile metadata for {keys.public_key().to_bech32()}")
-     print(metadata.as_json())
-     await client.set_metadata(metadata)
+     metadata_obj = Metadata.from_record(metadata)
+     await client.set_metadata(metadata_obj)
      await asyncio.sleep(2.0)
     # Get events from relays
      print("Getting events from relays...")

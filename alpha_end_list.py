@@ -37,9 +37,10 @@ async def Selected_event(event_):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     await client.connect()
     
     if isinstance(event_, list):
@@ -67,9 +68,12 @@ async def get_metadata(user):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_x)
+    await client.add_relay(relay_url_2)
    
     await client.connect()
     if isinstance(user,list):
@@ -90,9 +94,13 @@ async def feed_cluster(authors,type_of_event):
     uniffi_set_event_loop(asyncio.get_running_loop())
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_x)
+    await client.add_relay(relay_url_2)
+   
    
     await client.connect()
 

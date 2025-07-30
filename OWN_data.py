@@ -674,10 +674,14 @@ async def outboxes():
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     else:
-       await client.add_relay("wss://nostr.mom/")
-       await client.add_relay("wss://purplerelay.com/")
+       relay_url_3 = RelayUrl.parse("wss://nostr.mom/")
+       relay_url_4 = RelayUrl.parse("wss://purplerelay.com/")
+       await client.add_relay(relay_url_3)
+       await client.add_relay(relay_url_4)
+
        
     await client.connect()
     result_note=await get_outbox(client)
@@ -837,10 +841,14 @@ async def Get_random_kind():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     else:
-     await client.add_relay("wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
+     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+     await client.add_relay(relay_url_1)
+     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+     await client.add_relay(relay_url_x)
+
        
     await client.connect()
     await asyncio.sleep(2.0)
@@ -865,7 +873,8 @@ async def local_relè():
    init_logger(LogLevel.INFO)
    try:  
     client = Client(None)
-    await client.add_relay("ws://localhost:4869")
+    local_h=RelayUrl.parse("ws://localhost:4869")
+    await client.add_relay(local_h)
     #await client.add_relay("ws://192.168.1.8:4869/")
    
     await client.connect()

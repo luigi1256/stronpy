@@ -1,7 +1,7 @@
 #call a pubkey like lumina 6300 for photo kind20 
 import asyncio
 from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, PublicKey,Kind
-from nostr_sdk import EventId, Event,EventBuilder, Metadata,Tags,Tag
+from nostr_sdk import EventId, Event,EventBuilder, Metadata,Tags,Tag,RelayUrl
 from datetime import timedelta
 import json
 import random
@@ -265,11 +265,15 @@ async def main_simple_kind(authors):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://relay.nostrdvm.com/")
-    await client.add_relay("wss://nostr.oxtr.dev/")
-
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_3 = RelayUrl.parse("wss://relay.nostrdvm.com/")
+    relay_url_4 = RelayUrl.parse("wss://nostr.oxtr.dev/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
+    await client.add_relay(relay_url_4)    
+ 
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -327,10 +331,11 @@ async def Get_id(event_):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     
-   # await client.add_relay("wss://nostr.oxtr.dev/")
     await client.connect()
 
     if isinstance(event_, list):

@@ -77,11 +77,13 @@ async def Outboxed():
     signer = NostrSigner.keys(keys)
     client = Client(signer)
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     
     if relay_list!=[]:
-        for relay in relay_list:
-            await client.add_relay(relay)   
+        for jrelay in relay_list:
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     await client.connect()
     test_relay={}
     if len(relay_list)<5:
@@ -266,11 +268,16 @@ async def search_box_relay():
     if relay_list!=[]:
        #print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+        relay_url = RelayUrl.parse(jrelay)
+        await client.add_relay(relay_url)
              
     else:
-       await client.add_relay("wss://nos.lol/")
-       await client.add_relay("wss://purplerelay.com/")
+        relay_url_1 = RelayUrl.parse("wss://nos.lol/")  
+        await client.add_relay(relay_url_1)
+        relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+        await client.add_relay(relay_url_x)
+        relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
+        await client.add_relay(relay_url_2)
     await client.connect()
     relay_add=get_note(await get_outbox_relay(client))
     if relay_add !=None and relay_add!=[]:

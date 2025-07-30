@@ -1103,14 +1103,19 @@ async def zap_request(test, callback):
     client = Client(signer)
     await client.add_relay("wss://nostr.mom/")
     await client.connect()
-    metadata = Metadata() \
-        .set_name("Just The Second") \
-        .set_display_name("Just The Second") \
-        .set_lud16("wildcat35@coinos.io")
-    print(f"Setting profile metadata for {keys.public_key().to_bech32()}")
-    print(metadata.as_json())
-    #await client.set_metadata(metadata) 
-    
+    metadata = MetadataRecord(
+        name="Just The Second",
+        display_name="Just The Second",
+        lud16="wildcat35@coinos.io") 
+        #about="",
+        #picture="",
+        #banner="", 
+        #nip05="",
+        
+
+    metadata_obj = Metadata.from_record(metadata)
+    await client.set_metadata(metadata_obj)
+       
     public_key_ = PublicKey.parse(test['pubkey'])
     relays = ["wss://nostr.mom/"]
     msg = "Zap!"
@@ -1128,14 +1133,18 @@ async def zap_ing(invoice,preimage,public_zap_):
     await client.add_relay("wss://nostr.mom/")
     await client.add_relay("wss://nos.lol/")
     await client.connect()
-    metadata = Metadata() \
-        .set_name("Just The Second") \
-        .set_display_name("Just The Second") \
-        .set_lud16("wildcat35@coinos.io")
+    metadata = MetadataRecord(
+        name="Just The Second",
+        display_name="Just The Second",
+        lud16="wildcat35@coinos.io") 
+        #about="",
+        #picture="",
+        #banner="", 
+        #nip05="",
+        
 
-    print(f"Setting profile metadata for {keys.public_key().to_bech32()}")
-    print(metadata.as_json())
-    await client.set_metadata(metadata)
+    metadata_obj = Metadata.from_record(metadata)
+    await client.set_metadata(metadata_obj)
         
     eventis_= EventBuilder.zap_receipt(invoice,preimage,public_zap_ )
     await client.send_event_builder(eventis_)

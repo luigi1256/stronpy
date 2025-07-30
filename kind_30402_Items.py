@@ -198,12 +198,15 @@ async def Get_event_from(event_):
     client = Client(None)
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://wot.utxo.one/")
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_1 = RelayUrl.parse("wss://wot.utxo.one/")
+    await client.add_relay(relay_url_x)
+    await client.add_relay(relay_url_1)
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-            await client.add_relay(xrelay)
+      for jrelay in relay_list:
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     await client.connect()
     await asyncio.sleep(2.0)
     try:   

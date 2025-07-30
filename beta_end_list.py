@@ -43,9 +43,10 @@ async def Selected_event(event_):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     await client.connect()
     
     if isinstance(event_, list):
@@ -73,10 +74,13 @@ async def get_metadata(user):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
-   
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_2)
+       
     await client.connect()
     if isinstance(user,list):
      f = Filter().authors(user).kind(Kind(0))
@@ -96,9 +100,12 @@ async def feed_cluster(authors,type_of_event):
     #uniffi_set_event_loop(asyncio.get_running_loop())
 
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr-pub.wellorder.net/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    await client.add_relay(relay_url_2)
    
     await client.connect()
 
@@ -1262,7 +1269,8 @@ async def zap_ing(invoice,preimage,public_zap_):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
-    await client.add_relay("wss://nos.lol/")
+    relay_url_x = RelayUrl.parse("wss://nostr.lol/")
+    await client.add_relay(relay_url_x)
     await client.connect()
             
     eventis_= EventBuilder.zap_receipt(invoice,preimage,public_zap_ )
@@ -1294,10 +1302,15 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://relay.damus.io/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://relay.nostr.band/")
-    await client.add_relay("wss://purplepag.es/")
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+    relay_url_3 = RelayUrl.parse("wss://nostr.wine/")
+    relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
+    await client.add_relay(relay_url_4)    
+
 
     await client.connect()
 
@@ -1324,8 +1337,10 @@ async def Get_id(event_):
     
     # Add relays and connect
     
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://relay.primal.net")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_2 = RelayUrl.parse("wss://relay.primal.net/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -1342,8 +1357,11 @@ async def zap_request(test, callback):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://relay.damus.io/")
+    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     await client.connect()
         
     public_key_ = PublicKey.parse(test['pubkey'])
@@ -1442,8 +1460,10 @@ async def reply_reaction(event_id,public_key,str_reaction,type_event):
     
     client = Client(signer)
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom")
-    await client.add_relay("wss://nos.lol")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     await client.connect()
 
     # Send an event using the Nostr Signer

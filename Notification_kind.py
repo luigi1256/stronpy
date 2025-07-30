@@ -308,12 +308,15 @@ async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_x)
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+         relay_url = RelayUrl.parse(jrelay)
+         await client.add_relay(relay_url)
     await client.connect()     
     await asyncio.sleep(2.0)
     if WoT_check.get()==1:
@@ -687,11 +690,14 @@ async def outboxes():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+            relay_url = RelayUrl.parse(jrelay)
+            await client.add_relay(relay_url)
              
     else:
-       await client.add_relay("wss://nostr.mom/")
-       await client.add_relay("wss://purplerelay.com/")
+       relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+       await client.add_relay(relay_url_x)
+       relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
+       await client.add_relay(relay_url_2)
        
     await client.connect()
     db_note.clear()
@@ -734,13 +740,16 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://relay.damus.io/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+            relay_url = RelayUrl.parse(jrelay)
+            await client.add_relay(relay_url)
     await client.connect()
 
     await asyncio.sleep(2.0)
