@@ -5,7 +5,7 @@ from nostr_sdk import *
 import asyncio
 import json
 from datetime import timedelta
-from nostr_sdk import Keys, ClientBuilder, NostrSigner, PublicKey, LogLevel,ZapRequestData,Metadata
+from nostr_sdk import Keys, ClientBuilder, NostrSigner, PublicKey, LogLevel,ZapRequestData,Metadata,RelayUrl
 import asyncio
 import json
 import requests
@@ -114,7 +114,7 @@ Profile_frame = ttk.LabelFrame(root, text="Profile", labelanchor="n", padding=10
 Profile_frame.place(relx=0.01,rely=0.03,relwidth=0.2,relheight=0.3)
 label = tk.Label(root, text="Name")
 label.place(relx=0.08,rely=0.07)
-combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor"," hodlbod","il_lost_"])
+combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor"," hodlbod","il_lost_"],font=("Arial",12,"normal"),width=15)
 combo_box.place(relx=0.06,rely=0.1)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -270,7 +270,7 @@ def list_timeline(Value):
                   my_time.append(db_x) 
          return my_time   
                     
-entry_id=tk.Entry(root, textvariable=entry_id_note, width=20)
+entry_id=tk.Entry(root, textvariable=entry_id_note, width=20,font=("Arial",12,"normal"))
 entry_note=tk.Entry(root, textvariable=entry_note_note, width=50)
 entry_id.place(relx=0.06,rely=0.22)
 
@@ -306,21 +306,24 @@ async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list = RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
     await client.connect()     
     await asyncio.sleep(2.0)
     combined_results = await get_relay(client, authors)
     List_note=get_note(combined_results)
     if List_note:
        for jlist in List_note:
-          if jlist not in List_three:
+         if jlist not in List_three and len(tags_string(jlist,"p"))<200:
             List_three.append(jlist)
-          for xuser in tags_string(jlist,"p"):
+            for xuser in tags_string(jlist,"p"):
               if xuser not in draft_user:
                  draft_user.append(xuser)
     if draft_user:
@@ -354,11 +357,15 @@ async def outboxes():
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
              
     else:
-       await client.add_relay("wss://nostr.mom/")
-       await client.add_relay("wss://purplerelay.com/")
+            relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+            relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+            await client.add_relay(relay_url_1)
+            await client.add_relay(relay_url_2)
+     
        
     await client.connect()
     relay_add=get_note(await get_outbox(client))
@@ -393,12 +400,15 @@ async def metadata_object():
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
              
     else:
-       await client.add_relay("wss://nostr.mom/")
-       await client.add_relay("wss://purplerelay.com/")
-       
+           relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+           relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+           await client.add_relay(relay_url_1)
+           await client.add_relay(relay_url_2)
+              
     await client.connect()
     metadata_page=get_note(await get_metanota(client))
     if metadata_page !=None and metadata_page!=[]:
@@ -603,7 +613,7 @@ def show_Teed():
     l=s*16
     for note in db_list_[n:l]:
      try:
-      context0="Hex Npub "+note['pubkey']+"\n"
+      context0="Pubkey "+note['pubkey']+"\n"
       if note['tags']!=[]:
         context1="Content lenght "+str(len(note["content"]))+"\n"
         context2="\n"
@@ -849,11 +859,16 @@ async def Get_A_tag(event_):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list = RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
     else:
-     await client.add_relay(" wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+         relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+         relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+         relay_url_3=RelayUrl.parse("wss://relay.primal.net")
+         await client.add_relay(relay_url_1)
+         await client.add_relay(relay_url_2)
+         await client.add_relay(relay_url_3)
+    
     await client.connect()
     
     test_id = await get_a_ers_Event(client,event_)
@@ -901,10 +916,12 @@ async def get_one_note(client, e_id):
 
 async def Get_event_id(e_id):
     client = Client(None)
-    
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay(" wss://purplerelay.com/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    relay_url_3=RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
     await client.connect()
     await asyncio.sleep(2.0)
 
@@ -936,12 +953,14 @@ async def Get_id(event_):
     
     client = Client(None)
     
-    # Add relays and connect
-    await client.add_relay(" wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://relay.primal.net")
-    await client.connect()
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    relay_url_3=RelayUrl.parse("wss://relay.primal.net")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
 
+    await client.connect()
     await asyncio.sleep(2.0)
 
     if isinstance(event_, list):
@@ -966,14 +985,16 @@ async def feed(authors):
       
     client = Client(None)
     
-    # Add relays and connect
-    await client.add_relay("wss://relay.damus.io/")
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://relay.nostr.band/")
-    await client.add_relay("wss://purplepag.es/")
+    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    relay_url_3=RelayUrl.parse("wss://relay.primal.net")
+    relay_url_4=RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
+    await client.add_relay(relay_url_4)
 
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(authors, list):
@@ -1101,7 +1122,8 @@ async def zap_request(test, callback):
     signer = NostrSigner.keys(keys)
    
     client = Client(signer)
-    await client.add_relay("wss://nostr.mom/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom")
+    await client.add_relay(relay_url_1)
     await client.connect()
     metadata = MetadataRecord(
         name="Just The Second",
@@ -1117,7 +1139,7 @@ async def zap_request(test, callback):
     await client.set_metadata(metadata_obj)
        
     public_key_ = PublicKey.parse(test['pubkey'])
-    relays = ["wss://nostr.mom/"]
+    relays = [RelayUrl.parse("wss://nostr.mom/")]
     msg = "Zap!"
     amount_=int(int(select_number.get())*1000)
     url=callback
@@ -1130,8 +1152,11 @@ async def zap_ing(invoice,preimage,public_zap_):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+
     await client.connect()
     metadata = MetadataRecord(
         name="Just The Second",
@@ -1415,11 +1440,12 @@ async def zap_request_split(hex_npub,percent, callback):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
-    await client.add_relay("wss://nostr.mom/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom")
+    await client.add_relay(relay_url_1)
     await client.connect()
         
     public_key_ = PublicKey.parse(hex_npub)
-    relays = ["wss://nostr.mom/"]
+    relays = [RelayUrl.parse("wss://nostr.mom/")]
     msg = "Zap!"
     amount_=int(int(percent))*1000
     url=callback

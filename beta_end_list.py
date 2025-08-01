@@ -1365,7 +1365,7 @@ async def zap_request(test, callback):
     await client.connect()
         
     public_key_ = PublicKey.parse(test['pubkey'])
-    relays = ["wss://nostr.mom"]
+    relays = [RelayUrl.parse("wss://nostr.mom")]
     msg = "Zap!"
     amount_=int(number_string.get())*1000
     url=callback
@@ -1469,7 +1469,7 @@ async def reply_reaction(event_id,public_key,str_reaction,type_event):
     # Send an event using the Nostr Signer
     builder = EventBuilder.reaction_extended(event_id,public_key,str_reaction,type_event)
     test_note=await client.send_event_builder(builder)
-    print("this relay is going good", test_note.success, "\n", "this relay is bad",test_note.failed)
+    print("Send to this relays", test_note.success, "\n", "Failed to send to this relays",test_note.failed)
 
 def list_people_fun():
     people_list=[]

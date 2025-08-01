@@ -1419,21 +1419,48 @@ def close_answer():
 
 list_tag=[]
 
+def x_Profile(string:str):
+  try: 
+   if len(string)==64:
+     return string
+   if string.startswith("nostr:nprofile"):
+        decode_nprofile = Nip19Profile.from_nostr_uri(string)
+        relay_option=decode_nprofile.relays()
+        return [decode_nprofile.public_key().to_hex(),relay_option]
+      
+   if string.startswith("nostr:npub1") and len(string)==69:
+        decode_pubkey = PublicKey.parse(string)      
+        return decode_pubkey.to_hex()
+  except NostrSdkError as e:
+     print(e) 
+
 def send_event():
     note=entry4.get()
     if note!="":
-     if __name__ == '__main__':
+     try: 
+      if __name__ == '__main__':
                 
-      l_list=[]
-      for p2_x in  Tags.from_text(entry4.get()).to_vec():
-                l_list.append(p2_x)
-      tags=tuple(l_list)
-   
-      asyncio.run(main_note(note,tags))
+       l_list=[]
+       
+       split=note.split()
+       for x_split in split:
+        public_note=x_Profile(x_split)
+        if public_note:
+         if isinstance(public_note,list):
+          l_list.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(PublicKey.parse(public_note[0]),public_note[1][0]),None,FALSE))
+
+         if isinstance(public_note,str):
+          l_list.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(PublicKey.parse(public_note),None,None,FALSE)))
+       tags=tuple(l_list)
+        #for p2_x in  Tags.from_text(entry4.get()).to_vec():
+            #          l_list.append(p2_x)
+       
+       asyncio.run(main_note(note,tags))
       
-      messagebox.showinfo("Success", "You have sent \n this note")
-      entry4.delete(0, END)
-    
+       #messagebox.showinfo("Success", "You have sent \n this note")
+       entry4.delete(0, END)
+     except AttributeError as e:
+      print(e)
     else:
       messagebox.showerror("Fail", "Error, write something")
       entry4.delete(0, END)
