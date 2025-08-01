@@ -131,17 +131,19 @@ async def Search_d_tag():
     if relay_list!=[]:
        client = Client(None)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
        await client.connect()
        await asyncio.sleep(2.0)
-       await client.add_relay("wss://relay.nostr.band/")
+       relay_url_1=RelayUrl.parse("wss://relay.nostr.band/")
+       await client.add_relay(relay_url_1)
        combined_results = await get_result_w(client)
        return combined_results
     # Init logger
     init_logger(LogLevel.INFO)
     client = Client(None)
-     
-    await client.add_relay("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://nostr.mom/")
+    await client.add_relay(relay_url_2)
     await client.connect()
     await search_box_relay()
     print("found ", len(relay_list), " relays")
@@ -187,12 +189,15 @@ p_view.place(relx=0.15,rely=0.45,relwidth=0.1 )
 def p_show():
     title=entryp_tag.get()
     
-    if len(title)==64:
+    if len(title)==64 or len(title)==63:
+        if len(title)==63:
+           if title.startswith("npub1"):
+            title=PublicKey.parse(title).to_hex()
        
         if convert_user(title)!=None:
          if title not in public_list:
-         
-            if public_list!=[]:
+          
+            if len(public_list)>=1:
                 i=1
                 while len(public_list)>i:
                  public_list.pop(1)
@@ -203,7 +208,8 @@ def p_show():
                 p_view.config(text=str(len(public_list)))
                 entryp_tag.delete(0, END) 
                 return public_list
-         
+        
+          
          else:
               p_view.config(text=str(len(public_list)))
               
@@ -216,6 +222,7 @@ def p_show():
        entryp_tag.delete(0, END) 
        if len(public_list)>0:
         p_view.config(text=str(len(public_list)))
+
 
 p_button = tk.Button(root, text="add Pubkey", font=("Arial",12,"bold"), command=p_show)
 p_button.place(relx=0.16,rely=0.39)
@@ -236,11 +243,14 @@ async def search_box_relay():
     if relay_list!=[]:
        #print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
              
     else:
-       await client.add_relay("wss://nos.lol/")
-       await client.add_relay("wss://purplerelay.com/")
+       relay_url_1=RelayUrl.parse("wss://nos.lol/")
+       relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+       await client.add_relay(relay_url_1)
+       await client.add_relay(relay_url_2)
     await client.connect()
     relay_add=get_note(await get_outbox_relay(client))
     if relay_add !=None and relay_add!=[]:
@@ -412,8 +422,8 @@ def show_edit_test(note):
                tags=edit_note(entry)
                l_list=list(tags)
        
-               for p2_x in  Tags.from_text(second_labelf.get("1.0", "end-1c")).to_vec():
-                l_list.append(p2_x)
+               #for p2_x in  Tags.from_text(second_labelf.get("1.0", "end-1c")).to_vec():
+               # l_list.append(p2_x)
                tags=tuple(l_list)
                print(tags)
                test=asyncio.run(long_form(tags,second_labelf.get("1.0", "end-1c"),entry["pubkey"]))
@@ -452,8 +462,11 @@ def show_edit_test(note):
    frame3.place(relx=0.65,rely=0.22,relwidth=0.33,relheight=0.4 ) 
 
 def convert_user(x):
-    other_user_pk = PublicKey.parse(x)
-    return other_user_pk
+    try:
+     other_user_pk = PublicKey.parse(x)
+     return other_user_pk
+    except NostrSdkError as e:
+       print(e,"this is the hex_npub ",x)
 
 def user_convert(x):
     l=[]
@@ -465,10 +478,11 @@ def reply_re_action(note):
   
    test = EventId.parse(note["id"])
    public_key=convert_user(note["pubkey"])
-   if __name__ == '__main__':
-    note_rea="+"
-    type_event=Kind(int(note["kind"]))
-    asyncio.run(reply_reaction(test,public_key,note_rea,type_event))    
+   if public_key:
+    if __name__ == '__main__':
+        note_rea="+"
+        type_event=Kind(int(note["kind"]))
+        asyncio.run(reply_reaction(test,public_key,note_rea,type_event))    
 
 async def reply_reaction(event_id,public_key,str_reaction,type_event):
   key_string=log_these_key()
@@ -481,9 +495,12 @@ async def reply_reaction(event_id,public_key,str_reaction,type_event):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
+    relay_url_1 =RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 =RelayUrl.parse("wss://nos.lol/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
     await client.connect()
 
     # Send an event using the Nostr Signer
@@ -681,9 +698,12 @@ async def Get_event_id(e_id):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay(" wss://purplerelay.com/")
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_2 = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_3 = RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    await client.add_relay(relay_url_3)
     
     await client.connect()
     
@@ -797,10 +817,11 @@ async def long_form(tag,description,pubkey):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
-       
-    await client.add_relay("wss://relay.lnfi.network/")
-    #await client.add_relay("")
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
+    relay_url_1=RelayUrl.parse("wss://relay.lnfi.network/")   
+    await client.add_relay(relay_url_1)
+    
     await client.connect()
     builder = EventBuilder.long_form_text_note(description).tags(tag)
     test_result_post= await client.send_event_builder(builder)
@@ -810,7 +831,7 @@ async def long_form(tag,description,pubkey):
     await asyncio.sleep(2.0)
     # Get events from relays
     print("Getting events from relays...")
-    f = Filter().authors([keys.public_key()])
+    f = Filter().authors([keys.public_key()]).kind(Kind(30023))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
      print(event.as_json())
@@ -874,6 +895,3 @@ def log_these_key():
        print(e)
 
 root.mainloop()
-
-
-
