@@ -780,8 +780,14 @@ def photo_list_2(note):
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-         
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -816,6 +822,10 @@ def photo_list_2(note):
         button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
         button_close_photo.grid(column=1,row=s+1)
         s=s+2
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")    
    print_photo()     
    frame_pic.place(relx=0.4,rely=0.6,relwidth=0.3) 
   else:
@@ -925,8 +935,14 @@ def photo_list(list_note):
     image_label = tk.Label(frame_pic)
     image_label.grid(column=1,row=s, columnspan=2)
     if label_pic.get()!="":
-         
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -947,6 +963,10 @@ def photo_list(list_note):
         button_close=Button(frame_pic,command=close_pic,text="close",font=("Arial",12,"bold"))
         button_close.grid(column=2,row=s+1,sticky="n")
         s=s+2
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")    
   frame_pic.place(relx=0.45,rely=0.6,relwidth=0.18)    
 
 def photo_print(note):

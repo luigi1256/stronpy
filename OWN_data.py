@@ -874,16 +874,35 @@ async def local_relè():
    try:  
     client = Client(None)
     local_h=RelayUrl.parse("ws://localhost:4869")
+    #local_c=RelayUrl.parse("ws://127.0.0.1:4869")
+    
     await client.add_relay(local_h)
-    #await client.add_relay("ws://192.168.1.8:4869/")
+    #if RelayUrl.is_local_addr(local_c):
+     #await client.add_relay(local_c)
+       #await client.add_relay("ws://192.168.1.8:4869/")
    
     await client.connect()
-      
-    test_kind = await note_kind(client)
-    if test_kind:
+    relays = await client.relays()
+    i=0
+    while i<2:
+        for url, relay in relays.items():
+            stats = relay.stats()
+            print(f"Relay: {url}")
+            print(f"Connected: {relay.is_connected()}")
+            print(f"Status: {relay.status()}")
+            print("Stats:")
+            print(f"    Attempts: {stats.attempts()}")
+            print(f"    Success: {stats.success()}")
+            
+
+        await asyncio.sleep(1.0)        
+        i=i+1 
+    if stats.success()==1:            
+      test_kind = await note_kind(client)
+      if test_kind:
          await asyncio.sleep(1.0)
          return test_kind
-    else:
+      else:
        print("fail")  
    except NostrSdkError as e:
       print(e)

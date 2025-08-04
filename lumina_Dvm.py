@@ -206,9 +206,14 @@ def photo_list_frame_2(note):
      if label_pic.get()!="":
       if codifica_link_(label_pic.get())=="pic":   
        print(label_pic.get())
-       response = requests.get(label_pic.get(), stream=True)
-       if response.ok==True:
-        try:
+       try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+        response.raise_for_status()  
+        
+   
+        if response.ok==TRUE:
          with open('my_image.png', 'wb') as file:
           shutil.copyfileobj(response.raw, file)
          del response
@@ -247,8 +252,10 @@ def photo_list_frame_2(note):
          button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
          button_close_photo.grid(column=1,row=s+1,pady=5)
          s=s+2
-        except (requests.exceptions.RequestException, ConnectionRefusedError,UnidentifiedImageError) as e:
-           print(e) 
+       except TypeError as e: 
+            print(e)  
+       except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
       else:
           print(label_pic.get())
    print_photo()
@@ -653,9 +660,11 @@ def pic_show(x):
    
    if tags_str(x,"imeta")!=[]:
     for dim_photo in tags_str(x,"imeta"):
-     if codifica_link_(dim_photo[1][4:])=="pic":  
-      response = requests.get(dim_photo[1][4:], stream=True)
+     if codifica_link_(dim_photo[1][4:])=="pic": 
       try: 
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(dim_photo[1][4:], headers,stream=True)
+       response.raise_for_status()
        if response.status_code == 200:
         with open('my_image.png', 'wb') as file:
           shutil.copyfileobj(response.raw, file)
@@ -665,7 +674,10 @@ def pic_show(x):
         img.show()
        else:
         print("Error of image") 
-    
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
       except (requests.exceptions.RequestException, ConnectionRefusedError,UnidentifiedImageError) as e:
        print(e)       
 

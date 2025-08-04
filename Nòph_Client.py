@@ -373,7 +373,14 @@ image_label.place(relx=0.55,rely=0.77,relheight=0.22,relwidth=0.3, anchor="n" )
 def photo_print():
   image=codifica_link()
   if image=="pic":
-        response = requests.get(entry_image.get(), stream=True)
+      try: 
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(entry_image.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -390,6 +397,10 @@ def photo_print():
 
         button_lose=Button(root,command=close_image,text="X",font=("Arial",12,"bold"))
         button_lose.place(relx=0.64,rely=0.77,relwidth=0.05) 
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")   
   
 button_print=Button(root,command=photo_print,text="photo",font=("Arial",12,"bold"))
 image_tag = tk.Label(root, text="image-Tag", font=("Arial",12,"bold"))

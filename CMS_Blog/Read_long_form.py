@@ -1044,8 +1044,14 @@ def photo_print(note):
    image_label = tk.Label(frame_pic)
    image_label.grid(column=0,row=0, padx=10,pady=10)
    if label_pic.get()!="":
-       try:
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -1068,9 +1074,10 @@ def photo_print(note):
         
         button_close.grid(column=2,row=0,padx=10)
         frame_pic.place(relx=0.8,rely=0.01,relwidth=0.3,relheight=0.3,anchor="n")
-       except TypeError as e: 
+      except TypeError as e: 
         print(e)  
-
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
 #Zap
 
 def reply_id_zap():

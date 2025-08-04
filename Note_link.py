@@ -362,14 +362,24 @@ def show_Teed():
     button_frame.place(relx=0.5,rely=0.78,relwidth=0.1)      
    
 def pic_show(x):
-   response = requests.get(x, stream=True)
-   if response.ok==True:
-    with open('my_image.png', 'wb') as file:
-        shutil.copyfileobj(response.raw, file)
-    del response
-    from PIL import Image
-    img = Image.open('my_image.png')
-    img.show()
+   try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(x,headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
+        with open('my_image.png', 'wb') as file:
+         shutil.copyfileobj(response.raw, file)
+        del response
+        from PIL import Image
+        img = Image.open('my_image.png')
+        img.show()
+   except TypeError as e: 
+        print(e)  
+   except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
 
 def show_one_photo():
     if entry_id.get()!="":
@@ -388,8 +398,13 @@ def photo_print(url):
    image_label.grid(column=0,row=1, padx=10,pady=10)
    if label_pic.get()!="":
       try:
-       response = requests.get(label_pic.get(), stream=True)
-       if response.ok==True:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -422,6 +437,8 @@ def photo_print(url):
          
       except TypeError as e: 
         print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
       except ZeroDivisionError as d:
          print(d)
            

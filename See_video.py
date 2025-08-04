@@ -250,8 +250,14 @@ def photo_print(note):
    image_label = tk.Label(frame_pic)
    image_label.grid(column=0,row=0, padx=10,pady=10)
    if label_pic.get()!="":
-       try:
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -274,8 +280,10 @@ def photo_print(note):
         
         button_close.grid(column=0,row=1,padx=10)
         frame_pic.place(relx=0.85,rely=0.01,relwidth=0.3,relheight=0.3,anchor="n")
-       except TypeError as e: 
+      except TypeError as e: 
         print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
 
 async def Get_event_from(event_):
     # Init logger
@@ -531,7 +539,10 @@ def show_noted():
           label_id.grid(pady=1,padx=10,row=1,column=s1, columnspan=3)
       
        def print_photo_url(url):
-             response = requests.get(url, stream=True)
+            try:
+             headers = {"User-Agent": "Mozilla/5.0"}
+             response = requests.get(url,headers=headers, stream=True)
+             response.raise_for_status()  
              if response.ok==True:
               with open('my_image.png', 'wb') as file:
                 shutil.copyfileobj(response.raw, file)
@@ -543,6 +554,10 @@ def show_noted():
               label_image.config(image=photo)
               label_image.image_names= photo     
               return url   
+            except TypeError as e: 
+               print(e)  
+            except requests.exceptions.RequestException as e:
+               print(f"Error exceptions: {e}")   
           
        url=video_thumb(note)
        if url!=None: 
@@ -751,8 +766,14 @@ def layout():
          scroll_bar_mini.grid( sticky = NS,column=4,row=s+2,pady=5)
 
          def print_photo_url(url):
-             response = requests.get(url, stream=True)
-             if response.ok==True:
+            try:
+             headers = {"User-Agent": "Mozilla/5.0"}
+             response = requests.get(url,headers=headers, stream=True)
+       
+             response.raise_for_status()  
+        
+   
+             if response.ok==TRUE:
               with open('my_image.png', 'wb') as file:
                 shutil.copyfileobj(response.raw, file)
               del response
@@ -772,6 +793,11 @@ def layout():
               label_image.image_names= photo     
               return url   
             
+            except TypeError as e: 
+             print(e)  
+            except requests.exceptions.RequestException as e:
+             print(f"Error exceptions: {e}") 
+
          url=video_thumb(note_text)
          if url!=None: 
           if photo_Show.get()==1:
@@ -909,9 +935,14 @@ def photo_list_2(note):
      image_label_2 = tk.Label(frame_pic)
      image_label_2.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-         
-       response = requests.get(label_pic.get(), stream=True)
-       if response.ok==True: 
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -932,6 +963,11 @@ def photo_list_2(note):
         button_close=Button(frame_pic,command=close_pic,text="Close",font=("Arial",12,"bold"))
         button_close.grid(column=3,columnspan=1,row=s)
         s=s+2
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
+                     
    print_photo()     
    frame_pic.place(relx=0.65,rely=0.012,relwidth=0.3) 
 

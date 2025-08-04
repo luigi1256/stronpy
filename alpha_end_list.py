@@ -428,8 +428,7 @@ def four_tags(x,obj):
    if tags_string(x,obj)!=[]:
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
-          for xtags in jtags[2:]:
-           if jtags not in tags_list:
+          if jtags not in tags_list:
              tags_list.append(jtags)
       return tags_list 
 

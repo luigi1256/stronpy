@@ -91,8 +91,14 @@ def photo_print(note):
    image_label = tk.Label(frame_pic)
    image_label.grid(column=0,row=0, padx=10,pady=10)
    if label_pic.get()!="":
-       try:
-        response = requests.get(label_pic.get(), stream=True)
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -115,8 +121,10 @@ def photo_print(note):
         
         button_close.grid(column=0,row=1,padx=10)
         frame_pic.place(relx=0.4,rely=0.01,relwidth=0.23,relheight=0.25,anchor="n")
-       except TypeError as e: 
-        print(e)
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")  
 
 list_note_out=[]
 list_note_save=[]
@@ -457,9 +465,14 @@ def photo_list_2(note):
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-         
-       response = requests.get(label_pic.get(), stream=True)
-       if response.ok==True:
+      try:
+       headers = {"User-Agent": "Mozilla/5.0"}
+       response = requests.get(label_pic.get(),headers=headers, stream=True)
+       
+       response.raise_for_status()  
+        
+   
+       if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -494,6 +507,10 @@ def photo_list_2(note):
         button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
         button_close_photo.grid(column=1,row=s+1)
         s=s+2
+      except TypeError as e: 
+        print(e)  
+      except requests.exceptions.RequestException as e:
+        print(f"Error exceptions: {e}")    
    print_photo()     
    frame_pic.place(relx=0.4,rely=0.01,relwidth=0.24) 
   else:
