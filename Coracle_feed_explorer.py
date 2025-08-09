@@ -177,7 +177,7 @@ async def get_one_nostr_tags(client, event_kind,event_identifier,event_publickey
     f =Filter().kind(event_kind).author(event_publickey).identifier(event_identifier)
     print(f.as_json())    
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_list_(client, event_publikey):
@@ -187,7 +187,7 @@ async def get_list_(client, event_publikey):
      print(d_identifiers)   
      f = Filter().kind(Kind(30000)).identifiers(d_identifiers)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 
@@ -214,7 +214,7 @@ async def get_nostr_tags(client, event_kind,hashtag,list_pubkey):
        
     #print(f)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Nostr_coord_feed(tag_nostr_):
@@ -377,7 +377,7 @@ button_search_id.grid(column=14, row=3,ipadx=1,ipady=1,pady=2)
 async def get_one_Event(client, event_):
     f = Filter().id(EventId.parse(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):
@@ -415,13 +415,13 @@ user_kind=Entry(root,textvariable=string_kind)
 async def get_relays(client, authors):
     f = Filter().authors(authors)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay(client, user):
     f = Filter().author(user).kinds([Kind(int(user_kind.get())),Kind(10014),Kind(31890)])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def feed(authors):
@@ -510,7 +510,7 @@ async def search_kind_(user,x):
 async def get_kind(client, event_):
     f = Filter().kinds(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get(event_):

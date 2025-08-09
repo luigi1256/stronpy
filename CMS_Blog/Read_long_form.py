@@ -290,14 +290,14 @@ def npub_list_title(List_30000,hex_npub):
 async def get_relay(client, user):
     f = Filter().author(user).remove_identifiers(["influenceScoresList"]).kinds([Kind(30000)]).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_long_note(client, user):
   try:
    f = Filter().authors(user).kind(Kind(30023)).remove_hashtags(["nosli"]).limit(80)
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
   except RelayMessage as e:
       print(e)
@@ -347,7 +347,7 @@ async def get_outbox(client):
    if my_dict[combo_box.get()] in my_list: 
     f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kind(Kind(10002))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def outboxes():
@@ -390,7 +390,7 @@ async def get_metanota(client):
     print("draft_user ", len(draft_user))
     f = Filter().authors(user_convert(draft_user)).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def metadata_object():
@@ -879,7 +879,7 @@ async def get_a_ers_Event(client, event_):
    
     f=Filter().kinds([Kind(1111),Kind(1)]).custom_tag(SingleLetterTag.lowercase(Alphabet.A),event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     print(f.as_json(),len(z))
     return z
 
@@ -887,31 +887,31 @@ async def get_answers_Event(client, event_):
     f = Filter().events(evnts_ids(event_)).kinds([Kind(1),Kind(1111)]).limit(int(10*len(event_)))
     
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_one_Event(client, event_):
     f = Filter().id(evnt_id(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_answer_Event(client, event_):
     f = Filter().event(evnt_id(event_)).kinds([Kind(1),Kind(1111)]).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_notes_(client, e_ids):
      f = Filter().ids([EventId.parse(e_id) for e_id in e_ids])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def get_one_note(client, e_id):
     f = Filter().id(EventId.parse(e_id))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_event_id(e_id):
@@ -946,7 +946,7 @@ async def Get_event_id(e_id):
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):
@@ -972,13 +972,13 @@ async def Get_id(event_):
 async def get_relays_z(client, authors):
     f = Filter().authors(authors).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay_z(client, user):
     f = Filter().author(user).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def feed(authors):
@@ -1186,7 +1186,8 @@ async def zap_ing(invoice,preimage,public_zap_):
     f = Filter().authors([keys.public_key()])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
-     print(event.as_json())
+     if event.verify():
+         print(event.as_json())
 
 def fetch_lud_16(note):
  public_key_=PublicKey.parse(note['pubkey'])

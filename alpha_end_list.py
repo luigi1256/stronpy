@@ -29,7 +29,7 @@ async def get_event(client, event_):
      f = Filter().identifiers(tag_identifiers).authors(tag_pubkey)
      
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Selected_event(event_):
@@ -54,13 +54,13 @@ async def Selected_event(event_):
 async def get_note_cluster(client, authors, type_of_event):
     f = Filter().authors(authors).kinds(type_of_event).limit(1000)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay(client, user):
     f = Filter().author(user).kind(Kind(3))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_metadata(user):
@@ -81,7 +81,7 @@ async def get_metadata(user):
     else:
        f = Filter().author(user).kind(Kind(0)) 
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     await asyncio.sleep(2.0)
     await client.disconnect()
     return z

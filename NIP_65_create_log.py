@@ -98,7 +98,8 @@ async def Outboxed():
      f = Filter().authors([keys.public_key()]).kind(Kind(10002))
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
-      print(event.as_json())
+      if event.verify():
+        print(event.as_json())
 
 def new_realy_list():
    if relay_list!=[]:
@@ -258,7 +259,7 @@ async def get_outbox_relay(client):
    else: 
     f=Filter().kind(Kind(10002)).limit(10)
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
 
 async def search_box_relay():

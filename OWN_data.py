@@ -665,7 +665,7 @@ async def get_outbox(client):
     
     f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kind(Kind(10002))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def outboxes():

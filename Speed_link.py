@@ -208,7 +208,8 @@ async def link_it(tag,description):
      f = Filter().authors([keys.public_key()])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
-       print(event.as_json())
+       if event.verify():
+           print(event.as_json())
      return test_result_post    
 
 def metadata_get():
@@ -674,13 +675,13 @@ async def get_list_Event(client, event_):
        tag_event.append(EventId.parse(event))
      f = Filter().ids(tag_event)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):

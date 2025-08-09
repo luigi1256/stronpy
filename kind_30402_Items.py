@@ -68,7 +68,7 @@ def Open_source(key):
 async def get_kind_relay(client, event_):
     f = Filter().kinds(event_).limit(16)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_kind(client, event_):

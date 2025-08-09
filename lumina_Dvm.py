@@ -295,7 +295,7 @@ async def main_simple_kind(authors):
 async def get_relays(client, authors):
     f = Filter().authors(authors)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 people_list=[]
@@ -328,7 +328,7 @@ async def get_relay(client, user):
 async def get_Event(client, event_):
     f = Filter().ids(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):

@@ -311,20 +311,20 @@ async def get_outbox(client):
     if public_list!=[]:
        f = Filter().authors(public_list).kind(Kind(10002))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_public_pin(client):
    if public_list!=[]:
        f = Filter().authors(public_list).kind(Kind(39701))
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
    
 async def get_resutl(client):
     f = Filter().search(entry_var.get()).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_result_(client):
@@ -336,7 +336,7 @@ async def get_result_(client):
           f = Filter().identifier(url).kind(Kind(39701)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
           print(url)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_search_relay(client):
@@ -345,7 +345,7 @@ async def get_search_relay(client):
    else: 
     f=Filter().kind(Kind(10007)).limit(10)
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
 
 #async function 
@@ -533,7 +533,7 @@ button_close_search.place(relx=0.6,rely=0.77 )
 async def get_one_Event(client, event_):
     f = Filter().id(EventId.parse(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):
@@ -558,13 +558,13 @@ async def Get_id(event_):
 async def get_relays(client, authors):
     f = Filter().authors(authors)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay(client, user):
     f = Filter().author(user).kinds([Kind(10014),Kind(31890)])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def feed(authors):
@@ -1077,13 +1077,13 @@ async def get_kind(client, event_):
                   hashtag_list.remove(hash_word)    
     f = Filter().kind(Kind(event_)).hashtags(hashtag_list)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_kinds(client, event_):
     f = Filter().kinds(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_kind_number(event_):

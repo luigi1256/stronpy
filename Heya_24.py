@@ -13,12 +13,11 @@ from PIL import Image, ImageTk
 from tkinter import messagebox 
 from nostr_sdk import *
 import asyncio
-from datetime import timedelta
 from cryptography.fernet import Fernet
 
 root = tk.Tk()
 root.geometry("1300x800")
-root.title("Heya")
+root.title("Heya 24")
 
 def user_convert(x):
     l=[]
@@ -49,29 +48,11 @@ def tags_str(x,obj):
           z.append(j)
     return z
 
-def convert_user(x):
-    other_user_pk = PublicKey.parse(x)
-    return other_user_pk
-
 def get_note(z):
     f=[]
     for j in z:
        f.append(json.loads(j))
     return f
-
-def evnt_id(id):
-    try: 
-     test2=EventId.parse(id)
-     return test2
-    except NostrSdkError as e:
-       print(e,"input ",id)
-
-def evnts_ids(list_id):
-     Event=[]
-     for j in list_id:
-        if evnt_id(j):
-         Event.append(evnt_id(j))
-     return Event       
 
 def search_kind(user,x):
     if __name__ == "__main__":
@@ -84,17 +65,6 @@ def search_kind(user,x):
        if (r)['kind']==x:
           Z.append(r)
     return Z        
-
-def search_o_tags(x):
-   tags_list=[]
-   
-   if x["tags"]!=[]:
-      for jtags in x["tags"]:
-         if len(jtags)>2:
-          for xtags in jtags[2:]:
-           if xtags not in tags_list:
-            tags_list.append(xtags)
-   return tags_list            
 
 my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
@@ -174,60 +144,57 @@ def check_dash():
   if combo_note.get()=="my time":
    if test_check.get()==1:
     label_name.place(relx=0.42,rely=0.02)
-    since_entry.place(relx=0.42,rely=0.06)
-    button_mov.place(relx=0.46,rely=0.06,relwidth=0.03)
+    since_entry_0.place(relx=0.42,rely=0.06)
+    button_mov.place(relx=0.47,rely=0.06,relwidth=0.03)
     button_backs.place(relx=0.38,rely=0.06,relwidth=0.03) 
-    date_entry.place(relx=0.38,rely=0.1,relheight=0.04, x=0.01 )
+    date_entry_0.place(relx=0.38,rely=0.1,relheight=0.04, x=0.01 )
    else:
-    since_entry.place_forget()
+    since_entry_0.place_forget()
     button_mov.place_forget()
     button_backs.place_forget()
-    date_entry.place_forget()
+    date_entry_0.place_forget()
     label_name.place_forget()
   else:
      print("this an other function ", combo_note.get())  
      if test_check.get()==1:
       test_check.set(0)
       combo_note.set("my time")
-     label_name.place_forget() 
-     since_entry.place_forget()
+     since_entry_0.place_forget()
      button_mov.place_forget()
      button_backs.place_forget()
-     date_entry.place_forget()
+     date_entry_0.place_forget()
+     label_name.place_forget()
 
-Button_check_2 = Checkbutton(root, text ="" , variable = test_check, onvalue = 1, 
-                    offvalue = 0, height = 1, command=check_dash)
+Button_check_2 = Checkbutton(root, text ="" , variable = test_check, onvalue = 1, offvalue = 0, height = 1, command=check_dash)
 Button_check_2.place(relx=0.3,rely=0.22)
 label_time = tk.Label(root, text="Time",font=("Arial",12,"normal"))
 label_time.place(relx=0.25,rely=0.22)
-since_variable=IntVar(value=0)
-since_entry=Entry(root,textvariable=since_variable,font=("Arial",12,"normal"),width=4)
+since_variable_0=IntVar(value=0)
+since_entry_0=Entry(root,textvariable=since_variable_0,font=("Arial",12,"normal"),width=4)
 label_name=Label(root,text="Day",font=("Arial",12,"normal"))
 
 def next_since():
-   since_variable.set(int(since_entry.get()) + 1)
+   since_variable_0.set(int(since_entry_0.get()) + 1)
    since_day_time()
 
 def back_since():
-   if int(since_entry.get())- 1<1:
-      since_variable.set(int(1))
+   if int(since_entry_0.get())- 1<1:
+      since_variable_0.set(int(1))
       since_day_time()
    else:
-    since_variable.set(int(since_entry.get())- 1)  
+    since_variable_0.set(int(since_entry_0.get())- 1)  
     since_day_time()
 
 button_mov=tk.Button(root,text="➕",command=next_since)
 button_backs=tk.Button(root,text="➖",command=back_since)
-text_variable=StringVar()
-date_entry=Entry(root,text=text_variable,font=("Arial",12,"normal"),width=15)
+text_variable_date=StringVar()
+date_entry_0=Entry(root,text=text_variable_date,font=("Arial",12,"normal"),width=15)
 
 def since_day_time():
     import datetime
-    import calendar
-    date = datetime.date.today() - datetime.timedelta(days=int(since_entry.get()))
-    t = datetime.datetime.combine(date, datetime.time(1, 2, 1))
-    date=datetime.datetime.combine(date, datetime.time(1, 2, 1)).timestamp()
-    text_variable.set(str(int(date)))
+    date_one = datetime.date.today() - datetime.timedelta(days=int(since_entry_0.get()))
+    date_two=datetime.datetime.combine(date_one, datetime.time(1, 2, 1)).timestamp()
+    text_variable_date.set(str(int(date_two)))
 
 def list_timeline(Value):
   if Value!="Type of feed":  
@@ -269,17 +236,20 @@ def list_timeline(Value):
                my_hashtag.append(db_x)
          return my_hashtag   
       if Value=="my time":
+        try: 
          my_time.clear()
          for db_x in db_list:
-            if date_entry.get()!="":
-             if int(db_x["created_at"])>int(date_entry.get()):
+            if date_entry_0.get()!="":
+             if int(db_x["created_at"])>int(date_entry_0.get()):
               if db_x["pubkey"]!=entry_id.get():
                my_time.append(db_x)
             else:
                 since_day_time()
-                if int(db_x["created_at"])>int(date_entry.get()):
+                if int(db_x["created_at"])>int(date_entry_0.get()):
                   my_time.append(db_x) 
          return my_time   
+        except ValueError as e:
+           print(e)
       
 async def get_relay(client, user):
     f = Filter().author(user).remove_identifiers(["influenceScoresList"]).kinds([Kind(30000)]).limit(10)
@@ -294,9 +264,9 @@ Button_check_2.place(relx=0.25,rely=0.27)
 async def get_note_text(client, user):
   try:
    if WoT_check.get()==1:
-    f = Filter().authors(user).kind(Kind(1)).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)
+    f = Filter().authors(user).kinds([Kind(24),Kind(1)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)
    else:
-    f = Filter().kind(Kind(1)).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)   
+    f = Filter().kinds([Kind(24),Kind(1)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)   
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
    z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
@@ -321,15 +291,15 @@ async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://nos.lol/")
     await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
+    await client.add_relay(relay_url_2)
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
     await client.connect()     
     await asyncio.sleep(2.0)
     if WoT_check.get()==1:
@@ -362,7 +332,6 @@ def create_tm():
    user=convert_user(entry_id.get())
    test_note=asyncio.run(main_long_tk(user))
    print(len(test_note),len(draft_user))   
-   
    
 entry_id=tk.Entry(root, textvariable=entry_id_note, width=20)
 entry_note=tk.Entry(root, textvariable=entry_note_note, width=50)
@@ -448,8 +417,7 @@ def back_number():
         show_Teed()
     else:
         int_var.set(1) 
-        #show_Teed()
-
+        
 button_next=Button(root,command=note_number,text="➕",font=("Arial",12,"bold"))
 button_back=Button(root,command=back_number,text="➖",font=("Arial",12,"bold"))
 db_list=[]
@@ -530,9 +498,17 @@ def show_Teed():
                     photo_list(more_spam(entry))
 
       def print_id(entry):
-            if entry["tags"]!=[]:
-              print(db_list.index(entry)+1)
-              if tags_string(entry,"e")!=[]:
+           if entry["kind"]==24:
+                test_open(entry["pubkey"])
+                close_frame()
+           else: 
+             if messagebox.askyesno("This create a new window","Do you want Reply? "):
+                close_frame()
+                test_open(entry["pubkey"])
+             else:   
+              if entry["tags"]!=[]:
+               print(db_list.index(entry)+1)
+               if tags_string(entry,"e")!=[]:
                  show_print_test_tag(entry)
               else:
                  print(entry["tags"])
@@ -595,7 +571,6 @@ def return_date_tm(note):
     import datetime
     date_2= datetime.datetime.fromtimestamp(float(note["created_at"])).strftime("%a"+", "+"%d "+"%b"+" %Y")
     date= date_2+ " "+ datetime.datetime.fromtimestamp(float(note["created_at"])).strftime('%H:%M')
-   
     return date
 
 def note_text_kind1():
@@ -696,7 +671,7 @@ async def get_outbox(client):
   if my_list!=[]:
    if my_dict[combo_box.get()] in list(my_dict.values()): 
     print("ok")
-    f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kinds([Kind(10002),Kind(1)])
+    f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kinds([Kind(10002),Kind(1),Kind(24)])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -708,14 +683,15 @@ async def outboxes():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
              
     else:
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
-     relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
-     await client.add_relay(relay_url_2)
+        relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+        relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+        await client.add_relay(relay_url_1)
+        await client.add_relay(relay_url_2)
+     
        
     await client.connect()
     db_note.clear()
@@ -758,17 +734,16 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
+    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
     await client.add_relay(relay_url_1)
+    relay_url_2=RelayUrl.parse("wss://nos.lol/")
     await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -926,7 +901,7 @@ def photo_print(note):
       except TypeError as e: 
         print(e)  
       except requests.exceptions.RequestException as e:
-        print(f"Error exceptions: {e}")      
+        print(f"Error exceptions: {e}")         
 
 def photo_list(list_note):
  frame_pic=tk.Frame(root,height=80,width= 80) 
@@ -945,11 +920,8 @@ def photo_list(list_note):
     image_label = tk.Label(frame_pic)
     image_label.grid(column=1,row=s, columnspan=2)
     if label_pic.get()!="":
-      try:   
-       headers = {"User-Agent": "Mozilla/5.0"}
-       response = requests.get(label_pic.get(),headers=headers, stream=True)
-       
-       response.raise_for_status()  
+         
+       response = requests.get(label_pic.get(), stream=True)
        if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
@@ -971,8 +943,6 @@ def photo_list(list_note):
         button_close=Button(frame_pic,command=close_pic,text="close",font=("Arial",12,"bold"))
         button_close.grid(column=2,row=s+1,sticky="n")
         s=s+2
-      except requests.exceptions.RequestException as e:
-        print(f"Error exceptions: {e}")     
   frame_pic.place(relx=0.7,rely=0.01,relwidth=0.18)
 
 def more_link(f):
@@ -1019,11 +989,8 @@ def photo_list_2(note):
      image_label = tk.Label(frame_pic)
      image_label.grid(column=1,row=s, columnspan=2)
      if label_pic.get()!="":
-       try:  
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(label_pic.get(),headers=headers, stream=True)
-       
-        response.raise_for_status()  
+         
+        response = requests.get(label_pic.get(), stream=True)
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
         del response
@@ -1058,8 +1025,6 @@ def photo_list_2(note):
         button_close_photo=Button(frame_pic,command=close_one_pic,text="Next",font=("Arial",12,"bold"))
         button_close_photo.grid(column=1,row=s+1)
         s=s+2
-       except requests.exceptions.RequestException as e:
-        print(f"Error exceptions: {e}") 
    print_photo()     
    frame_pic.place(relx=0.7,rely=0.01,relwidth=0.3) 
   else:
@@ -1117,6 +1082,8 @@ def add_user(name,key):
         frame_user.place_forget()
 
 frame_user=Frame(root,height=100,width=200)
+numb_close=Button(frame_user, command=close_new_user, text="Close x",font=('Arial',12,'normal'))
+numb_close.grid(column=1,row=2,pady=10,padx=5,rowspan=2)
 label_user = tk.Label(frame_user, text="Name",font=('Arial',12,'normal'))
 label_user.grid(column=0,row=0,pady=2,padx=10)
 label_pubkey = tk.Label(frame_user, text="Pubkey",font=('Arial',12,'normal'))
@@ -1175,14 +1142,12 @@ async def feed_cluster(authors,type_of_event):
     #uniffi_set_event_loop(asyncio.get_running_loop())
 
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
-    relay_url_3 = RelayUrl.parse("wss://nostr.wine/")
-    relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://nos.lol/")
+    relay_url_3=RelayUrl.parse("wss://nostr-pub.wellorder.net/")
     await client.add_relay(relay_url_1)
     await client.add_relay(relay_url_2)
     await client.add_relay(relay_url_3)
-    await client.add_relay(relay_url_4) 
    
     await client.connect()
 
@@ -1238,6 +1203,8 @@ def list_pubkey_id():
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
 #button_people_2.place(relx=0.22,rely=0.45) 
 
+search_pubkey_list=[]
+
 def layout():
    if Pubkey_Metadata!={}: 
     frame1=Frame(root, width=330, height=100)
@@ -1252,23 +1219,19 @@ def layout():
     "<Configure>",
     lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    # Frame scrollabile
     scrollable_frame = Frame(canvas)
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     s=1  
-               
     for name_pubkey in list(Pubkey_Metadata.keys())[0:100]:
         if name_pubkey not in draft_user:
          var_npub =StringVar()
          var_npub.set("Nickname " +Pubkey_Metadata[name_pubkey])
-                
+         if name_pubkey in search_pubkey_list:   
+            s=1   
+            var_npub.set("Nickname " +Pubkey_Metadata[search_pubkey_list[0]])
          def print_photo_url(url):
-           if url!="":
-            try: 
-             headers = {"User-Agent": "Mozilla/5.0"}
-             response = requests.get(url,headers=headers, stream=True)
-       
-             response.raise_for_status()  
+            if url!="":
+             response = requests.get(url, stream=True)
              if response.ok==True:
               with open('my_image.png', 'wb') as file:
                 shutil.copyfileobj(response.raw, file)
@@ -1282,10 +1245,8 @@ def layout():
               label_image.image_names= photo 
               button_photo_close.place(relx=0.95,rely=0.68)
               label_image.place(relx=0.75,rely=0.7)     
-              return url 
-            except requests.exceptions.RequestException as e:
-              print(f"Error exceptions: {e}")    
-           else:
+              return url   
+             else:
                 label_image.place_forget()
 
          def close_image():
@@ -1337,12 +1298,31 @@ def layout():
         frame1.destroy()
         label_image.place_forget()
         button_close_s.place_forget()
+        entry_nick.place_forget()
+        button_close_1.place_forget()
 
     if Pubkey_Metadata=={}:
      close_canvas()    
     
+    def search_nickname():
+      if entry_nick.get()!="":
+        search_pubkey_list.clear()
+        Name_value=list(Pubkey_Metadata.values())
+        Name_key=list(Pubkey_Metadata.keys())
+        if entry_nick.get() in Name_value:
+           for key_x in Name_key:
+              if Pubkey_Metadata[key_x]==entry_nick.get():
+                 print(entry_nick.get(),"\n",key_x)      
+                 search_pubkey_list.append(key_x)    
+                 close_canvas()
+                 layout()   
+
+    entry_nick=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))          
+    entry_nick.place(relx=0.67,rely=0.17,relwidth=0.12) 
+    button_close_1=Button(root, command=search_nickname, text="Find ",font=('Arial',12,'normal'), fg="blue")
+    button_close_1.place(relx=0.81,rely=0.17,relheight=0.03)
     button_close_s=Button(root, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
-    button_close_s.place(relx=0.85,rely=0.17)   
+    button_close_s.place(relx=0.9,rely=0.17)   
 
 button_open=Button(root, command=layout, 
                    text="Scroll User",
@@ -1351,81 +1331,300 @@ button_open=Button(root, command=layout,
                   width=10,height=1,border=2, cursor='hand1',
                   font=('Arial',14,'bold'))
 
-button_open.place(relx=0.75,rely=0.11, anchor="n")
-
+button_open.place(relx=0.75,rely=0.1, anchor="n")
 note_tag = tk.Label(root, text="Note",font=('Arial',12,'bold'))
 entry4=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))
+button_pre=Button(root,text="preview",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',12,'bold'))
+close_=Button(root,text="Close X",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',12,'normal'))
+outbox_list=[]
 
-button_pre=Button(root,text="preview",highlightcolor='WHITE',
-                  width=10,height=1,border=2, cursor='hand1',
-                  font=('Arial',12,'bold'))
+def Get_outbox_relay(key:int,public_p:list):
+     """Key = kind number \n
+        10002 = nostr relay 
+        public_p = first Publickey
+     """
+     test=[]
+     test_kinds = [Kind(key)]
+     if isinstance(public_p,list):
+        public_list.append(public_p[0])
+     else:
+        print("error") 
+     if __name__ == "__main__":   
+      
+      test = asyncio.run(Get_event_from(test_kinds))
+      if test is not None:
+       relay_user=get_note(test)
+       if relay_user!=[]:
+           outbox_list.clear()
+           public_list.clear()
+           i=0
+           
+           while i<len(relay_user):
+            if i<2:
+             if relay_user[i]["kind"]==10002:
+              for xrelay in tags_string(relay_user[i],'r'):
+               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
+               
+                if xrelay not in outbox_list:
+                 outbox_list.append(xrelay)
+            i=i+1     
 
-close_=Button(root,text="Close X",highlightcolor='WHITE',
-              width=10,height=1,border=2, cursor='hand1',
-              font=('Arial',12,'normal'))
+async def Get_event_from(event_):
+    # Init logger
+    init_logger(LogLevel.INFO)
+    
+    client = Client(None)
+
+    # Add relays and connect
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://relay.damus.io/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+    
+    if relay_list!=[]:
+        for xrelay in relay_list:
+            relay_url_list=RelayUrl.parse(xrelay)
+            await client.add_relay(relay_url_list)
+    await client.connect()
+    await asyncio.sleep(2.0)
+    try:   
+     if isinstance(event_, list):
+        test_kind = await get_kind(client, event_)
+        if test_kind:
+           return test_kind    
+     else:
+        print("error")
+
+     if test_kind==[] and public_list!=[]:
+       test_kind = await get_kind_relay(client, event_)
+       print("from relay")
+       return test_kind  
+    except NostrSdkError as e:
+       print(e)   
+    
+async def get_kind(client, event_):
+    if public_list!=[]:
+     f = Filter().kinds(event_).author(public_list[0])
+    else:
+       
+       f = Filter().kinds(event_).limit(50)
+    try:
+     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10)) 
+     z=[] 
+     for event in events.to_vec():
+     
+       if event.verify_signature():
+          
+          z.append(event.as_json())
+     if z!=[]:      
+      return z
+    except NostrSdkError as e:
+       print (e)
+
+async def get_kind_relay(client, event_):
+    f = Filter().kinds(event_).limit(16)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
+    return z
+
+public_list=[]
+
+async def Tag_note(note,tag):
+   
+   init_logger(LogLevel.INFO)
+   key_string=log_these_key()
+   if key_string!=None: 
+    keys = Keys.parse(key_string)
+    
+    
+    signer=NostrSigner.keys(keys)
+    client = Client(signer)
+    if outbox_list!=[]:
+       
+       for jrelay in outbox_list:
+          relay_url_list=RelayUrl.parse(jrelay)
+          await client.add_relay(relay_url_list)
+    else:
+       if relay_list!=[]:
+          for xrelay in outbox_list:
+            relay_url_1=RelayUrl.parse(xrelay)
+            await client.add_relay(relay_url_1)
+    await client.connect()
+     
+    builder = EventBuilder(Kind(24),note).tags(tag)
+   
+    test= await client.send_event_builder(builder)
+    
+    print(test.id)
+
+    print("Event sent:")
+    await asyncio.sleep(2.0)
+    
+    print("Getting events from relays...")
+    f = Filter().authors([keys.public_key()]).kind(Kind(24))
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    for event in events.to_vec():
+     if event.verify():
+      print(event.as_json())
+       
+def Gm_status():
+   check_square()
+   lists_id=[] 
+   if button_entry1.cget('foreground')=="green":
+     
+    if list_p!=[]:        
+        for alist in list_p:
+            if outbox_list!=[]:
+              lists_id.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(alist,RelayUrl.parse(outbox_list[0]),None,FALSE)))
+            else:
+               lists_id.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(alist,None,None,FALSE)))
+  
+         
+    if __name__ == '__main__':
+        note=entry4.get(1.0, "end-1c")       
+        if lists_id!=[] and note!="":
+         asyncio.run(Tag_note(note,lists_id))
+    clear_list()
+    error_label.config(text="Problem:")
+    print_label.config(text="Wait for the note",foreground="black")
+    button_entry1.config(foreground="grey")
+
+since_variable=IntVar(value=0)
+since_entry=Entry(root,textvariable=since_variable,font=("Arial",12,"normal"),width=6)
+text_var=StringVar()
+date_entry=Entry(root,textvariable=text_var,font=("Arial",12,"normal"),width=11)
+
+stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)
+p_tag = tk.Label(root, text="p-Tag",font=("Arial",12,"bold"))
+entry_p_var=StringVar()
+entryp_tag=ttk.Entry(root,justify='left',font=("Arial",12),textvariable=entry_p_var)
+p_view = tk.Label(root, text="p tag?: ", font=("Arial",12))
+Checkbutton8 = IntVar() 
+Type_band = Checkbutton(root, text = "More p tag", variable = Checkbutton8, onvalue = 1, offvalue = 0, height = 2, width = 10,font=('Arial',16,'normal'))
+list_p=[]
+
+entry_Home_title=ttk.Label(frame1,text="Send Tag Note", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
+entry_Home_title.place(relx=0.4,rely=0.05,relwidth=0.2)
+relay_list=[]
+
+def check_square():
+    Text=entry4.get(1.0, "end-1c")
+    
+    if list_p!=[] and Text!="":
+       
+        print_label.config(text="Ready", font=("Arial",12,"bold"),foreground="blue")
+        button_entry1.config(text="■",foreground="green")
+        error_label.config(text="ok")
+        Get_outbox_relay(10002,list_p)
+    else:
+        error_label.config(text="Problem:")
+        print_label.config(text="Wait for Tag or note", font=("Arial",12,"bold"),foreground="black") 
+        button_entry1.config(text="■",foreground="grey")
+        
+button_send=tk.Button(root,text="Send Note",command=Gm_status, background="darkgrey",font=("Arial",14,"bold"))
+button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
+frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
+error_label = tk.Label(frame1, text="Problem:",font=("Arial",12))
+print_label = ttk.Label(frame1, text="Wait for the Tag note",font=("Arial",12))
+
+
+def p_show():
+    title=entryp_tag.get()
+    
+    if len(title)==64 or len(title)==63:
+        if len(title)==63:
+           title=PublicKey.parse(title).to_hex()
+       
+        if convert_user(title)!=None:
+         if title not in list_p:
+          if Checkbutton8.get()==0:
+            if len(list_p)>=1:
+                i=1
+                while len(list_p)>i:
+                 list_p.pop(1)
+                p_view.config(text=str(len(list_p)))
+                entryp_tag.delete(0, END)  
+            else:  
+                list_p.append(convert_user(title))
+                p_view.config(text=str(len(list_p)))
+                entryp_tag.delete(0, END) 
+                return list_p
+          else: 
+                if convert_user(title) not in list_p:
+                 list_p.append(convert_user(title))
+                p_view.config(text=str(len(list_p)))
+                entryp_tag.delete(0, END) 
+                return list_p 
+          
+         else:
+              p_view.config(text=str(len(list_p)))
+              
+              entryp_tag.delete(0, END) 
+              return list_p
+        else:
+         p_view.config(text=str(len(list_p)))
+         entryp_tag.delete(0, END) 
+    else:
+       entryp_tag.delete(0, END) 
+       if len(list_p)>0:
+        p_view.config(text=str(len(list_p)))
 
 def test_open(pubkey):
-    note_tag.place(relx=0.5,rely=0.24,relwidth=0.1,relheight=0.05,anchor='n' )
-    entry4.place(relx=0.5,rely=0.3,relwidth=0.3,relheight=0.1,anchor='n' )
-        
-    close_["command"] = close_answer
-    close_.place(relx=0.6,rely=0.25,relwidth=0.05,relheight=0.04,anchor='n' )
-    entry4.insert(0, PublicKey.parse(pubkey).to_nostr_uri())
+   lab_button.place(relx=0.25,rely=0.65)
+   entry_p_var.set(pubkey)
+   p_show()
+   raw_label()
+   button_send.place(relx=0.4,rely=0.8,relwidth=0.1,relheight=0.08,anchor='n' )
+   button_entry1.place(relx=0.47,rely=0.8,relwidth=0.05, relheight=0.08,anchor="n" )
 
-    def Preview():
-      if entry4.get()!="": 
-        frame1=Frame(root, width=310, height=100)
+Check_raw =IntVar()
+
+def clear_list():
+   """Remove Tags and Update"""
+   list_p.clear()
+   p_view.config(text="p tag?: ")
+   entry4.delete("1.0","end")
+   button_entry1.config(fg="grey")
+
+def raw_label():
+   if Check_raw.get()==0:
+        Check_raw.set(1)
+        stuff_frame.place(relx=0.35,rely=0.12,relheight=0.65,relwidth=0.28)  
+        Type_band.place(relx=0.5,rely=0.6,relwidth=0.1,relheight=0.05)  
+        p_view.place(relx=0.5,rely=0.7,relwidth=0.1 )
+        p_button.place(relx=0.4,rely=0.7)
+        p_tag.place(relx=0.4,rely=0.6,relwidth=0.1 )
+        entryp_tag.place(relx=0.4,rely=0.65,relwidth=0.2 )
+        entry4.place(relx=0.5,rely=0.2,relwidth=0.2,relheight=0.3,anchor='n' )
+        error_label.grid(column=3, rowspan=2, row=0, pady=5,padx=5)
+        print_label.grid(column=3, columnspan=2, row=2, pady=5,padx=10)
+        frame1.place(relx=0.5,rely=0.8)
+        button_send.place(relx=0.4,rely=0.8,relwidth=0.1,relheight=0.08,anchor='n' )
+        button_entry1.place(relx=0.47,rely=0.8,relwidth=0.05, relheight=0.08,anchor="n" )
    
-        canvas = Canvas(frame1)
-        canvas.pack(side="left", fill=BOTH, expand=True)
-
-        canvas.bind(
-                    "<Configure>",
-                    lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-
-        # Frame scrollabile
-        scrollable_frame = Frame(canvas)
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    
-        def create_note(note_text, s):
-         # Message 
-            if len(note_text)<200:
-             message = Message(scrollable_frame, text=note_text, width=300, font=('Arial',12,'normal'))
-             message.grid(row=s, column=0, columnspan=3, padx=5)
-            else:
-               note_text2=str(note_text)
-               print(note_text2)
-               scroll_bar_mini = tk.Scrollbar(scrollable_frame)
-               scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
-               second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
-               second_label10.insert(END,note_text)
-               scroll_bar_mini.config( command = second_label10.yview )
-               second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
-              
-            Button(scrollable_frame, text="Print Note", command=lambda: share(note_text)).grid(row=s + 2, column=0,pady=2)
-
-        s = 1
-        while s<2:
-         if entry4.get()!="":
-            create_note(entry4.get(), s)
-         s += 3   
-
-        frame1.place(relx=0.35,rely=0.48, relheight=0.25,relwidth=0.3) 
-
-        def close_canvas():
-            scrollable_frame.forget()
-            canvas.destroy()
-            frame1.destroy()
-          
-        button_close=Button(scrollable_frame, command=close_canvas, text="Close X",font=('Arial',12,'normal'))
-        button_close.grid(column=2,row=3, pady=2) 
-       
-    button_pre["command"]= Preview
-    button_pre.place(relx=0.42,rely=0.41,relwidth=0.1, anchor="n") 
-    button_send.place(relx=0.58,rely=0.41,relwidth=0.1,anchor='n' )
+   else:
+      Check_raw.set(0)
+      stuff_frame.place_forget() 
+      Type_band.place_forget() 
+      p_view.place_forget()
+      p_button.place_forget()
+      p_tag.place_forget()
+      entryp_tag.place_forget()
+      button_clear.place_forget()
+      entry4.delete("1.0","end")
+      entry4.place_forget()
+      frame1.place_forget()
+      clear_list()
+      check_square()
+      button_send.place_forget()
+      button_entry1.place_forget()
+      lab_button.place_forget()
    
 button_create=Button(root,text="Post", command=test_open,font=('Arial',12,'bold'),background="grey")
-
+p_button = tk.Button(root, text="p_show", font=("Arial",12,"bold"), command=p_show)
+entry4=tk.Text(root,border=2,highlightbackground="grey",font=("Arial",12,"normal"))
+button_clear=Button(root,text="Remove", command=clear_list, font=("Arial",12,"bold"))
+lab_button = tk.Button(root, text="Close Open", font=("Arial",12,"bold"), command=raw_label, fg="red")
 
 def close_answer():
   button_send.place_forget() 
@@ -1439,54 +1638,6 @@ def close_answer():
   close_.place_forget()
 
 list_tag=[]
-
-def x_Profile(string:str):
-  try: 
-   if len(string)==64:
-     return string
-   if string.startswith("nostr:nprofile"):
-        decode_nprofile = Nip19Profile.from_nostr_uri(string)
-        relay_option=decode_nprofile.relays()
-        return [decode_nprofile.public_key().to_hex(),relay_option]
-      
-   if string.startswith("nostr:npub1") and len(string)==69:
-        decode_pubkey = PublicKey.parse(string)      
-        return decode_pubkey.to_hex()
-  except NostrSdkError as e:
-     print(e) 
-
-def send_event():
-    note=entry4.get()
-    if note!="":
-     try: 
-      if __name__ == '__main__':
-                
-       l_list=[]
-       
-       split=note.split()
-       for x_split in split:
-        public_note=x_Profile(x_split)
-        if public_note:
-         if isinstance(public_note,list):
-          l_list.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(PublicKey.parse(public_note[0]),public_note[1][0]),None,FALSE))
-
-         if isinstance(public_note,str):
-          l_list.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(PublicKey.parse(public_note),None,None,FALSE)))
-       tags=tuple(l_list)
-        #for p2_x in  Tags.from_text(entry4.get()).to_vec():
-            #          l_list.append(p2_x)
-       
-       asyncio.run(main_note(note,tags))
-      
-       #messagebox.showinfo("Success", "You have sent \n this note")
-       entry4.delete(0, END)
-     except AttributeError as e:
-      print(e)
-    else:
-      messagebox.showerror("Fail", "Error, write something")
-      entry4.delete(0, END)
-
-button_send=tk.Button(root,text="send note", background="darkgrey", command=send_event, font=('Arial',12,'normal'))         
 event_idone=Button(root,text="Search_event_one", font=('Arial',12,'normal') ) 
 
 def Open_txt_note(name):
@@ -1509,31 +1660,6 @@ def log_these_key():
    except FileNotFoundError as e:
        print(e)
 
-
-async def main_note(note,tags):
-    # Init logger
-   init_logger(LogLevel.INFO)
-   key_string=log_these_key()
-   if key_string!=None: 
-    keys = Keys.parse(key_string)
-    signer = NostrSigner.keys(keys)
-    
-    client = Client(signer)
-    # Add relays and connect
-    if relay_list!=[]:
-       
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-       await client.connect()
-    # Send an event using the Nostr Signer
-  
-    builder = EventBuilder.text_note(note).tags(tags)    
-    testNote = await client.send_event_builder(builder)
-    
-    messagebox.showinfo("Result")+"\n"+str(testNote.success) 
-    print(testNote.id.to_hex())  
-   
 def share(note_text):
     print(f"Note: \n {note_text}")
 
@@ -1643,7 +1769,6 @@ def show_print_test_tag(note):
    frame3.place(relx=0.66,rely=0.1,relheight=0.4,relwidth=0.33) 
 
 def show_note_from_id(note):
-        result=note["id"]
         replay=nota_reply_id(note)
         if replay!=[]:
          replay_note=[]
@@ -1665,6 +1790,5 @@ def nota_reply_id(nota):
                   if event_id not in e_id:
                     e_id.append(event_id)   
     return e_id    
-
 
 root.mainloop()

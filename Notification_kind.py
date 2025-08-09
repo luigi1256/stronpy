@@ -281,7 +281,7 @@ def list_timeline(Value):
 async def get_relay(client, user):
     f = Filter().author(user).remove_identifiers(["influenceScoresList"]).kinds([Kind(30000)]).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 WoT_check=IntVar()
@@ -295,7 +295,7 @@ async def get_note_text(client, user):
    else:
     f = Filter().kind(Kind(1)).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)   
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
   except RelayMessage as e:
       print(e)
@@ -680,7 +680,7 @@ async def get_outbox(client):
     print("ok")
     f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kinds([Kind(10002),Kind(1)])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def outboxes():
@@ -726,13 +726,13 @@ def search_relay():
 async def get_relays_z(client, authors):
     f = Filter().authors(authors).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay_z(client, user):
     f = Filter().author(user).kind(Kind(0))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def feed(authors):

@@ -74,13 +74,13 @@ def tags_string(x,obj):
 async def get_relays(client, authors):
     f = Filter().authors(authors).kind(Kind(1)).limit(700)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay(client, user):
     f = Filter().author(user).kind(Kind(3))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def main(authors):

@@ -206,7 +206,7 @@ def test_relay():
 async def get_kind(client):
     f= Filter().kind(Kind(1)).limit(300)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z   
    
 async def Get():
@@ -787,10 +787,8 @@ def share(note_text):
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z=[]  
-    for event in events.to_vec():
-     if event.verify()==True:
-        z.append(event)
+    z = [event for event in events.to_vec() if event.verify()]
+    
     if z!=[]: 
      return z   
     return z
@@ -853,7 +851,8 @@ async def reply(note,tag,test):
      f = Filter().authors([keys.public_key()])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
-      print(event.as_json())
+      if event.verify():
+       print(event.as_json())
     except NostrSdkError as e:
        print(e)
 frame_1.grid(padx=20,pady=20)
@@ -990,13 +989,13 @@ def reply_id(reply_list):
 async def get_notes_(client, e_ids):
      f = Filter().ids([EventId.parse(e_id) for e_id in e_ids])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def get_one_note(client, e_id):
     f = Filter().id(EventId.parse(e_id))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_event_id(e_id):

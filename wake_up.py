@@ -186,7 +186,8 @@ async def wake_note(tag,status):
     f = Filter().authors([keys.public_key()]).kind(Kind(2222))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
-     print(event.as_json())
+     if event.verify():
+      print(event.as_json())
   except NostrSdkError as e:
      print (e)  
        
@@ -589,7 +590,7 @@ def reply_event():
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 relay_list=[]
@@ -820,7 +821,7 @@ async def get_kind(client, event_):
 async def get_kind_relay(client, event_):
     f = Filter().kinds(event_).limit(16)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 def tags_string(x,obj):

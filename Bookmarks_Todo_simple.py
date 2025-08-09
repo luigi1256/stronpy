@@ -254,13 +254,13 @@ def show_note_from_id(note):
 async def get_notes_(client, e_ids):
      f = Filter().ids([EventId.parse(e_id) for e_id in e_ids])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def get_one_note(client, e_id):
     f = Filter().id(EventId.parse(e_id))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_event_id(e_id):
@@ -301,7 +301,7 @@ async def get_list_a(client, event_publikey):
     
      f = Filter().kind(Kind(int(d_kind))).identifiers(d_identifiers)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def Get_coord_str(a_nostr_tag):
@@ -370,7 +370,7 @@ async def get_result_w(client):
            f = Filter().author().kind(Kind(30003)).limit(10)
 
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
    except TypeError as e:
       print(e, " probably public list is empty")
@@ -406,7 +406,7 @@ async def get_outbox_relay(client):
    else: 
     f=Filter().kind(Kind(10002)).limit(10)
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
 
 async def search_box_relay():

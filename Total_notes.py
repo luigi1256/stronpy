@@ -493,7 +493,7 @@ def test_relay():
 async def get_kind(client):
     f= Filter().kind(Kind(1)).limit(300)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z   
 
 relay_list=[] 

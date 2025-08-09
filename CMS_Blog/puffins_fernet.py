@@ -85,14 +85,14 @@ entry_c_root=ttk.Entry(root,justify='left')
 async def get_nostr_tags(client, event_kind,event_identifier,event_publickey):
      f = Filter().kind(event_kind).author(event_publickey).identifier(event_identifier)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-     z = [event.as_json() for event in events.to_vec()]
+     z = [event.as_json() for event in events.to_vec() if event.verify()]
      return z
 
 async def get_one_nostr_tags(client, event_kind,event_identifier,event_publickey):
     f =Filter().kind(event_kind).author(event_publickey).identifier(event_identifier)
     #print(f.as_json())    
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_coord_url(value):
@@ -105,10 +105,9 @@ async def Get_coord_url(value):
     event_identifier = Coordinate.parse(value).identifier()
     event_publickey = Coordinate.parse(value).public_key()
     
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://nos.lol/")
-    await client.try_connect(timeout=timedelta(seconds=10))
-
+    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+    await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+    
     await asyncio.sleep(2.0)
     await client.connect()
     
@@ -144,10 +143,10 @@ async def reply(note,tag):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay("wss://nostr.mom")
-     await client.add_relay("wss://nos.lol")
+     await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
+     await client.add_relay(RelayUrl.parse("wss://nos.lol"))
     await client.connect()
     event_to_comment:dict=tag
     if event_to_comment!=NONE:
@@ -187,7 +186,8 @@ async def reply(note,tag):
       f = Filter().authors([keys.public_key()])
       events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
       for event in events.to_vec():
-       print(event.as_json())
+       if event.verify():
+         print(event.as_json())
 
 def round_3_comment():      
   if entry_c_note.get()!="" and entry_c_root.get()!="":
@@ -351,10 +351,10 @@ async def the_second_reply(note,tag, root):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay("wss://nostr.mom")
-     await client.add_relay("wss://nos.lol")
+     await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
+     await client.add_relay(RelayUrl.parse("wss://nos.lol"))
     await client.connect()
     event_to_comment:dict=tag
     event_to_start:dict=root
@@ -387,18 +387,19 @@ async def the_second_reply(note,tag, root):
      f = Filter().authors([keys.public_key()])
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
-      print(event.as_json())
+      if event.verify():
+       print(event.as_json())
 
 async def get_more_Event(client, event_list):
     f = Filter().ids(event_list)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):
@@ -409,11 +410,11 @@ async def Get_id(event_):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(" wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+     await client.add_relay(RelayUrl.parse("wss://relay.primal.net/"))
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -757,27 +758,27 @@ button_rep.place(relx=0.112,rely=0.48)
 async def get_more_Event(client, event_):
     f = Filter().ids(evnts_ids(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_answers_Event(client, event_):
    
     f=Filter().kind(Kind(1111)).custom_tags(SingleLetterTag.lowercase(Alphabet.A),event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     #print(f.as_json(),len(z))
     return z
 
 async def get_one_Event(client, event_):
     f = Filter().id(evnt_id(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_answer_Event(client, event_):
     f = Filter().event(evnt_id(event_)).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_id(event_):
@@ -788,11 +789,11 @@ async def Get_id(event_):
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(" wss://nostr.mom/")
-     await client.add_relay("wss://nos.lol/")
-     await client.add_relay("wss://relay.primal.net")
+     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+     await client.add_relay(RelayUrl.parse("wss://relay.primal.net/"))
     await client.connect()
 
     await asyncio.sleep(2.0)

@@ -63,7 +63,7 @@ async def new_entry_wiki(note,tag):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
     
     builder = EventBuilder(Kind(30818),note).tags(tag)
@@ -828,7 +828,7 @@ async def get_result_w(client):
            f = Filter().identifier(entry_var.get()).kind(Kind(30818)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
 
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 db_list_note=[]
@@ -841,7 +841,7 @@ async def Search_d_tag():
     # Add relays and connect
     if relay_search_list!=[]:
        for jrelay in relay_search_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
        await asyncio.sleep(2.0)
 
@@ -889,7 +889,7 @@ async def get_search_relay(client):
    else: 
     f=Filter().kind(Kind(10007)).limit(10)
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-   z = [event.as_json() for event in events.to_vec()]
+   z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
 
 async def search_box_relay():
@@ -899,10 +899,10 @@ async def search_box_relay():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
              
     else:
-       await client.add_relay("wss://nostr.mom/")
+       await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
        
     await client.connect()
     relay_add=get_note(await get_search_relay(client))
@@ -1105,8 +1105,8 @@ async def reply_reaction(event_id,public_key,str_reaction,type_event):
     
     client = Client(signer)
     # Add relays and connect
-    await client.add_relay("wss://nostr.mom")
-    await client.add_relay("wss://nos.lol")
+    await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
+    await client.add_relay(RelayUrl.parse("wss://nos.lol"))
     await client.connect()
 
     # Send an event using the Nostr Signer
@@ -1261,19 +1261,19 @@ async def get_answers_Event(client, event_):
     f = Filter().events(evnts_ids(event_)).kinds([Kind(1),Kind(1111)]).limit(int(10*len(event_)))
     
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_one_Event(client, event_):
     f = Filter().id(evnt_id(event_))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_answer_Event(client, event_):
     f = Filter().event(evnt_id(event_)).kinds([Kind(1),Kind(1111)]).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_notes_(client, e_ids):
@@ -1285,7 +1285,7 @@ async def get_notes_(client, e_ids):
 async def get_one_note(client, e_id):
     f = Filter().id(EventId.parse(e_id))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Get_event_id(e_id):
@@ -1295,9 +1295,9 @@ async def Get_event_id(e_id):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay("wss://nos.lol/")
-    await client.add_relay("wss://nostr.mom/")
-    await client.add_relay("wss://purplerelay.com/")
+    await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+    await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
     
     await client.connect()
     
@@ -1487,8 +1487,8 @@ async def request_merge(tag,status):
     client = Client(signer)
 
     # Add relays and connect
-    await client.add_relay("wss://relay.lnfi.network/")
-    await client.add_relay("wss://strfry.chatbett.de/")
+    await client.add_relay(RelayUrl.parse("wss://relay.lnfi.network/"))
+    await client.add_relay(RelayUrl.parse("wss://strfry.chatbett.de/"))
     #await client.add_relay("")
 
     await client.connect()
@@ -1505,7 +1505,8 @@ async def request_merge(tag,status):
     f = Filter().authors([keys.public_key()])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
-     print(event.as_json())
+     if event.verify():
+      print(event.as_json())
 
 status_list=["Maybe you'll like my version better","You might prefer my version","Hopefully you'll like the version I suggested.","Let me know if you prefer my version.","Just a suggestion, you might like my version more.","I’ve made a small edit, see if it works better for you."]
 
@@ -1583,7 +1584,7 @@ async def get_result_merge(client):
     
     f = Filter().identifier(d_tag_entry_s.get()).kind(Kind(30818)).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Search_d_tag_merge():
@@ -1595,7 +1596,7 @@ async def Search_d_tag_merge():
     # Add relays and connect
     if relay_search_list!=[]:
        for jrelay in relay_search_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
        await asyncio.sleep(2.0)
 

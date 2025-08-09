@@ -51,7 +51,7 @@ async def get_result_(client,relay_1):
     f = Filter().kind(Kind(10002)).reference(relay_1).limit(10)
    
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Search_r_lay(relay_1):
@@ -139,7 +139,7 @@ def Open_source(value_kind):
 async def get_kind_relay(client, event_):
     f = Filter().kinds(event_).limit(16)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_kind(client, event_):
