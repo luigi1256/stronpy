@@ -188,7 +188,7 @@ def back_since():
 button_mov=tk.Button(root,text="➕",command=next_since)
 button_backs=tk.Button(root,text="➖",command=back_since)
 text_variable_date=StringVar()
-date_entry_0=Entry(root,text=text_variable_date,font=("Arial",12,"normal"),width=15)
+date_entry_0=Entry(root,text=text_variable_date,font=("Arial",12,"normal"),width=17)
 
 def since_day_time():
     import datetime
@@ -425,6 +425,7 @@ lbel_var=Entry(root, textvariable=int_var,font=("Arial",14,"bold"),background="g
 
 def show_Teed():
  frame2=tk.Frame(root)  
+
  canvas_1 = tk.Canvas(frame2)
  scrollbar_1 = ttk.Scrollbar(frame2, orient="vertical", command=canvas_1.yview)
  scrollable_frame_1 = ttk.Frame(canvas_1)
@@ -504,6 +505,9 @@ def show_Teed():
            else: 
              if messagebox.askyesno("This create a new window","Do you want Reply? "):
                 close_frame()
+                if test_check.get()==1:
+                   test_check.set(0)
+                   check_dash()
                 test_open(entry["pubkey"])
              else:   
               if entry["tags"]!=[]:
@@ -534,7 +538,7 @@ def show_Teed():
     frame2.place(relx=0.35,rely=0.22,relwidth=0.28,relheight=0.4)
     
     def close_frame():
-        frame2.destroy()    
+        frame2.destroy()   
         button_frame.place_forget()
         button_next.place_forget()
         button_back.place_forget()
