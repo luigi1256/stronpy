@@ -284,10 +284,17 @@ def print_text():
        entry_t.place_forget()
        button_s.place_forget()
        label_title.place_forget()
+       entry_string.place_forget()
+       button_s_1.place_forget()
+       label_title_1.place_forget()
 
     entry_t.place(relx=0.04,rely=0.78,relwidth=0.17)
     button_s.place(relx=0.22,rely=0.77)
     label_title.place(relx=0.07,rely=0.74)
+    
+    entry_string.place(relx=0.04,rely=0.88)
+    button_s_1.place(relx=0.15,rely=0.87)
+    label_title_1.place(relx=0.07,rely=0.84)
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)       
 
@@ -352,33 +359,53 @@ def show_noted():
     if price_amount(note):
      if Alt_tag(note): 
       try:
-       context0="Author: "+note['pubkey']
-       for xnote in tags_string(note,"title"):
-         context0=context0+"\n"+"Title "+str(xnote) 
-       if note['tags']!=[]:
-        context1=note['content']+"\n"
-        context2=" "
-        
-        for xnote in tags_string(note,"alt"):
+       context0=str("")
+       context2=str("")
+       context0=context0+str("Author: ")+str(note['pubkey'])
+       if tags_string(note,"title")!=[]:
+        for ynote in tags_string(note,"title"):
+         context0=context0+"\n"+"Title "+str(ynote) 
+       for xnote in tags_string(note,"alt"):
          context2=context2+"\n"+str(xnote) +"\n"
-        if note["content"]=="": 
+       if tags_string(note,"summary")!=[]: 
          for xnote in tags_string(note,"summary"):
           context2=context2+"\n"+"Summary "+tags_string(note,"summary")[0][0:140]+"\n"
-        if len(tags_string(note,"t"))==1:
+       if len(tags_string(note,"t"))==1:
          for xnote in tags_string(note,"t"):
           context2=context2+"Category "+str(xnote) +" "  
-        else:
+       else:
            s=0
            for xnote in tags_string(note,"t"):
             if s<5:
              context2=context2+"#"+str(xnote) +" "
             s=s+1
-        if note["kind"]==30003:    
+       if note["kind"]!=30402:
+            context2=context2+"\n"+"kind "+str(note["kind"]) +"\n"                                  
+            for xnote_a in tags_string(note,"d"):
+             context2=context2+"\n"+"identifier "+str(xnote_a) +"\n"    
             for xnote_z in tags_string(note,"i"):
                 context2=context2+"\n"+str(xnote_z) +"\n"    
-       else: 
-        context1="\n"+note['content'][0:100]+"\n"
-        context2=" "
+            for xnote_x in tags_string(note,"k"):
+              context0=context0+"\n"+str(xnote_x) +"\n"       
+            for xnote_c in tags_string(note,"unit"):
+              context2=context2+"\n"+"Unit "+str(xnote_c) +"\n"   
+             
+            for xnote_v in tags_string(note,"current"):
+               context2=context2+"\n"+"Current page "+str(xnote_v) +"\n"    
+
+            for xnote_b in tags_string(note,"max"):
+
+               context2=context2+"\n"+"Max Page "+str(xnote_b) +"\n"     
+            for xnote_n in tags_string(note,"started"):
+              context2=context2+"\n"+"Started "+str(xnote_n) +"\n"
+            if tags_string(note,"rating")!=[]:   
+             for xnote_s in tags_string(note,"rating"):
+               context2=context2+"\n"+"Rating "+str(xnote_s) +"\n"
+            if tags_string(note,"raw")!=[]:   
+             for xnote_d in tags_string(note,"raw"):
+               context2=context2+"\n"+"Raw "+str(xnote_d) +"\n"      
+
+        
            
        var_id=StringVar()
        label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
@@ -387,7 +414,7 @@ def show_noted():
        scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
        scroll_bar_mini.grid( sticky = NS,column=s1+3,row=1)
        second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
-       second_label10.insert(END,context1+"\n"+str(context2))
+       second_label10.insert(END,str(context2))
        scroll_bar_mini.config( command = second_label10.yview )
        second_label10.grid(padx=10, column=s1, columnspan=3, row=1) 
       
@@ -649,11 +676,34 @@ def search_title_c(string):
        search_for_note(search_note)
        show_noted()
        return search_note     
+    
+
 
 title_s=StringVar()
 entry_t=tk.Entry(root, textvariable=title_s, width=15,font=('Arial',12,'normal'))
 button_s=Button(root,text="Search", command=lambda: search_title_c(entry_t.get()),font=('Arial',12,'normal'))
 label_title=Label(root,text="Title", font=("SF Pro",14,"bold"))
+
+def search_d_tag(string):
+   if string!="":
+    search_note= []
+    if db_note!=[]:
+       for j_note in db_note:
+          if string in tags_string(j_note,"d"):
+            if j_note not in search_note:
+             search_note.append(j_note) 
+    if search_note!=[]:
+       print("Search, ",string,"\n","Number of note ",len(search_note))
+       d_string.set("")   
+       search_for_note(search_note)
+       show_noted()
+       return search_note     
+    
+
+d_string=StringVar()
+entry_string=tk.Entry(root, textvariable=d_string, width=15,font=('Arial',12,'normal'))
+button_s_1=Button(root,text="Search", command=lambda: search_d_tag(entry_string.get()),font=('Arial',12,'normal'))
+label_title_1=Label(root,text="d Tag", font=("SF Pro",14,"bold"))
 
 root.mainloop()
 

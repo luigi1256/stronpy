@@ -426,6 +426,7 @@ async def search_box_relay():
     await client.connect()
     relay_add=get_note(await get_outbox_relay(client))
     if relay_add !=None and relay_add!=[]:
+           print("found note " ,len(relay_add), "by ", relay_add[0]["pubkey"])
            i=0
            while i<len(relay_add):
             for xrelay in tags_string(relay_add[i],'r'):
