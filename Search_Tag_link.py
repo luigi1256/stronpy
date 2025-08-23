@@ -414,7 +414,7 @@ async def Search_text():
     client = Client(None)
     
     if relay_search_list!=[]:
-       for jrelay in relay_list:
+       for jrelay in relay_search_list:
         relay_url = RelayUrl.parse(jrelay)
         await client.add_relay(relay_url)
        await client.connect()
@@ -1095,7 +1095,7 @@ async def Get_kind_number(event_):
     # Add relays and connect
     if relay_search_list!=[]:
        for jrelay in relay_search_list:
-          await client.add_relay(jrelay)
+          await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
     
     if isinstance(event_, list):

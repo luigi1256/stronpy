@@ -11,8 +11,6 @@ import requests
 import shutil
 from PIL import Image, ImageTk
 from tkinter import messagebox 
-from nostr_sdk import *
-import asyncio
 from cryptography.fernet import Fernet
 
 root = tk.Tk()
