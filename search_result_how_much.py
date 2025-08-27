@@ -1139,6 +1139,8 @@ entry_space_note.place(relx=0.40,rely=0.24,relwidth=0.15,relheight=0.04,x=5)
 button_entry=tk.Button(root,text="Search note",command=lambda: result_note(entry_space_note.get()), font=('Arial',12,'bold'))
 button_entry.place(relx=0.56,rely=0.24)
 
+relay_url_list=[]
+
 def event_string_note(note):   
     quoted=note
     list_1=['nevent1','note1']
@@ -1153,9 +1155,8 @@ def event_string_note(note):
          print(f" Event (decoded): {decode_nevent.event_id().to_hex()}")
          print(f" Event (decoded): {decode_nevent.relays()}")
          for xrelay in decode_nevent.relays():
-           if xrelay[0:6]=="wss://" and xrelay[-1]=="/":
-            if xrelay not in relay_list:
-               relay_list.append(xrelay)
+            if xrelay not in relay_url_list:
+               relay_url_list.append(xrelay)
          return decode_nevent.event_id().to_hex()
 
 items=[]
@@ -1190,6 +1191,10 @@ async def Get_event_id(e_id):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    if relay_url_list!=[]:
+       for frelay in relay_url_list:
+         client.add_relay(frelay)
+
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
@@ -1227,7 +1232,11 @@ def x_Profile(string:str):
    if string[0:8]=="nprofile":
         decode_nprofile = Nip19Profile.from_bech32(string)
         #decode_nprofile1=PublicKey.parse(decode_nprofile.public_key().to_hex())
+        relay_url_list.clear()
         pubkey_id(decode_nprofile.public_key().to_hex())
+        for drelay in decode_nprofile.relays():
+         if drelay not in relay_url_list:
+             relay_url_list.append(drelay)
         return decode_nprofile.public_key().to_hex()
       
    if string[0:5]=="npub1" and len(string)==63:
