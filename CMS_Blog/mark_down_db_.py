@@ -9,7 +9,7 @@ import tkinter.font as tkFont
 from tkinter import messagebox 
 
 root = Tk() 
-root.geometry("1200x800")
+root.geometry("1300x800")
 root.title("Markdown test") 
 root.minsize(400,400)
  
@@ -782,7 +782,7 @@ def OpenColumn3():
     label_scroll.config( command = Text_t3.yview )
     text_var = StringVar()
     entry_1= Entry(frame7_5, textvariable=text_var, font=button_font)
-    entry_1.grid(column=2, row=2,ipadx=2,ipady=2,columnspan=5)
+    entry_1.grid(column=2, row=2,ipadx=2,ipady=2,columnspan=4)
     frame7.pack(side="top",padx=1)
     tag_var = StringVar()
     entry_2= Entry(frame8, textvariable=tag_var,width=30, font=font_font)
@@ -792,7 +792,7 @@ def OpenColumn3():
        entry_1.delete(0, END)
 
     delete_send_3=Button(frame7_5, text = "Canc",command=delete_option, font=button_font)
-    delete_send_3.grid(column=7, row=2,padx=2)
+    delete_send_3.grid(column=7, row=2,padx=3)
 
     #save in md
     import io
@@ -932,7 +932,7 @@ def OpenColumn3():
     button_send_6=Button(frame8, text = "Delete",command=del_text, font=button_font)
     button_send_6.grid(column=4, row=3,padx=2)
     tag_text=Label(frame7_5,text="Text :",font=button_font,width=6)
-    tag_text.grid(column=0,row=2,ipadx=2,ipady=2)
+    tag_text.grid(column=0,row=2,ipadx=2,ipady=2,padx=3)
     tag_text_2=Label(frame8,text="Tag :",font=button_font,width=10)
     tag_text_2.grid(column=0,row=3,ipadx=2,ipady=2,pady=2,padx=2)
     frame7_5.pack(side="top",padx=1)   
