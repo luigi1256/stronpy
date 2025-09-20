@@ -20,10 +20,10 @@ root = tk.Tk()
 root.geometry("1300x800")
 root.title("Timeline People")
 
-my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
-           "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
-             "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
-             " hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
+my_dict = {"Sebastix": "06639a386c9c1014217622ccbcf40908c4f1a0c33e23f8d6d68f4abf655f8f71", 
+           "Cody": "8125b911ed0e94dbe3008a0be48cfe5cd0c0b05923cfff917ae7e87da8400883",
+             "Dawn": "c230edd34ca5c8318bf4592ac056cde37519d395c0904c37ea1c650b8ad4a712", 
+             "Silberengel": "fd208ee8c8f283780a9552896e4823cc9dc6bfd442063889577106940fd927c1", 
              "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 my_list = list(my_dict.values())
@@ -45,7 +45,7 @@ Profile_frame = ttk.LabelFrame(root, text="Profile", labelanchor="n", padding=10
 Profile_frame.place(relx=0.01,rely=0.03,relwidth=0.2,relheight=0.3)
 label = tk.Label(root, text="Name",font=('Arial',12,'normal'))
 label.place(relx=0.02,rely=0.06)
-combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor"," hodlbod","il_lost_"],font=('Arial',12,'normal'),width=15)
+combo_box = ttk.Combobox(root, values=["Sebastix","Cody","Dawn","Silberengel","il_lost_"],font=('Arial',12,'normal'),width=15)
 combo_box.place(relx=0.06,rely=0.06)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -763,8 +763,8 @@ def show_print_test_tag(note):
              var_id_r=StringVar()
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
-             if note["pubkey"] in list(Pubkey_Metadata.keys()):
-              var_id_r.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]]))
+             if jresult["pubkey"] in list(Pubkey_Metadata.keys()):
+              var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]]))
              else:
               var_id_r.set(" Author: "+jresult["pubkey"])
          

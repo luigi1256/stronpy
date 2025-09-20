@@ -276,7 +276,7 @@ def update_list():
      
     if Check_lab_entry.get()==0:
       
-      label_entry.place(relx=0.4,rely=0.18)
+      label_entry.place(relx=0.44,rely=0.18)
       Check_lab_entry.set(1)
             
       def entry_list():
