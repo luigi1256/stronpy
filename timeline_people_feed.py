@@ -599,7 +599,7 @@ def show_print_test():
         if entry["tags"]!=[]:
           photo_print(entry)
    if context0!="":      
-    button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+    button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
     button.grid(column=0,row=s+2,padx=5,pady=5)
     button_grid2=Button(scrollable_frame_2,text="Stamp", command=lambda val=note: print_note(val))
     button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
@@ -799,7 +799,10 @@ def show_print_test_tag(note):
     if tags_string(note,"e")!=[]:
      if four_tags(note,"e"):
          for F_note in four_tags(note,"e"):
-             context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"        
+           if len(F_note)>3:
+            context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"  
+           else:
+            context2=context2+str(" < "+ F_note[0]+" > ")+ "\n"                
    else:
            context2=""  
      
@@ -841,18 +844,22 @@ def show_print_test_tag(note):
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-           z=z+2
+             button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: print_var(val))
+             button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+             button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
+             button_print.grid(column=1,row=z+2,padx=5,pady=5)
+           z=z+3
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text=f"Print", command=lambda val=note: print(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
-   if tags_string(note,"e")!=None:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+   if tags_string(note,"e")!=[]:
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    else:
     if tags_string(note,"imeta")!=None:
-     button_grid3=Button(scrollable_frame_2,text=f"See video!", command=lambda val=note: balance_video(val))
+     button_grid3=Button(scrollable_frame_2,text=f"See video ", command=lambda val=note: balance_video(val))
      button_grid3.grid(row=s+2,column=2,padx=5,pady=5)        
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
    canvas_2.pack( fill="y", expand=True)

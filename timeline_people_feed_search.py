@@ -600,7 +600,7 @@ def show_print_test():
         if entry["tags"]!=[]:
           photo_print(entry)
    if context0!="":      
-    button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+    button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
     button.grid(column=0,row=s+2,padx=5,pady=5)
     button_grid2=Button(scrollable_frame_2,text="Stamp", command=lambda val=note: print_note(val))
     button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
@@ -800,7 +800,10 @@ def show_print_test_tag(note):
     if tags_string(note,"e")!=[]:
      if four_tags(note,"e"):
          for F_note in four_tags(note,"e"):
-             context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"        
+             if len(F_note)>3:
+              context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"        
+             else:
+                context2=context2+str(" < "+ F_note[0]+" > ")+ "\n"        
    else:
            context2=""  
      
@@ -842,18 +845,22 @@ def show_print_test_tag(note):
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-           z=z+2
+             button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: print_var(val))
+             button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+             button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
+             button_print.grid(column=1,row=z+2,padx=5,pady=5)
+           z=z+3
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text=f"Print", command=lambda val=note: print(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
    if tags_string(note,"e")!=None:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    else:
     if tags_string(note,"imeta")!=None:
-     button_grid3=Button(scrollable_frame_2,text=f"See video!", command=lambda val=note: balance_video(val))
+     button_grid3=Button(scrollable_frame_2,text=f"See video ", command=lambda val=note: balance_video(val))
      button_grid3.grid(row=s+2,column=2,padx=5,pady=5)        
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
    canvas_2.pack( fill="y", expand=True)
@@ -886,6 +893,13 @@ async def get_one_note(client, e_id):
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
+async def get_reply_note(client, e_id):
+    f = Filter().event(EventId.parse(e_id)).kind(Kind(1))
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
+    return z
+
+
 async def Get_event_id(e_id):
     # Init logger
     init_logger(LogLevel.INFO)
@@ -914,7 +928,7 @@ async def Get_event_id(e_id):
          test_id = await get_notes_(client,e_id)
     else:
         print("str")
-        test_id = await get_one_note(client,e_id)
+        test_id = await get_reply_note(client,e_id)
        
     return test_id
 
@@ -1077,13 +1091,15 @@ def search_str():
             #button=Button(scrollable_frame,text="kind", command=lambda val=note: print_var(val))
             def print_content(note):
                 e_id=[]
-                if tags_string(note,"e")!=None:
+                if tags_string(note,"e")!=[]:
                  for e_event in tags_string(note,"e"):
                   e_id.append(e_event)
-                
-                result= get_note(asyncio.run(Get_event_id(e_id)))   #list
-                s=5
-                if result!=None and result!=[]: 
+                if e_id!=[]:
+                 result= get_note(asyncio.run(Get_event_id(e_id)))   #list
+                else:
+                 result= get_note(asyncio.run(Get_event_id(note["id"]))) 
+                 s=5
+                 if result!=None and result!=[]: 
                   print(len(result))
                   for jresult in result:
                     context11=jresult['content']+"\n"
@@ -1112,9 +1128,9 @@ def search_str():
 
             button_grid2=Button(scrollable_frame,text="Tags", command=lambda val=note: print_tags(val))
             button_grid2.grid(row=s+2,column=0,padx=5,pady=5)    
-            button_grid2=Button(scrollable_frame,text=f"Print  note!", command=lambda val=note: print_id_1(val))
+            button_grid2=Button(scrollable_frame,text=f"Print  note ", command=lambda val=note: print_id_1(val))
             button_grid2.grid(row=s+2,column=2,padx=3,pady=5)
-            button_grid4=Button(scrollable_frame,text=f"Reply id!", command=lambda val=note: print_content(val))
+            button_grid4=Button(scrollable_frame,text=f"Reply id ", command=lambda val=note: print_content(val))
             button_grid4.grid(row=s+2,column=1,padx=1,pady=5)
             
             root.update()  # Aggiorna l'interfaccia
