@@ -1098,8 +1098,8 @@ def search_str():
                  result= get_note(asyncio.run(Get_event_id(e_id)))   #list
                 else:
                  result= get_note(asyncio.run(Get_event_id(note["id"]))) 
-                 s=5
-                 if result!=None and result!=[]: 
+                s=5
+                if result!=None and result!=[]: 
                   print(len(result))
                   for jresult in result:
                     context11=jresult['content']+"\n"
@@ -1351,7 +1351,7 @@ async def get_quote_note(client,event_q):
     f = Filter().id(event_q).limit(10)     #.event(event_q)
   
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def whats_note(event_id):

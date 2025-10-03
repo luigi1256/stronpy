@@ -58,6 +58,19 @@ entry_id_note=StringVar()
 entry_note_note=StringVar()
 label_entry_id=tk.Label(root, text="Pubkey",font=("Arial",12,"normal"))
 label_entry_id.place(relx=0.07,rely=0.11)
+value=float(1*3600/86400)
+
+def on_time(event):
+   select_time=int(combo_value.get())
+   global value
+   value=float(select_time*3600/86400)
+
+combo_value = ttk.Combobox(root, values=[1,2,3,4,5,6,7,8],font=('Arial',12,'normal'),width=5)
+combo_value.place(relx=0.04,rely=0.28)
+combo_value.set(int(1))
+combo_value.bind("<<ComboboxSelected>>", on_time)
+label_entry_h=tk.Label(root, text="Hour",font=("Arial",12,"normal"))
+label_entry_h.place(relx=0.12,rely=0.28)
 
 def search_people():
    if db_list!=[]:
@@ -66,9 +79,8 @@ def search_people():
             timeline_people.append(db_people["pubkey"])
       list_pubkey_id()
       
-
 button_2=tk.Button(root,text="Follow List",command=search_people,font=('Arial',12,'bold'))  #timeline
-button_2.place(relx=0.12,rely=0.23)                
+button_2.place(relx=0.12,rely=0.21)                
 
 def get_note(z):
     f=[]
@@ -484,7 +496,7 @@ def show_print_test():
  s=1
  for note in db_list:
     
-  if float(int(time.time())-note["created_at"])/(86400)<0.04166: 
+  if float(int(time.time())-note["created_at"])/(86400)<value: 
    if note["kind"]==6:       
     context0= "RT "+" By "+note["pubkey"][0:9]
    else: 
@@ -550,7 +562,7 @@ def show_print_test():
           photo_print(entry)
           
    if context0!="":      
-    button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+    button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
     button.grid(column=0,row=s+2,padx=5,pady=5)
     button_grid2=Button(scrollable_frame_2,text="Stamp", command=lambda val=note: print_note(val))
     button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
@@ -676,7 +688,7 @@ button_block_npub.place(relx=0.7,rely=0.02)
 db_list=[]
 list_event=[Kind(1),Kind(30023),Kind(6)]
 button_tm=tk.Button(root,command= search_,text="View note", font=("Arial",12,"normal"))
-button_tm.place(relx=0.03,rely=0.23)
+button_tm.place(relx=0.03,rely=0.21)
 
 async def get_note_relays(client):
     f = Filter().kinds(list_event).limit(500)
@@ -784,18 +796,23 @@ def show_print_test_tag(note):
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-           z=z+2
+             button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: print_var(val))
+             button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+             button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
+             button_print.grid(column=1,row=z+2,padx=5,pady=5)
+           z=z+3
+           
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text=f"Print", command=lambda val=note: print(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
    if tags_string(note,"e")!=None:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    else:
     if tags_string(note,"imeta")!=None:
-     button_grid3=Button(scrollable_frame_2,text=f"See video!", command="")
+     button_grid3=Button(scrollable_frame_2,text=f"See video ", command="")
      button_grid3.grid(row=s+2,column=2,padx=5,pady=5)        
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
    canvas_2.pack( fill="y", expand=True)
