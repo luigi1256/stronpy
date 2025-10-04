@@ -67,7 +67,7 @@ def search_kind(user,x):
 my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
-             " hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
+             "Laeserin": "dd664d5e4016433a8cd69f005ae1480804351789b59de5af06276de65633d319", 
              "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 my_list = list(my_dict.values())
@@ -88,7 +88,7 @@ Profile_frame = ttk.LabelFrame(root, text="Profile", labelanchor="n", padding=10
 Profile_frame.place(relx=0.01,rely=0.03,relwidth=0.2,relheight=0.3)
 label = tk.Label(root, text="Name",font=('Arial',12,'normal'))
 label.place(relx=0.08,rely=0.07)
-combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor"," hodlbod","il_lost_"],font=('Arial',12,'normal'),width=15)
+combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor","Laeserin","il_lost_"],font=('Arial',12,'normal'),width=15)
 combo_box.place(relx=0.06,rely=0.12)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -99,7 +99,7 @@ label_entry_id.place(relx=0.08,rely=0.18)
 label_entry_name=tk.Label(root, text="",font=("Arial",12,"normal"))
 time_frame = ttk.LabelFrame(root, text="Notification", labelanchor="n", padding=10)
 time_frame.place(relx=0.21,rely=0.03,relwidth=0.13,relheight=0.3)
-combo_note = ttk.Combobox(root, values=["Total","My In","Inbox","Hashtag","my hashtag","my time"],width=10, font=("Arial",12,"normal"))
+combo_note = ttk.Combobox(root, values=["Total","My In","Inbox","Hashtag","my PM","my time"],width=10, font=("Arial",12,"normal"))
 combo_note.place(relx=0.23,rely=0.08)
 combo_note.set("Type of feed")
 combo_note.bind("<<ComboboxSelected>>", None)
@@ -107,7 +107,7 @@ Timeline=[]
 My_post=[]
 Inbox=[]
 Hashtag=[]
-my_hashtag=[]
+my_pm=[]
 my_time=[]
 Frame_block=Frame(frame1,width=50, height=20)
 
@@ -226,13 +226,12 @@ def list_timeline(Value):
               if db_x not in Hashtag:
                 Hashtag.append(db_x)     
          return Hashtag
-      if Value=="my hashtag":
-         my_hashtag.clear()
+      if Value=="my PM":
+         my_pm.clear()
          for db_x in db_list:
-            if db_x["pubkey"]==entry_id.get():
-              if tags_string(db_x,"t")!=[]:
-               my_hashtag.append(db_x)
-         return my_hashtag   
+            if db_x["kind"]==24:
+               my_pm.append(db_x)
+         return my_pm   
       if Value=="my time":
         try: 
          my_time.clear()
@@ -262,9 +261,9 @@ Button_check_2.place(relx=0.25,rely=0.27)
 async def get_note_text(client, user):
   try:
    if WoT_check.get()==1:
-    f = Filter().authors(user).kinds([Kind(24),Kind(1)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)
+    f = Filter().authors(user).kinds([Kind(24)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)
    else:
-    f = Filter().kinds([Kind(24),Kind(1)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)   
+    f = Filter().kinds([Kind(24)]).pubkey(PublicKey.parse(my_dict[combo_box.get()])).limit(80)   
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
    z = [event.as_json() for event in events.to_vec() if event.verify()]
    return z
@@ -500,6 +499,11 @@ def show_Teed():
            if entry["kind"]==24:
                 test_open(entry["pubkey"])
                 close_frame()
+                quote=quote_content(entry["content"])
+                if quote:
+                   print(quote)
+                if tags_string(entry,"e")!=[] or tags_string(entry,"q"):
+                  show_print_test_tag(entry)
            else: 
              if messagebox.askyesno("This create a new window","Do you want Reply? "):
                 close_frame()
@@ -510,21 +514,17 @@ def show_Teed():
              else:   
               if entry["tags"]!=[]:
                print(db_list.index(entry)+1)
-               if tags_string(entry,"e")!=[]:
-                 show_print_test_tag(entry)
-              else:
-                 print(entry["tags"])
-                          
+             
       def print_var(entry):
                 print(entry["content"])
            
-      button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+3,padx=5,pady=5)
-      button_grid2=Button(scrollable_frame_1,text=f"click to read!", command=lambda val=note: print_id(val))
+      button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+3,column=1,padx=5,pady=5)  
       if note["tags"]!=[]: 
        if tags_string(note,"imeta")!=[] or tags_string(note,"image")!=[]:   
-        button_grid3=Button(scrollable_frame_1,text=f"Photo!", command=lambda val=note: photo_var(val))
+        button_grid3=Button(scrollable_frame_1,text=f"Photo ", command=lambda val=note: photo_var(val))
         button_grid3.grid(column=2,row=s+3,padx=5,pady=5)
       s=s+4  
 
@@ -1468,7 +1468,9 @@ async def Tag_note(note,tag):
     for event in events.to_vec():
      if event.verify():
       print(event.as_json())
-       
+
+list_q=[]
+
 def Gm_status():
    check_square()
    lists_id=[] 
@@ -1480,7 +1482,9 @@ def Gm_status():
               lists_id.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(alist,RelayUrl.parse(outbox_list[0]),None,FALSE)))
             else:
                lists_id.append(Tag.from_standardized(TagStandard.PUBLIC_KEY_TAG(alist,None,None,FALSE)))
-  
+    if list_q!=[]:
+       for jlist in list_q:
+           lists_id.append(Tag.from_standardized(TagStandard.QUOTE(jlist,RelayUrl.parse(relay_list[0]),None)))       
          
     if __name__ == '__main__':
         note=entry4.get(1.0, "end-1c")       
@@ -1513,7 +1517,9 @@ def check_square():
     Text=entry4.get(1.0, "end-1c")
     
     if list_p!=[] and Text!="":
-       
+        quote=quote_content(Text)
+        if quote:
+           list_q.append(EventId.parse(quote))
         print_label.config(text="Ready", font=("Arial",12,"bold"),foreground="blue")
         button_entry1.config(text="■",foreground="green")
         error_label.config(text="ok")
@@ -1584,6 +1590,7 @@ Check_raw =IntVar()
 def clear_list():
    """Remove Tags and Update"""
    list_p.clear()
+   list_q.clear()
    p_view.config(text="p tag?: ")
    entry4.delete("1.0","end")
    button_entry1.config(fg="grey")
@@ -1662,8 +1669,15 @@ def log_these_key():
    except FileNotFoundError as e:
        print(e)
 
-def share(note_text):
-    print(f"Note: \n {note_text}")
+def share_note(note_text):
+  test=EventId.parse(note_text["id"])
+  if relay_list!=[]:
+   test1=Nip19Event(test,PublicKey.parse(note_text["pubkey"]),Kind(note_text["kind"]),[RelayUrl.parse(relay_list[0])])
+  else:
+   test1=Nip19Event(test,PublicKey.parse(note_text["pubkey"]),Kind(note_text["kind"]),[])
+  print(test1.to_nostr_uri())
+  print("\n")
+  print(str(test.to_nostr_uri()))
 
 def show_print_test_tag(note):
    frame3=tk.Frame(root,height=150,width=200)  
@@ -1722,11 +1736,12 @@ def show_print_test_tag(note):
                     photo_list(more_spam(entry))
                    
    def print_content(entry):
-       result=show_note_from_id(entry)
-       if result!=None: 
+      
+      result=show_note_from_id(entry)
+      if result!=None: 
         z=4
         for jresult in result:
-           if jresult["id"]!=entry["id"]:  
+           if jresult["id"]!=entry["id"] and jresult["kind"]==24:  
              var_id_r=StringVar()
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
@@ -1755,10 +1770,11 @@ def show_print_test_tag(note):
    button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
      
-   if tags_string(note,"e")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
-    button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
-
+   if tags_string(note,"e")!=[] or tags_string(note,"q")!=[]:
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
+    button_grid3.grid(row=s+2,column=2,padx=5,pady=5)   
+   button_grid2=Button(scrollable_frame_2,text=f"Nostr:URI ", command=lambda val=note: share_note(val))
+   button_grid2.grid(column=1,row=s+2,padx=5,pady=5)
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
    canvas_2.pack( fill="y", expand=True)
    
@@ -1772,6 +1788,9 @@ def show_print_test_tag(note):
 
 def show_note_from_id(note):
         replay=nota_reply_id(note)
+        quote=quote_content(note["content"])
+        if quote:
+           replay.append(quote)
         if replay!=[]:
          replay_note=[]
          for note_x in db_list:
@@ -1781,9 +1800,10 @@ def show_note_from_id(note):
          for note_y in db_note:
            if note_y["id"] in replay:
              if note_y not in replay_note:
-              replay_note.append(note_y) 
+              replay_note.append(note_y)
          if replay_note!=[]:
-            return replay_note      
+            return replay_note
+               
 
 def nota_reply_id(nota):
     e_id=[]
@@ -1792,5 +1812,30 @@ def nota_reply_id(nota):
                   if event_id not in e_id:
                     e_id.append(event_id)   
     return e_id    
+
+relay_url_list=[]
+
+def quote_content(content:str):
+   list_content=content.split()
+   for string in list_content:
+      quoted_event=event_string_note(string)
+      if quoted_event:
+          return quoted_event
+
+def event_string_note(note:str):   
+    quoted=note
+    decode_nevent=""
+    if quoted.startswith('nostr:nevent1'):
+        decode_nevent = Nip19Event.from_nostr_uri(quoted)
+    if quoted.startswith('nevent1'):
+         decode_nevent = Nip19Event.from_nostr_uri("nostr:"+quoted)
+    if decode_nevent!="":           
+      #print(f" Event (decoded): {decode_nevent.event_id().to_hex()}")
+      #print(f" Event (decoded): {decode_nevent.relays()}")
+      for xrelay in decode_nevent.relays():
+            if xrelay not in relay_url_list:
+               relay_url_list.append(xrelay)
+         
+      return decode_nevent.event_id().to_hex()
 
 root.mainloop()
