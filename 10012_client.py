@@ -50,8 +50,8 @@ combo_box.place(relx=0.06,rely=0.06)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
 
-combo_relay = ttk.Combobox(root, values=[],font=('Arial',12,'normal'),width=15)
-combo_relay.place(relx=0.04,rely=0.16)
+combo_relay = ttk.Combobox(root, values=[],font=('Arial',14,'normal'),width=18)
+combo_relay.place(relx=0.03,rely=0.15)
 combo_relay.set("")
 combo_relay.bind("<<ComboboxSelected>>", on_relay)
 entry_id_note=StringVar()
@@ -79,8 +79,8 @@ def search_people():
             timeline_people.append(db_people["pubkey"])
       list_pubkey_id()
       
-button_2=tk.Button(root,text="Follow List",command=search_people,font=('Arial',12,'bold'))  #timeline
-button_2.place(relx=0.12,rely=0.21)                
+button_2=tk.Button(root,text="Metadata Users",command=search_people,font=('Arial',12,'bold'))  #timeline
+button_2.place(relx=0.1,rely=0.21)                
 
 def get_note(z):
     f=[]
@@ -377,6 +377,14 @@ def layout():
     scrollable_frame = Frame(canvas)
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     s=1  
+
+    def one_note(pubkey):
+       for note_text in db_list:
+        if note_text["pubkey"]==pubkey:
+         show_print_test_tag(note_text)
+         close_canvas()
+         break 
+
     for name_pubkey in list(Pubkey_Metadata.keys())[0:100]:
         if name_pubkey not in draft_user:
          var_npub =StringVar()
@@ -434,7 +442,7 @@ def layout():
           if str(photo_profile[name_pubkey])!=None:    
             button_photo=Button(scrollable_frame, text="Photo", command=lambda  val=str(photo_profile[name_pubkey]): print_photo_url(val),font=('Arial',12,'normal'))
             button_photo.grid(row=s+4, column=0, padx=5, pady=5) 
-         blo_label = Button(scrollable_frame, text=f"Reply to {str(Pubkey_Metadata[name_pubkey][0:9])}",font=('Arial',12,'normal'),command="" )
+         blo_label = Button(scrollable_frame, text=f"One note of {str(Pubkey_Metadata[name_pubkey][0:9])}",font=('Arial',12,'normal'),command=lambda val=name_pubkey: one_note(val) )
          blo_label.grid(row=s + 4, column=1, padx=2, pady=5)
          Button(scrollable_frame, text="Print Metadata",command=lambda val=meta_test: print(val),font=('Arial',12,'normal')).grid(row=s +4, column=2, padx=5, pady=2)   
         s += 5   
@@ -473,12 +481,7 @@ def layout():
     button_close_s=Button(root, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
     button_close_s.place(relx=0.86,rely=0.1)    
 
-button_open=Button(root, command=layout, 
-                   text="Scroll User",
-                    highlightcolor='WHITE',
-                    background="grey",
-                    font=('Arial',12,'bold'))
-
+button_open=Button(root, command=layout, text="Scroll User",highlightcolor='WHITE',background="grey",font=('Arial',12,'bold'))
 button_open.place(relx=0.85,rely=0.02, anchor="n")            
 
 def show_print_test():
@@ -503,8 +506,9 @@ def show_print_test():
     if note["pubkey"] in list(Pubkey_Metadata.keys()):
      context0="Nickname " +str(Pubkey_Metadata[note["pubkey"]])
     else: 
-     context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
+     context0="Pubkey: "+note['pubkey']
    try:
+    context0=context0+"\n"+"Time: "+str(int((float(int(time.time())-note["created_at"])/(60))))+str(" min") 
     if note['tags']!=[]:
         if note["kind"]==6:
            try: 
@@ -646,9 +650,6 @@ def Block_space():
                  print(list_event)
                  string_kind.set(0)
                  
-                 
-                 
-                 
             else:
                print((entry_kind.get()))     
 
@@ -678,11 +679,7 @@ def Block_space():
     if list_event==[]:
      close_canvas()    
        
-button_block_npub=Button(root, command=Block_space, 
-                   text="Events",
-                    highlightcolor='WHITE',
-                  width=10,height=1,border=2, cursor='hand1',
-                  font=('Arial',12,'bold'))
+button_block_npub=Button(root, command=Block_space, text="Events",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',12,'bold'))
 button_block_npub.place(relx=0.7,rely=0.02)
 
 db_list=[]
@@ -710,13 +707,9 @@ async def main_feed():
             relay_url = RelayUrl.parse(combo_relay.get())
             await client.add_relay(relay_url)
 
-         
     await client.connect()
     await asyncio.sleep(1.0)
-
-    
     combined_results = await get_note_relays(client)
-            
     return combined_results
 
 def respond_to(note_text):
@@ -741,9 +734,9 @@ def show_print_test_tag(note):
    label_id_3 = Message(scrollable_frame_2,textvariable=var_id_3, relief=RAISED,width=290,font=("Arial",12,"normal"))
    label_id_3.grid(pady=1,padx=8,row=s,column=0, columnspan=3)
    if note["pubkey"] in list(Pubkey_Metadata.keys()):
-    var_id_3.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]]))
+    var_id_3.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]])+"\n" +"Time: "+str(int((float(int(time.time())-note["created_at"])/(60))))+str(" min"))
    else:
-    var_id_3.set("Author: "+note["pubkey"])
+    var_id_3.set("Author: "+note["pubkey"]+"\n" +"Time: "+str(int((float(int(time.time())-note["created_at"])/(60))))+str(" min"))
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
    second_label_10 = tk.Text(scrollable_frame_2, padx=5, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
@@ -764,7 +757,8 @@ def show_print_test_tag(note):
    second_label_10.grid(padx=10, column=0, columnspan=3, row=s+1) 
 
    def print_var(entry):
-            pass
+            if entry["tags"]!=[]:
+                photo_print(entry)
          
    def print_content(entry):
        result=show_note_from_id(entry)
@@ -776,17 +770,17 @@ def show_print_test_tag(note):
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
              if jresult["pubkey"] in list(Pubkey_Metadata.keys()):
-              var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]]))
+              var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]])+"\n" +"Time: "+str(int((float(int(time.time())-jresult["created_at"])/(60))))+str(" min"))
              else:
-              var_id_r.set(" Author: "+jresult["pubkey"])
+              var_id_r.set(" Author: "+jresult["pubkey"]+"\n" +"Time: "+str(int((float(int(time.time())-jresult["created_at"])/(60))))+str(" min"))
          
              scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
              scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
-                for F_note in four_tags(note,"e"):
+              if four_tags(jresult,"e")!=None:
+                for F_note in four_tags(jresult,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
                      if F_note[2]!="" and F_note not in relay_list:
                         relay_list.append(F_note[2])
@@ -824,9 +818,9 @@ def show_print_test_tag(note):
    frame3.place(relx=0.65,rely=0.2,relheight=0.4,relwidth=0.3) 
 
 def show_note_from_id(note):
-        result=note["id"]
+        result:str=note["id"]
         replay=nota_reply_id(note)
-        replay.append(result)
+        
         if replay!=[]:
            items=get_note(asyncio.run(Get_event_id(replay)))
         else:
@@ -848,7 +842,7 @@ async def get_notes_(client, e_ids):
      return z
 
 async def get_one_note(client, e_id):
-    f = Filter().id(EventId.parse(e_id))
+    f = Filter().event(EventId.parse(e_id)).kinds(list_event).limit(100)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -859,10 +853,13 @@ async def Get_event_id(e_id):
     
     client = Client(None)
     if relay_list!=[]:
-       
+      try: 
        for jrelay in relay_list:
+         print(jrelay)
          relay_url = RelayUrl.parse(jrelay)
          await client.add_relay(relay_url)
+      except NostrSdkError as e:
+         print(e)   
     else:
      relay_url_1 = RelayUrl.parse("wss://nos.lol/")
      await client.add_relay(relay_url_1)
