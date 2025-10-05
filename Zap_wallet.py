@@ -11,7 +11,7 @@ from tkinter import messagebox
 
 root = tk.Tk()
 root.geometry("1300x800")
-root.title("see 9734")
+root.title("Zap Note")
 
 def user_convert(x):
     l=[]
@@ -142,7 +142,12 @@ def check_dash():
     button_mov.place(relx=0.47,rely=0.06,relwidth=0.03)
     button_backs.place(relx=0.38,rely=0.06,relwidth=0.03) 
     date_entry_0.place(relx=0.38,rely=0.1,relheight=0.04, x=0.01 )
+    button_count_1.place(relx=0.41,rely=0.18) 
+    time_pm.place(relx=0.38,rely=0.15,relwidth=0.13,relheight=0.2)
    else:
+    button_count_1.place_forget() 
+    time_pm.place_forget()
+    label_id_amount_time.place_forget()
     since_entry_0.place_forget()
     button_mov.place_forget()
     button_backs.place_forget()
@@ -259,7 +264,7 @@ async def get_relay(client, user):
 
 WoT_check=IntVar()
 Button_check_2 = Checkbutton(root, text ="WoT" , variable = WoT_check, onvalue = 1, offvalue = 0, height = 1,font=('Arial',12,'bold'))
-Button_check_2.place(relx=0.22,rely=0.27)
+Button_check_2.place(relx=0.25,rely=0.27)
 
 In_out=IntVar()
 Button_check_3 = Checkbutton(root, text ="My Zap" , variable = In_out, onvalue = 1, offvalue = 0, height = 1,font=('Arial',12,'bold'))
@@ -1195,14 +1200,43 @@ def count_sats():
       if s>0:          
         print("for ",len(zap_list), "note receveid Sats ",s)   
         var_id_amount.set("for "+str(len(zap_list))+ " note receveid Sats "+str(s)) 
-        label_id_amount.place(relx=0.4,rely=0.23)
+        label_id_amount.place(relx=0.54,rely=0.23)
+
+def Count_Sats_Day():
+   zap_list=[]
+   for note in db_list:
+     if date_entry_0.get()!="":
+      if note["kind"]==9735:
+         if note["created_at"]>int(date_entry_0.get()):
+            if note not in zap_list:
+               zap_list.append(note)
+   if zap_list!=[]:
+      var_id_amount_time.set("")
+      s=0
+      for note_x in zap_list:
+         invoice=lnbc_zap(note_x)
+         if invoice:
+            amount=bolt11_amount(invoice)
+            if amount:
+             s=s+amount
+      if s>0:          
+        print("for ",len(zap_list), "note receveid Sats ",s)   
+        var_id_amount_time.set("for "+str(len(zap_list))+ " note receveid Sats "+str(s)) 
+        label_id_amount_time.place(relx=0.41,rely=0.23)        
+   else:
+      var_id_amount_time.set("")     
                   
-time_am = ttk.LabelFrame(root, text="Totale In", labelanchor="n", padding=10)
-time_am.place(relx=0.38,rely=0.15,relwidth=0.13,relheight=0.2)
+time_am = ttk.LabelFrame(root, text="Total Week", labelanchor="n", padding=10)
+time_pm = ttk.LabelFrame(root, text="Amount Days", labelanchor="n", padding=10)
+time_am.place(relx=0.51,rely=0.15,relwidth=0.13,relheight=0.2)
 button_count=Button(root,command=count_sats,text="Amount",font=("Arial",12,"normal"))
-button_count.place(relx=0.42,rely=0.18) 
+button_count.place(relx=0.54,rely=0.18) 
+button_count_1=Button(root,command=Count_Sats_Day,text="Amount Day",font=("Arial",12,"normal"))
 var_id_amount=StringVar()
 label_id_amount = Message(root,textvariable=var_id_amount, relief=RAISED,width=0.1,font=("Arial",12,"normal"))
+var_id_amount_time=StringVar()
+label_id_amount_time = Message(root,textvariable=var_id_amount_time, relief=RAISED,width=0.1,font=("Arial",12,"normal"))
+
 
 def return_date_tm(note):
     import datetime
@@ -1314,6 +1348,6 @@ def widget_function():
     button_close_.pack(pady=5,padx=5)       
 
 button_close_=tk.Button(root,text="Widget",command=widget_function, font=('Arial',12,'bold'))
-button_close_.place(relx=0.6,rely=0.2)       
+button_close_.place(relx=0.55,rely=0.42)       
 
 root.mainloop()
