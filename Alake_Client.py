@@ -13,7 +13,7 @@ from tkinter import messagebox
  
 root = Tk()
 root.title("Alake CLient")
-root.geometry("1250x800")
+root.geometry("1300x800")
 
 def timeline_created(list_new):
   new_note=[] 
@@ -371,7 +371,7 @@ def add_db_list():
                 counter_relay.grid(column=2,row=4)
                 entry_relay.delete(0, END)
 
-        relay_button = tk.Button(Frame_block, text="Add Relay!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+        relay_button = tk.Button(Frame_block, text="Add Relay ", font=("Arial",12,"normal"),background="grey", command=relay_class)
         counter_relay=Label(Frame_block,text="",background="darkgrey",font=('Arial',12,'normal'))
         entry_relay.grid(column=0, row=4, padx=5,pady=5)
         relay_button.grid(column=1, row=4, padx=10,pady=5)    
@@ -433,16 +433,16 @@ def preset_reply():
               lab_e.place_forget()      
 
 button_structure=tk.Button(root, highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',
-                  text='DB Relay',font=('Arial',14,'bold'),command=Open_structure)
+                  text='Preset',font=('Arial',14,'bold'),command=Open_structure)
 button_structure.place(relx=0.42,rely=0.2,relwidth=0.1,anchor='n')
 
 button_str=tk.Button(root, highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',
-                  text='DB Spam',font=('Arial',14,'bold'),command=Open_str)
+                  text='List ',font=('Arial',14,'bold'),command=Open_str)
 button_str.place(relx=0.31,rely=0.2,anchor='n')
 Checkbutton8 = IntVar() 
-Type_feed = Checkbutton(root, text = "Type R", variable = Checkbutton8, onvalue = 1, offvalue = 0, 
+Type_feed = Checkbutton(root, text = "Preset", variable = Checkbutton8, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'normal'),command=preset_block_r)
-Type_feed.place(relx=0.68,rely=0.22,relwidth=0.1,relheight=0.05,anchor='e')  
+Type_feed.place(relx=0.68,rely=0.23,relwidth=0.1,relheight=0.05,anchor='e')  
 Check_reply = IntVar() 
 Type_reply = Checkbutton(root, text = "Reply ", variable = Check_reply, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'bold'), command=preset_reply)
@@ -457,7 +457,7 @@ label_note=Entry(root,textvariable=string_var_l,font=('Arial',12,'normal'))
 label_note_number=Label(root,text="",font=('Arial',12,'bold'))
 lab_spam = tk.Label(root, text="Name: ",font=('Arial',12,'normal'))
 combo_spam = ttk.Combobox(root, values=type_light,font=('Arial',12,'normal'))
-button_spam=Button(root,text="go!",background="darkgrey",font=('Arial',12,'normal'))
+button_spam=Button(root,text="go ",background="darkgrey",font=('Arial',12,'normal'))
 clear_Lab=Button(root, text= "Clear list ",background="darkgrey",font=('Arial',12,'normal'))
      
 def add_db_light():
@@ -505,9 +505,9 @@ def add_db_light():
               label_note_number.place_forget()
               clear_Lab.place_forget()
 
-Light_feed = Checkbutton(root, text = "Type S", variable = Checkbutton9, onvalue = 1, offvalue = 0, 
+Light_feed = Checkbutton(root, text = "Open List", variable = Checkbutton9, onvalue = 1, offvalue = 0, 
                     height = 2, width = 10,font=('Arial',16,'normal'),command=add_db_light)
-Light_feed.place(relx=0.58,rely=0.22,relwidth=0.1,relheight=0.05,anchor='e')  
+Light_feed.place(relx=0.58,rely=0.23,relwidth=0.1,relheight=0.05,anchor='e')  
 lab_r = tk.Label(root, text=" ",font=('Arial',12,'normal'))
 lab_e = tk.Label(root, text=" ",font=('Arial',14,'normal'))
 
@@ -534,8 +534,70 @@ def block_pubkey_out(note_):
 def share(note_text):
     print(f"Note: \n {note_text}")
 
+timeline_people=[]
+db_list_note_follow=[]
+Pubkey_Metadata={}
+photo_profile={}
+
+def pubkey_timeline():
+   db_list_pubkey=[]
+   global timeline_people
+   for note in db_list:
+      if note["pubkey"] not in timeline_people and note["pubkey"] not in block_npub and note["pubkey"] not in list(Pubkey_Metadata.keys()):
+         db_list_pubkey.append(note["pubkey"])
+   timeline_people=db_list_pubkey      
+
+def search_kind(x):
+   if __name__ == "__main__":
+    # Example usage with a single key
+    
+    single_results = asyncio.run(feed_cluster([Kind(x)]))
+   Z=[]
+   note=get_note(single_results)
+   for r in note:
+      if (r)['kind']==x:
+         Z.append(r)
+   return Z       
+
+def list_pubkey_id():
+  
+   pubkey_timeline()
+   metadata_note=search_kind(0)
+   if metadata_note!=[]:
+       for single in metadata_note:
+        if single not in db_list_note_follow:
+           db_list_note_follow.append(single)
+        single_1=json.loads(single["content"])
+        try:
+         if "name" in list(single_1.keys()):
+          if single_1["name"]!="":
+                      
+           if single["pubkey"] not in list(Pubkey_Metadata.keys()):
+              Pubkey_Metadata[single["pubkey"]]=single_1["name"]
+              
+         else:   
+            if "display_name" in list(single_1.keys()):
+             if single_1["display_name"]!="":
+                                
+                if single["pubkey"]not in list(Pubkey_Metadata.keys()):
+                  Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
+         
+         if "picture" in list(single_1.keys()):
+          if single_1["picture"]!="":
+                      
+           if single["pubkey"] not in list(photo_profile.keys()):
+              if single_1["picture"]!="":
+               photo_profile[single["pubkey"]]=single_1["picture"]
+                       
+                        
+        except KeyError as e:
+          print("KeyError ",e) 
+       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile)) 
+
 def layout():
    if db_list!=[]: 
+    if messagebox.askokcancel("Metadata user!","Yes/No") == True:
+      list_pubkey_id()
     frame1=Frame(root, width=400, height=100)
     canvas = Canvas(frame1)
     canvas.pack(side="left", fill=BOTH, expand=True)
@@ -557,7 +619,10 @@ def layout():
          var_id=StringVar()
          label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
          label_id.grid(pady=1,padx=10,row=s,column=0, columnspan=3)
-         var_id.set(" Author: "+note_text["pubkey"])
+         if note_text['pubkey'] in list(Pubkey_Metadata.keys()):
+          var_id.set("Nickname " +str(Pubkey_Metadata[note_text["pubkey"]]))
+         else: 
+          var_id.set(" Author: "+note_text["pubkey"])
          
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
          scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
@@ -576,7 +641,7 @@ def layout():
            second_label10.delete("1.0", "end")
            second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
            def content_show(): 
-            if messagebox.askokcancel("Show this Note!"+" "+str(tags_string(note_text,"content-warning")[0]),"Yes/No") == True:     
+            if messagebox.askokcancel("Show this Note "+" "+str(tags_string(note_text,"content-warning")[0]),"Yes/No") == True:     
              second_label10.insert(END,note_text["content"]+"\n"+str(context2))     
              content.grid_forget()
            content = Button(scrollable_frame, text="show",font=('Arial',12,'normal'), command=content_show)
@@ -611,7 +676,7 @@ def layout():
             for dbpub in db_list:
               if dbpub["pubkey"]== test_user.to_hex():
                  db_list.remove(dbpub)
-            if messagebox.askokcancel("Close feed!","Yes/No") == True:     
+            if messagebox.askokcancel("Close feed ","Yes/No") == True:     
              close_canvas()     
          else:
             print("Error", " no pubkey")   
@@ -993,7 +1058,7 @@ async def get_notes_(client, e_ids):
      return z
 
 async def get_one_note(client, e_id):
-    f = Filter().id(EventId.parse(e_id))
+    f = Filter().event(EventId.parse(e_id)).kind(Kind(1))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -1033,7 +1098,7 @@ async def Get_event_id(e_id):
 def show_note_from_id(note):
         result=note["id"]
         replay=nota_reply_id(note)
-        replay.append(result)
+        
         if replay!=[]:
            items=get_note(asyncio.run(Get_event_id(replay)))
         else:
@@ -1082,7 +1147,10 @@ def show_print_test_tag(note):
    var_id_3=StringVar()
    label_id_3 = Message(scrollable_frame_2,textvariable=var_id_3, relief=RAISED,width=290,font=("Arial",12,"normal"))
    label_id_3.grid(pady=1,padx=8,row=s,column=0, columnspan=3)
-   var_id_3.set("Author: "+note["pubkey"])
+   if note['pubkey'] in list(Pubkey_Metadata.keys()):
+      var_id_3.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]]))
+   else: 
+      var_id_3.set("Author: "+note["pubkey"])
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
    second_label_10 = tk.Text(scrollable_frame_2, padx=5, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
@@ -1122,7 +1190,10 @@ def show_print_test_tag(note):
              var_id_r=StringVar()
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
-             var_id_r.set(" Author: "+jresult["pubkey"])
+             if jresult['pubkey'] in list(Pubkey_Metadata.keys()):
+                var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]]))
+             else: 
+                var_id_r.set(" Author: "+jresult["pubkey"])
          
              scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
              scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
@@ -1130,7 +1201,7 @@ def show_print_test_tag(note):
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
               if four_tags(jresult,"e"):
-                for F_note in four_tags(note,"e"):
+                for F_note in four_tags(jresult,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
              else:
@@ -1140,18 +1211,23 @@ def show_print_test_tag(note):
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
-   button_grid2=Button(scrollable_frame_2,text=f"Answer!", command=lambda val=note: test_open(val))
+   button_grid2=Button(scrollable_frame_2,text=f"Answer ", command=lambda val=note: test_open(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
     
    if tags_string(note,"e")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read Reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    else:
     if tags_string(note,"imeta")!=[]:
-     button_grid3=Button(scrollable_frame_2,text=f"See video!", command=lambda val=note: balance_video(val))
-     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)        
+     button_grid3=Button(scrollable_frame_2,text=f"See Video ", command=lambda val=note: balance_video(val))
+     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)
+    else:
+       button_grid3=Button(scrollable_frame_2,text=f"Read Rootply ", command=lambda val=note: print_content(val))
+       button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
+
+                
 
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
    canvas_2.pack( fill="y", expand=True)
@@ -1261,5 +1337,47 @@ def balance_video(nota):
             os.system('my_video.mp4')
           
          print(float(round(int(number)/(1024**2),3)), "Megabyte")
-        
+
+async def get_note_cluster(client, type_of_event):
+    if timeline_people!=[]:
+     f = Filter().kinds(type_of_event).authors(user_convert(timeline_people)).limit(1000)
+    else:
+       f = Filter().kinds(type_of_event).limit(1000)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))
+    z = [event.as_json() for event in events.to_vec()]
+    return z
+
+add_relay_list=[]
+
+async def feed_cluster(type_of_event):
+    # Init logger
+    init_logger(LogLevel.INFO)
+   
+    client = Client(None)
+    #uniffi_set_event_loop(asyncio.get_running_loop())
+    add_relay_list.clear()
+    if relay_list!=[]:
+       
+       for relay_j in relay_list:
+           if RelayUrl.parse(relay_j) not in add_relay_list:
+                add_relay_list.append(RelayUrl.parse(relay_j))
+                await client.add_relay(RelayUrl.parse(relay_j))
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    if relay_url_1 not in add_relay_list:
+       add_relay_list.append(relay_url_1)
+       await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    if relay_url_x not in add_relay_list:
+       add_relay_list.append(relay_url_x)
+       await client.add_relay(relay_url_x)
+    if relay_url_2 not in add_relay_list:
+       add_relay_list.append(relay_url_2)
+       await client.add_relay(relay_url_2)
+    await client.connect()
+    await asyncio.sleep(2.0)
+
+    combined_results = await get_note_cluster(client, type_of_event)
+    return combined_results
+
 root.mainloop()
