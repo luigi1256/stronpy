@@ -22,8 +22,8 @@ from PIL import Image, ImageTk
 root = Tk()
 root.title("Search Items")
 root.geometry("1300x800")
-db_pin=[{"sell_item":30402},{"Bookmark sets":30003},{"Book review":31025},{"Book progress":30250} ]
-my_kind = { "sell_item":30402,
+db_pin=[{"Sell item":30402},{"Bookmark sets":30003},{"Book review":31025},{"Book progress":30250} ]
+my_kind = { "Sell item":30402,
              "Bookmark sets":30003,
              "Book review":31025,
              "Book progress":30250 }
@@ -209,7 +209,7 @@ async def Get_event_from(event_):
 
     # Add relays and connect
     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_1 = RelayUrl.parse("wss://wot.utxo.one/")
+    relay_url_1 = RelayUrl.parse("wss://relay.damus.io/")
     await client.add_relay(relay_url_x)
     await client.add_relay(relay_url_1)
     
@@ -257,7 +257,7 @@ def print_text():
             
             def print_var(test):
                                 
-                if list(test.keys())[0]=="sell_item":
+                if list(test.keys())[0]=="Sell item":
                    
                    var_id_test=StringVar()
                    label_id_test = Message(scrollable_frame,textvariable=var_id_test, relief=RAISED)
@@ -270,7 +270,7 @@ def print_text():
                                               
             button=Button(scrollable_frame,text=f"{list(note.keys())[0]}", command=lambda val=note: print_var(val))
             button.grid(column=0,row=s,padx=20,pady=5)
-            button_grid2=Button(scrollable_frame,text=f"Search kind!", command=lambda val=note: Open_source(list(val.keys())[0]))
+            button_grid2=Button(scrollable_frame,text=f"Search kind ", command=lambda val=note: Open_source(list(val.keys())[0]))
             button_grid2.grid(row=s,column=2,padx=5,pady=5)
             root.update()  
             s=s+1
@@ -413,24 +413,64 @@ def show_noted():
        label_id.grid(pady=1,padx=10,row=0,column=s1, columnspan=3)
        scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
        scroll_bar_mini.grid( sticky = NS,column=s1+3,row=1)
-       second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+       second_label10 = tk.Text(scrollable_frame_1, padx=8, height=6, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
        second_label10.insert(END,str(context2))
        scroll_bar_mini.config( command = second_label10.yview )
        second_label10.grid(padx=10, column=s1, columnspan=3, row=1) 
       
        def print_id(entry):
            number=list(hash_list_notes).index(entry)
-           print(number)
-           print(entry['tags'])
-                  
+           if tags_string(entry,"t")==[]:
+              print(entry['tags'])
+           
+           def print_content(entry):
+             test1=[]
+             for hashtag_x in tags_string(entry,"t"):
+              if hashtag_x not in test1:
+                 test1.append(hashtag_x)
+             if test1!=[]:
+               s=5
+               ra=0
+               se=1
+               ti=2
+               
+               def show_tag(entry):
+                  hashtag_list=search_for_channel(entry)
+                  if hashtag_list:
+                    if len(hashtag_list)>1: 
+                     show_noted()
+               #for word in test1:
+               #if word in block_hashtag_word:
+               #test1.remove(word)
+               test1.sort()
+     
+               while ra<len(test1):
+   
+                  button_grid1=Button(scrollable_frame_1,text=f"{test1[ra]} ", command=lambda val=test1[ra]: show_tag(val),background="darkgrey")
+                  button_grid1.grid(row=s,column=0+number*4,padx=5,pady=5)
+ 
+                  if len(test1)>se:
+                     button_grid2=Button(scrollable_frame_1,text=f"{test1[ra+1]}", command= lambda val=test1[ra+1]: show_tag(val),background="darkgrey")
+                     button_grid2.grid(row=s,column=1+number*4,padx=5,pady=5)
+                  if len(test1)>ti:
+                     button_grid3=Button(scrollable_frame_1,text=f"{test1[ra+2]}", command= lambda val=test1[ra+2]: show_tag(val),background="darkgrey")
+                     button_grid3.grid(row=s,column=2+number*4,padx=5,pady=5)   
+     
+                  root.update()  
+                  s=s+1
+                  se=se+3
+                  ra=ra+3
+                  ti=ti+3   
+           print_content(entry)
+            
        def print_var(entry):
                 print(entry["content"])
                 share_naddr(entry)
                 shopstr_event(entry)
                                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=2,column=s1+1,padx=5,pady=5)    
        if tags_string(note,"image")!=[]:
         button_grid3=Button(scrollable_frame_1,text=f"Click to see", command=lambda val=note: photo_list_frame_2(val))
@@ -444,7 +484,7 @@ def show_noted():
    scrollbar_1.pack(side="bottom", fill="x",padx=20)
    scrollbar_2.pack(side=LEFT, fill="y",pady=5,padx=2)
    canvas_1.pack( fill="y", expand=True)
-   frame2.place(relx=0.35,rely=0.28,relwidth=0.32,relheight=0.42)
+   frame2.place(relx=0.35,rely=0.3,relwidth=0.32) #relheight=0.42
 
    def close_frame():
         frame2.destroy()    
@@ -506,7 +546,7 @@ def print_list_tag():
     s=1     
     test1=list_hashtag_fun()
     if test1:
-            
+            test1.sort()    
             def print_id(test):
                 entry_channel.set(test)
                 Channel_frame = ttk.LabelFrame(root, text="Associated tag", labelanchor="n", padding=10)

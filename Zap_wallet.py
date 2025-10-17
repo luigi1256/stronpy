@@ -6,7 +6,6 @@ import asyncio
 from nostr_sdk import *
 import json
 from datetime import timedelta
-import re
 from tkinter import messagebox 
 
 root = tk.Tk()

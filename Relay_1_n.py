@@ -1,8 +1,8 @@
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, PublicKey,Kind, uniffi_set_event_loop
 from datetime import timedelta
 from asyncio import get_event_loop
 from nostr_sdk import *
+import requests
 import json
 import tkinter as tk
 from tkinter import *
@@ -21,9 +21,9 @@ def on_call_server(event):
 async def get_result_(client,relay_1):
     
     f = Filter().kind(Kind(10002)).reference(relay_1).limit(10)
-   
+    
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def Search_r_lay(relay_1):
@@ -37,22 +37,30 @@ async def Search_r_lay(relay_1):
        await client.connect()
        relays = await client.relays()
        i=0
+       document_relay=get_nostr_relay_info(relay_1)
+       for doc in list(document_relay.keys()):
+         print(doc, " : ", document_relay[doc], "\n")
        while i<2:
         for url, relay in relays.items():
-            stats = relay.stats()
+            
+            
             print(f"Relay: {url}")
             print(f"Connected: {relay.is_connected()}")
             print(f"Status: {relay.status()}")
+            stats = relay.stats()
             print("Stats:")
             print(f"    Attempts: {stats.attempts()}")
             print(f"    Success: {stats.success()}")
             
+            
+            
+                                   
 
         await asyncio.sleep(1.0)        
         i=i+1        
        if stats.success()==1 and relay.is_connected()==True:
         await asyncio.sleep(1.0)
-
+        
         combined_results = await get_result_(client,relay_1)
         if combined_results:
          return combined_results
@@ -223,5 +231,27 @@ def open_relay():
 
 button_beau=tk.Button(root,  highlightcolor='WHITE',text='Relay',font=('Arial',12,'bold'),command=open_relay )
 button_beau.place(relx=0.45,rely=0.1) 
+
+def get_nostr_relay_info(relay_url: str):
+    """
+    Ottiene le informazioni NIP-11 di un relay Nostr.\n
+    relay_url: es. 'https://relay.damus.io'
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status()  
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Errore durante la richiesta a {relay_url}: {e}")
+        return None
+
 
 root.mainloop()
