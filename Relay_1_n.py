@@ -38,10 +38,11 @@ async def Search_r_lay(relay_1):
        relays = await client.relays()
        i=0
        document_relay=get_nostr_relay_info(relay_1)
-       for doc in list(document_relay.keys()):
+       if document_relay:
+        for doc in list(document_relay.keys()):
          print(doc, " : ", document_relay[doc], "\n")
-       while i<2:
-        for url, relay in relays.items():
+        while i<2:
+         for url, relay in relays.items():
             
             
             print(f"Relay: {url}")
@@ -51,27 +52,22 @@ async def Search_r_lay(relay_1):
             print("Stats:")
             print(f"    Attempts: {stats.attempts()}")
             print(f"    Success: {stats.success()}")
-            
-            
-            
-                                   
-
-        await asyncio.sleep(1.0)        
-        i=i+1        
-       if stats.success()==1 and relay.is_connected()==True:
-        await asyncio.sleep(1.0)
-        
-        combined_results = await get_result_(client,relay_1)
-        if combined_results:
-         return combined_results
-       else:
-          try:
-            number=relay_list.index(relay_1)
-            relay_list.pop(number)
-          except ValueError as b:
-             print(b,"\n",relay_list,relay_1) 
+         await asyncio.sleep(1.0)        
+         i=i+1        
+        if stats.success()==1 and relay.is_connected()==True:
+            await asyncio.sleep(1.0)
+            combined_results = await get_result_(client,relay_1)
+            if combined_results:
+                return combined_results
+            else:
+                try:
+                    number=relay_list.index(relay_1)
+                    relay_list.pop(number)
+                except ValueError as b:
+                    print(b,"\n",relay_list,relay_1) 
+      
       except IOError as e:
-         print(e) 
+               print(e) 
 
 relay_list=[]
 
