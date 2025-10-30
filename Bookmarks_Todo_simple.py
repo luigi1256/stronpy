@@ -616,7 +616,8 @@ def id_other_list(id_):
          if id_ in list_id[tags_string(db_note,"title")[0]]:
             value.append(tags_string(db_note,"title")[0])
        
-      print(value)         
+      print(value)     
+      return value    
 
 list_id={}
 
@@ -678,5 +679,192 @@ def show_db_list(note_link:dict):
        if test_n>=float(0.35):
           test_n=float(0.35)
        frame3.place(relx=0.6,rely=0.19,relheight=0.4+test_n,relwidth=0.32) 
+
+db_note_card=[]
+list_notes=[]
+
+def Open_card(key:int):
+     """Key = kind number \n
+        2323 = notes of kind 2323 
+     """
+     test=[]
+     if __name__ == "__main__":
+      test_kinds = [Kind(key)]  
+      test = asyncio.run(Get_event_from(test_kinds))
+     if test!=[] and test!=None:
+      note= get_note(test)
+      for xnote in note:
+        if xnote not in db_note_card:
+         db_note_card.append(xnote)
+         list_notes.append(xnote) 
+      show_card()   
+
+button4=tk.Button(root,text="Search Card Note",command=lambda: Open_card(2323),font=('Arial',12,'bold'))
+button4.place(relx=0.42,rely=0.1)
+
+def show_card():
+ frame2=tk.Frame(root)  
+ canvas_1 = tk.Canvas(frame2)
+ scrollbar_1 = ttk.Scrollbar(frame2, orient=HORIZONTAL,command=canvas_1.xview)
+ scrollable_frame_1 = tk.Frame(canvas_1,background="#E3E0DD")
+ scrollbar_2 = ttk.Scrollbar(frame2, orient=VERTICAL,command=canvas_1.yview)
+ scrollable_frame_1.bind(
+         "<Configure>",
+            lambda e: canvas_1.configure(
+            scrollregion=canvas_1.bbox("all")))
+ canvas_1.create_window((0, 0), window=scrollable_frame_1, anchor="nw")
+ canvas_1.configure(xscrollcommand=scrollbar_1.set,yscrollcommand=scrollbar_2.set)
+ if list_notes!=[]:
+    s=1
+    s1=0
+    
+    for note in list_notes:
+     
+      try:
+       context0="Author: "+note['pubkey']
+       for xnote in tags_string(note,"title"):
+         context0=context0+"\n"+"Title "+str(xnote) 
+       context1=note['content']  
+       if note['tags']!=[]:
+        
+        context2=" "
+        if tags_string(note,"alt")!=[]:
+         for xnote in tags_string(note,"alt"):
+          context2=context2+"\n"+str(xnote) +"\n"
+        if tags_string(note,"summary")!=[]:
+         for xnote in tags_string(note,"summary"):
+           context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
+        if tags_string(note,"description")!=[]: 
+                context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0])
+       else: 
+        
+        context2=" "
+           
+       var_id=StringVar()
+       label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
+       var_id.set(context0)
+       label_id.grid(pady=1,padx=10,row=0,column=s1, columnspan=3)
+       button_grid2=Button(scrollable_frame_1,text= "Author "+note['pubkey'][0:44], command=lambda val=note["pubkey"]: pubkey_id(val))
+       button_grid2.grid(row=1,column=s1,padx=5,pady=5, columnspan=3)   
+       scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
+       scroll_bar_mini.grid( sticky = NS,column=s1+3,row=2)
+       second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+       second_label10.insert(END,context1+str(context2))
+       scroll_bar_mini.config( command = second_label10.yview )
+       second_label10.grid(padx=10, column=s1, columnspan=3, row=2) 
+      
+       def print_id(entry):
+           number=list(list_notes).index(entry)
+           print(number)
+           print(entry['tags'])
+                  
+       def print_var(entry):
+                print("event_id",entry["id"])
+
+       def send_var(entry):
+            """there is this card in some bookmarks? """ 
+            value=id_other_list(entry["id"])
+            if value:
+               text=str("")
+               for val_x in value:
+                  text=text+str(val_x) +"\n"
+               messagebox.showinfo("This card is on Bookmarks",text)
+             
+                               
+       button=Button(scrollable_frame_1,text=f"Print id ", command=lambda val=note: print_var(val))
+       button.grid(column=s1,row=3,padx=5,pady=5)
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
+       button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
+       button_grid3=Button(scrollable_frame_1,text=f"On bookmark ", command=lambda val=note: send_var(val))
+       button_grid3.grid(row=3,column=s1+2,padx=5,pady=5) 
+       s=s+2  
+       s1=s1+4
+
+      except NostrSdkError as c:
+           print(c, "maybe there is an Error") 
+
+    scrollbar_1.pack(side="bottom", fill="x",padx=20)
+    scrollbar_2.pack(side=LEFT, fill="y",pady=5,padx=2)
+    canvas_1.pack( fill="y", expand=True)
+    frame2.place(relx=0.37,rely=0.22,relwidth=0.3,relheight=0.4)
+
+    def close_frame():
+        frame2.destroy()    
+        button_frame.place_forget()
+    
+    button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
+    button_frame.place(relx=0.58,rely=0.15,relwidth=0.1)      
+
+def pubkey_id(test):
+   note_pubkey=[]
+   for note_x in db_note_card:
+       if note_x["pubkey"] == test:
+          if note_x not in note_pubkey:
+             note_pubkey.append(note_x)
+   if len(note_pubkey)>1:       
+    search_for_note(note_pubkey)
+    show_noted()
+
+def search_for_note(note_found:list):
+     if note_found!=[]:
+        list_notes.clear()
+        for note_x in note_found:
+            if note_x not in list_notes: 
+               list_notes.append(note_x)
+        return list_notes 
+
+async def Get_event_from(event_):
+    # Init logger
+    init_logger(LogLevel.INFO)
+    
+    client = Client(None)
+
+    # Add relays and connect
+    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+    await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
+    
+    if relay_list!=[]:
+        for xrelay in relay_list:
+          if xrelay!="wss://yabu.me/":
+            await client.add_relay(RelayUrl.parse(xrelay))
+    await client.connect()
+    await asyncio.sleep(2.0)
+    try:   
+     if isinstance(event_, list):
+        test_kind = await get_kind(client, event_)
+     else:
+        print("errore")
+
+     if test_kind==[] and public_list!=[]:
+       test_kind = await get_kind_relay(client, event_)
+       print("from relay")
+    except NostrSdkError as e:
+       print(e)   
+    return test_kind
+
+async def get_kind(client, event_):
+    if public_list!=[]:
+     f = Filter().kinds(event_).author(public_list[0])
+    else:
+       
+       f = Filter().kinds(event_).limit(50)
+    try:
+     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10)) 
+     z=[] 
+     for event in events.to_vec():
+     
+       if event.verify_signature():
+          
+          z.append(event.as_json())
+     if z!=[]:      
+      return z
+    except NostrSdkError as e:
+       print (e)
+
+async def get_kind_relay(client, event_):
+    f = Filter().kinds(event_).limit(16)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec()]
+    return z
 
 root.mainloop()

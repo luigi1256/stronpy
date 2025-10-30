@@ -5,7 +5,6 @@ from nostr_sdk import *
 import asyncio
 import json
 from datetime import timedelta
-from nostr_sdk import Keys, ClientBuilder, NostrSigner, PublicKey, LogLevel,ZapRequestData,Metadata,RelayUrl
 import asyncio
 import json
 import requests
@@ -497,7 +496,7 @@ def print_text():
                               
             button=Button(scrollable_frame,text=f"{npub_list_title(List_three,user_metadata[note])[0:10]}", command=lambda val=note: print_var(val))
             button.grid(column=0,row=s,padx=20,pady=5)
-            button_grid2=Button(scrollable_frame,text=f"clik me for id!", command=lambda val=note: print_id(val))
+            button_grid2=Button(scrollable_frame,text=f"click me for id ", command=lambda val=note: print_id(val))
             button_grid2.grid(row=s,column=2,padx=5,pady=5)
             
             root.update()  
@@ -613,7 +612,11 @@ def show_Teed():
     l=s*16
     for note in db_list_[n:l]:
      try:
-      context0="Pubkey "+note['pubkey']+"\n"
+      if note["pubkey"] in list(user_metadata.values()):
+        value=list(user_metadata.values()).index(note["pubkey"])    
+        context0="Nickname "+list(user_metadata.keys())[value]+"\n"
+      else:  
+         context0="Pubkey "+note['pubkey']+"\n"
       if note['tags']!=[]:
         context1="Content lenght "+str(len(note["content"]))+"\n"
         context2="\n"
@@ -633,19 +636,19 @@ def show_Teed():
       var_id=StringVar()
       label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))
       var_id.set(context0+context1+context2)
-
       label_id.grid(pady=2,column=0, columnspan=3)
+
       def print_id(entry):
            number=list(db_list).index(entry)
-           print(number)
+           print("number ", number," of ", len(db_list))
            show_print_test(entry)       
                           
       def print_var(entry):
                 print(entry["content"])
            
-      button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s,padx=5,pady=5)
-      button_grid2=Button(scrollable_frame_1,text=f"clik to read!", command=lambda val=note: print_id(val))
+      button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s,column=1,padx=5,pady=5)      
    
       s=s+2  
@@ -705,7 +708,11 @@ def show_print_test(note):
    canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
    canvas_2.configure(yscrollcommand=scrollbar_2.set)
    s=1
-   context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
+   if note["pubkey"] in list(user_metadata.values()):
+      value=list(user_metadata.values()).index(note["pubkey"])
+      context0="Pubkey: "+list(user_metadata.keys())[value]+"\n"+"Tag d: "+tags_string(note,"d")[0]+"\n"
+   else:
+    context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
    try:
     if note['tags']!=[]:
         context1=note['content']+"\n"
@@ -725,7 +732,7 @@ def show_print_test(note):
    label_id.grid(pady=2,column=0, columnspan=3)
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
-   second_label10 = tk.Text(scrollable_frame_2, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+   second_label10 = tk.Text(scrollable_frame_2, padx=8, height=5, width=28, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
    second_label10.insert(END,context1+"\n"+str(context2))
    scroll_bar_mini.config( command = second_label10.yview )
    second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
@@ -746,8 +753,11 @@ def show_print_test(note):
         s=1
         for jresult in result:
            try:  
-             
-             context00="Pubkey : "+jresult['pubkey']+"\n"+"Time: "+str(jresult["created_at"])+"\n"
+             if jresult['pubkey'] in list(user_metadata.values()):
+                 value=list(user_metadata.values()).index(jresult["pubkey"])
+                 context00="Pubkey: "+list(user_metadata.keys())[value]+"\n "+str(jresult["created_at"])+"\n"
+             else:
+                context00="Pubkey : "+jresult['pubkey']+"\n"+"Time: "+str(jresult["created_at"])+"\n"
              if jresult['tags']!=[]:
               context11="\n"+jresult['content']+"\n"
               tag_note=""
@@ -771,11 +781,11 @@ def show_print_test(note):
            except TypeError as e:
               print (e)      
               
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
-   button_grid2=Button(scrollable_frame_2,text="Tips", command=lambda val=note: print_zap(val))
+   button_grid2=Button(scrollable_frame_2,text="Tips ", command=lambda val=note: print_zap(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
-   button_grid3=Button(scrollable_frame_2,text=f"this a reply!", command=lambda val=note: print_content(val))
+   button_grid3=Button(scrollable_frame_2,text=f"this a reply ", command=lambda val=note: print_content(val))
    button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    scrollbar_2.pack(side="right", fill="y",pady=20) 
    canvas_2.pack( fill="y", expand=True)

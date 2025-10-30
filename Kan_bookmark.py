@@ -516,7 +516,7 @@ async def Get_event_from(event_):
 
     # Add relays and connect
     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-    await client.add_relay(RelayUrl.parse("wss://wot.utxo.one/"))
+    await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
     
     if relay_list!=[]:
         for xrelay in relay_list:

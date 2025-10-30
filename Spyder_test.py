@@ -587,10 +587,14 @@ def second_one_filter():
          print(len(db_note_list))
          button_open.place(relx=0.4,rely=0.02,anchor='n' ) 
          button_close_save.place(relx=0.5,rely=0.02,anchor='n' )  
+         if messagebox.askokcancel("Metadata User ","Yes/No") == True:
+            list_pubkey_id()
+         
          show_read()
                 
 def show_read():
    show_noted()
+
 def clear_list_save():
    list_note_save.clear()   
    text_var_1.set(len(list_note_save))
@@ -871,7 +875,9 @@ def print_people():
     canvas.configure(yscrollcommand=scrollbar.set)
     
     s=1     
-    
+    if Pubkey_Metadata=={}:
+      if messagebox.askokcancel("Metadata User ","Yes/No") == True:
+       list_pubkey_id()
     test1=list_people_fun()
     ra=0
     sz=0
@@ -880,10 +886,13 @@ def print_people():
     while ra<len(test1):
                 lenght,note_p=pubkey_id(test1[ra])
                 if lenght>1:
-                 sz=sz+1           
-                 button_grid1=Label(scrollable_frame,text=f"{test1[ra][0:9]} note {lenght}",width=20)
+                 sz=sz+1       
+                 if test1[ra]in list(Pubkey_Metadata.keys()):    
+                    button_grid1=Label(scrollable_frame,text=f" {Pubkey_Metadata[test1[ra]]} note {lenght}",width=20)
+                 else:
+                    button_grid1=Label(scrollable_frame,text=f"{test1[ra][0:9]} note {lenght}",width=20)
                  button_grid1.grid(row=s,column=1,padx=2,pady=5,columnspan=2)
-                 button_grid2=Button(scrollable_frame,text=f"print", command= lambda val=note_p: show_lst_ntd(val))
+                 button_grid2=Button(scrollable_frame,text=f"Note", command= lambda val=note_p: show_lst_ntd(val))
                  button_grid2.grid(row=s,column=3,padx=2,pady=5) 
             
                  root.update()  
@@ -893,7 +902,7 @@ def print_people():
                 ra=ra+1   
     labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+"Number of poster more than one note "+ str(sz))
     canvas.pack(side="left", fill="y", expand=True)
-    button_people_2.place(relx=0.05,rely=0.6) 
+    button_people_2.place(relx=0.05,rely=0.22) 
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
     frame3.place(relx=0.01,rely=0.28,relwidth=0.26, relheight=0.3)      
@@ -1208,8 +1217,16 @@ def search_kind(user,x):
           Z.append(r)
     return Z     
 
+
+def pubkey_timeline():
+   for note in db_note_list:
+      if note["pubkey"] not in timeline_people:
+         timeline_people.append(note["pubkey"])
+
+
 def list_pubkey_id():
-   
+  
+  pubkey_timeline()
   if timeline_people !=[]:
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
@@ -1247,7 +1264,7 @@ def list_pubkey_id():
      except json.decoder.JSONDecodeError as e:
         print(e,single)  
 
-button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
+button_people_2=Button(root,text=f"Metadata User ", command=list_pubkey_id,font=('Arial',12,'bold'))
 
 async def get_relays_z(client, authors):
     f = Filter().authors(authors).kind(Kind(0))

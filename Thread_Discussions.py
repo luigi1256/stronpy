@@ -488,10 +488,22 @@ def search_nickname():
       if Pubkey_Metadata[key_x]==entry_nick.get():
          print(entry_nick.get(),"\n",key_x)      
          search_pubkey_list.append(key_x)    
-         layout()       
-
-label_nick=ttk.Label(root,text="Search", font=('Arial',12,'bold'))
-label_nick.place(relx=0.7,rely=0.13)     
+         layout()
+  else:
+     if entry_nick.get() in combo_t_tag:
+       combo_tag.set(entry_nick.get())
+       if Checkbutton_e.get()==0:
+          Checkbutton_e.set(1)   
+       topic=search_topic()
+       if isinstance(topic,str):
+          pass
+       else:
+        show_print_test() 
+                   
+label_nick=ttk.Label(root,text="Search Name, Topic", font=('Arial',12,'bold'))
+label_nick.place(relx=0.75,rely=0.08)     
+label_relay=ttk.Label(root,text="Relay List", font=('Arial',12,'bold'))
+label_relay.place(relx=0.02,rely=0.35)     
 entry_nick=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))          
 entry_nick.place(relx=0.75,rely=0.12,relwidth=0.12,relheight=0.04) 
 button_close_1=Button(root, command=search_nickname, text="Find ",font=('Arial',12,'normal'), fg="blue")
@@ -519,7 +531,7 @@ def show_print_test():
     if isinstance(topic,str):
       pass
     else:
-      close_frame()
+      frame3.destroy()
       show_print_test() 
     
                      
@@ -634,7 +646,7 @@ def show_print_test():
          if isinstance(topic,str):
             pass
          else:
-            close_frame()
+            frame3.destroy()
             show_print_test() 
          
    if context0!="" and context1!="":      
@@ -649,7 +661,8 @@ def show_print_test():
    
    s=s+3
    def close_frame():
-     frame3.destroy()    
+     frame3.destroy()
+     note_topic.config(text="")      
 
    button_frame=Button(scrollable_frame_2,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
    button_frame.grid(row=0,column=0,padx=5,pady=5)
