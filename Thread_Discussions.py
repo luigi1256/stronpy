@@ -70,11 +70,11 @@ def on_time(event):
    note_topic.place_forget()
 
 combo_value = ttk.Combobox(root, values=[6,12,24,48,96,192,384,768],font=('Arial',12,'normal'),width=5)
-combo_value.place(relx=0.04,rely=0.28)
+combo_value.place(relx=0.04,rely=0.21)
 combo_value.set(int(6))
 combo_value.bind("<<ComboboxSelected>>", on_time)
 label_entry_h=tk.Label(root, text="Hours",font=("Arial",12,"normal"))
-label_entry_h.place(relx=0.12,rely=0.28)
+label_entry_h.place(relx=0.12,rely=0.21)
 
 def search_people():
    if db_list!=[]:
@@ -84,7 +84,7 @@ def search_people():
       list_pubkey_id()
       
 button_2=tk.Button(root,text="Metadata Users",command=search_people,font=('Arial',12,'bold'))  #timeline
-button_2.place(relx=0.1,rely=0.21)                
+button_2.place(relx=0.1,rely=0.27)                
 
 def get_note(z):
     f=[]
@@ -494,7 +494,7 @@ def search_nickname():
        combo_tag.set(entry_nick.get())
        if Checkbutton_e.get()==0:
           Checkbutton_e.set(1)   
-       topic=search_topic()
+       topic=type_topic()
        if isinstance(topic,str):
           pass
        else:
@@ -510,10 +510,10 @@ button_close_1=Button(root, command=search_nickname, text="Find ",font=('Arial',
 button_close_1.place(relx=0.88,rely=0.12)
 
 def show_print_test():
- frame3=tk.Frame(root,height=150,width=200)  
- canvas_2 = tk.Canvas(frame3)
+ frame3=tk.Frame(root,height=150)  
+ canvas_2 = tk.Canvas(frame3,width=390)
  scrollbar_2 = ttk.Scrollbar(frame3, orient="vertical", command=canvas_2.yview)
- scrollable_frame_2 = ttk.Frame(canvas_2)
+ scrollable_frame_2 = ttk.Frame(canvas_2,width=380)
 
  scrollable_frame_2.bind(
          "<Configure>",
@@ -527,7 +527,7 @@ def show_print_test():
      combo_tag.set(topic)
     if Checkbutton_e.get()==0:
       Checkbutton_e.set(1)   
-    topic=search_topic()
+    topic=type_topic()
     if isinstance(topic,str):
       pass
     else:
@@ -592,7 +592,7 @@ def show_print_test():
       if len(tags_string(note,"t"))==2:
         if combo_tag.get() in tags_string(note,"t"):
           if tags_string(note,"t").index(combo_tag.get())==0: 
-            button_6 = tk.Button(scrollable_frame_2, text="Subtopic \n"+ str(tags_string(note,"t")[1]), command=lambda val=tags_string(note,"t")[1]: val_topic_two(val),font=("Arial",12,"bold"),fg="blue")
+            button_6 = tk.Button(scrollable_frame_2, text="Subtopic \n"+ str(tags_string(note,"t")[1][0:20]), command=lambda val=tags_string(note,"t")[1]: val_topic_two(val),font=("Arial",12,"bold"),fg="blue")
             button_6.grid(column=0,row=s,padx=1,pady=5)
             context1=""
             context2=""
@@ -642,7 +642,7 @@ def show_print_test():
          combo_tag.set(tags_string(entry,"t")[0])
          if Checkbutton_e.get()==0:
             Checkbutton_e.set(1)   
-         topic=search_topic()
+         topic=type_topic()
          if isinstance(topic,str):
             pass
          else:
@@ -679,10 +679,10 @@ combo_t_tag=[]
 Checkbutton_e.set(0)
 note_topic = tk.Label(root, text="",font=('Arial',14,'normal'))
 
-def search_topic():
+def type_topic():
    
    if combo_tag.get()!="Tag List" and combo_tag.get().startswith("Number")==False:
-      
+      pubkey_topic=[]
       topic_list=[]
       topic=combo_tag.get()
       for note_x in db_list:
@@ -690,18 +690,58 @@ def search_topic():
           if topic in tags_string(note_x,"t"):
              if note_x not in topic_list:
                 topic_list.append(note_x)
-      if topic_list!=[]:
-         note_topic.config(text= "Number of note is "+ str(len(topic_list)))
-         note_topic.place(relx=0.45,rely=0.05)          
+                if note_x["pubkey"] not in pubkey_topic:
+                   pubkey_topic.append(note_x["pubkey"])    
+      if len(pubkey_topic)>1:
+         if len(pubkey_topic)>10:
+          note_topic.config(text= "Number of note is "+ str(len(topic_list))+"\n"+"Main topic,"+"\n"+ "Pubkey in " +str(len(pubkey_topic)))
+          note_topic.place(relx=0.45,rely=0.01)          
+         else:
+            note_topic.config(text= "Number of note is "+ str(len(topic_list))+"\n"+"Low engagement topic,"+"\n"+ "Pubkey in " +str(len(pubkey_topic)))
+            note_topic.place(relx=0.45,rely=0.01)          
       else:
-         note_topic.config(text="") 
-         note_topic.place_forget()
-         return str("zero")
+         if topic_list!=[]:
+            note_topic.config(text= "Number of note is "+ str(len(topic_list)))
+            note_topic.place(relx=0.45,rely=0.05)          
+         else:
+            note_topic.config(text="") 
+            note_topic.place_forget()
+            return str("zero")      
+
+def list_value_tag():
+    for topic in combo_t_tag:
+       topic_list=[]
+       pubkey_topic=[]
+       for note_x in db_list:
+         if float(int(time.time())-note_x["created_at"])/(86400)<value:
+            if topic in tags_string(note_x,"t"):
+               if note_x not in topic_list:
+                  topic_list.append(note_x)
+                  if note_x["pubkey"] not in pubkey_topic:
+                     pubkey_topic.append(note_x["pubkey"])    
+       if len(pubkey_topic)>1:
+        if len(pubkey_topic)>10:
+         Value_combo_tag[topic]=["Main topic","Number of note is "+ str(len(topic_list))+ " Pubkey in " +str(len(pubkey_topic))]
+        else:
+             Value_combo_tag[topic]= ["Low engagement topic","Number of note is "+ str(len(topic_list))+ " Pubkey in " +str(len(pubkey_topic))]
+             
+       else:
+         if topic_list!=[]:
+            Value_combo_tag[topic]= ["","Number of note is "+ str(len(topic_list))]
+    note_value=str("Low engagement topic")
+    number=1        
+    for topic_str in list(Value_combo_tag.keys()):
+        if Value_combo_tag[topic_str][0]=="Low engagement topic":
+           note_value=note_value +"\n" +" n° "+ str(number)+ " "+str(topic_str) +"   "+ str(Value_combo_tag[topic_str][1])
+           number=number+1
+    value_topic.config(text=note_value)
+    value_topic.place(relx=0.05,rely=0.65)      
+value_topic = tk.Label(root, text="",font=('Arial',14,'normal'))
 
 def Search_select(event):
    if Checkbutton_e.get()==0:
     Checkbutton_e.set(1)   
-   topic=search_topic()
+   topic=type_topic()
    if isinstance(topic,str):
        pass
    else:
@@ -1211,6 +1251,7 @@ async def Get_coord_url(value):
 def test_relay(): 
  if combo_relay.get()!="":
    tm=note_list_r()
+   print(len(tm))
    return tm
   
 def note_list_r():
@@ -1221,16 +1262,26 @@ def note_list_r():
     L=get_note(combined_results)
     return L
 
+Value_combo_tag={}
+
 def search_():
    result=test_relay()
    if result !=None:
+    note=label_relay['text']
+    list_note= str(note).split()
+    if combo_relay.get() not in list_note:
+         if len(list_note)<5:
+            zeta= len(list_note)
+            note=note+ "\n"+"n° "+str(zeta-1)+" "+ combo_relay.get()+"\n"
+            label_relay.config(text=str(note))
     timeline_created(db_list,result)
     for db_x in db_list:
        if tags_string(db_x,"t")!=[]:
           for tags_t in tags_string(db_x,"t"):
              if tags_t not in combo_t_tag:
               combo_t_tag.append(tags_t) 
-    if combo_t_tag!=[]:          
+    if combo_t_tag!=[]:   
+     list_value_tag()
      combo_tag.set("Number of topic "+ str(len(combo_t_tag)))      
      combo_t_tag.sort()    
      combo_tag['values']=combo_t_tag
@@ -1314,7 +1365,7 @@ button_block_npub.place(relx=0.7,rely=0.02)
 db_list=[]
 list_event=[Kind(11)]
 button_tm=tk.Button(root,command= search_,text="View note", font=("Arial",12,"normal"))
-button_tm.place(relx=0.03,rely=0.21)
+button_tm.place(relx=0.03,rely=0.27)
 
 async def get_note_relays(client):
     f = Filter().kinds(list_event).limit(500)

@@ -609,7 +609,7 @@ async def Get_event_from(event_):
 
     # Add relays and connect
     relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2=RelayUrl.parse("wss://wot.utxo.one/")
+    relay_url_2=RelayUrl.parse("wss://relay.damus.io/")
     await client.add_relay(relay_url_1)
     await client.add_relay(relay_url_2)
     
