@@ -82,6 +82,7 @@ Block_words=["blockchain","Blockchain","plebchain","Plebchain","zapathon", "Zapa
 hash_list_notes=[]
 
 def search_for_channel(note_hash):
+     global db_note_1
      Notes=db_note_1
      if Notes:
         hash_list_notes.clear()
@@ -91,14 +92,7 @@ def search_for_channel(note_hash):
                hash_list_notes.append(note_x)
         number_note.set(f"number note {str(len(hash_list_notes))}")       
         return hash_list_notes      
-
-def move_to_pin():
-   """From note to PIN"""
-   if db_list_note!=[] and db_note_1==[]:
-      for note_x in db_list_note:
-         if note_x not in db_note_1 and note_x["kind"]==1:
-            db_note_1.append(note_x)
-
+    
 def open_profile():
     """Widget function \n
     -- add a pubkey and relays to search
@@ -209,6 +203,14 @@ def d_url_speed(string):
       return str(j)  
  return str("https://"+string)  
  
+def move_to_pin():
+   """From note to PIN"""
+   if db_list_note!=[] and db_note_1==[]:
+      for note_x in db_list_note:
+         if note_x not in db_note_1 and note_x["kind"]==1:
+            db_note_1.append(note_x)
+
+
 def add_db_list():
         """Widget function \n
         Add notes to pin list"""
@@ -222,7 +224,7 @@ def add_db_list():
         
         button_b_close=Button(Frame_block, background='red', text='❌',font=('Arial',12,'bold'))    
         button_b_close.bind("<Double-Button-1>" ,Close_block)
-        button_b_close.grid(column=4, row=0, padx=5) 
+        button_b_close.grid(column=3, row=0, padx=5) 
             
         def search_block_list():
             label_string_block1.set(len(db_list_note))    
@@ -232,6 +234,8 @@ def add_db_list():
             label_string_block1.set(len(db_list_note))   
 
         def PIN_count():
+           timeline_created(db_list_note)
+           move_to_pin()
            label_link_var.set(len(db_note_1))
 
         def clear_db_note_1():
@@ -241,6 +245,7 @@ def add_db_list():
         def delete_one_hashtag():
            hash_note=search_for_channel(delete_entry.get())   
            if hash_note!=None and hash_note!=[]:
+            print(len(hash_note))
             for dbpub in hash_note:
               if dbpub in db_note_1:
                  db_note_1.remove(dbpub)   
@@ -257,7 +262,7 @@ def add_db_list():
                   
                     db_note_1.remove(dbpub_y)   
               
-           PIN_count()   
+           label_link_var.set(len(db_note_1))  
            delete_hashtag.set("")
 
         def block_hashtag():   
@@ -281,13 +286,12 @@ def add_db_list():
         delete_entry.grid(column=0,row=3,pady=5)
         delete_h_button=Button(Frame_block, command=delete_one_hashtag, text="# X",font=('Arial',12,'normal'))
         delete_h_button.grid(column=1,row=3,padx=5,pady=5)
-        delete_h_button1=Button(Frame_block, command=block_hashtag, text="remove",font=('Arial',12,'normal'))
+        delete_h_button1=Button(Frame_block, command=block_hashtag, text="Remove",font=('Arial',12,'normal'))
         delete_h_button1.grid(column=2,row=3,padx=5,pady=5)
         label_block_list1=Label(Frame_block, textvariable=label_string_block1,font=('Arial',12,'normal'))
         label_block_list1.grid(column=2,row=0,pady=5)
         label_var_list1=Label(Frame_block, textvariable=label_link_var,font=('Arial',12,'normal'))
         label_var_list1.grid(column=2,row=1,pady=5)
-        #button10.grid(column=1, row=2, pady=5)
         Frame_block.place(relx=0.7,rely=0.25,relheight=0.22,relwidth=0.28)
         
 button_block=tk.Button(root, highlightcolor='WHITE', text='DB count',font=('Arial',12,'bold'),command=add_db_list )
@@ -316,11 +320,16 @@ async def get_resutl(client):
 async def get_result_(client):
    if entry_var.get()!="":  
     if Checkbutton5.get() == 1:
-          f = Filter().search(entry_var.get()).kind(Kind(1)).since(timestamp=Timestamp.from_secs(since_day(int(since_entry.get())))).until(timestamp=Timestamp.from_secs(since_day(int(until_entry.get())))).limit(10)
+          if entry_pubkey.get()!="":
+            f = Filter().search(entry_var.get()).kind(Kind(1)).author(PublicKey.parse(entry_pubkey.get())).since(timestamp=Timestamp.from_secs(since_day(int(since_entry.get())))).until(timestamp=Timestamp.from_secs(since_day(int(until_entry.get())))).limit(10)
+          else:
+             f = Filter().search(entry_var.get()).kind(Kind(1)).since(timestamp=Timestamp.from_secs(since_day(int(since_entry.get())))).until(timestamp=Timestamp.from_secs(since_day(int(until_entry.get())))).limit(10)
     else:
-          #url=url_speed(entry_var.get())
-          f = Filter().search(entry_var.get()).kind(Kind(1)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
-          #print(url)
+          if entry_pubkey.get()!="":
+             f = Filter().search(entry_var.get()).kind(Kind(1)).author(PublicKey.parse(entry_pubkey.get())).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
+          else:
+             f = Filter().search(entry_var.get()).kind(Kind(1)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
+          
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -357,7 +366,7 @@ async def outboxes():
        await client.add_relay(relay_url_2)
        await client.add_relay(relay_url_3)
        await client.add_relay(relay_url_4)
-
+       await client.connect()
        relay_add=get_note(await get_outbox(client))
        
        if relay_add !=None and relay_add!=[]:
@@ -438,12 +447,8 @@ def call_text():
                     
        second_label10.insert(END,"\n"+"____________________"+"\n")
        second_label10.insert(END,"\n"+"\n")
-     if db_note_1==[]:  
-      move_to_pin() 
-     else:
-        for jnote in note_:
-         if jnote not in db_note_1 and jnote["kind"]==1:
-          db_note_1.append(jnote)
+       
+     timeline_created(note_)
 
        
     else:
@@ -464,14 +469,9 @@ def call_hashtag():
        for resp_x in get_note(response):
           if resp_x not in db_list_note:
              db_list_note.append(resp_x) 
-       if db_note_1==[]:  
-         move_to_pin() 
-       else:
-        for jnote in get_note(response):
-         if jnote not in db_note_1 and jnote["kind"]==1:
-          db_note_1.append(jnote)
-
-
+       response_json=  get_note(response)
+       timeline_created(response_json)
+                 
 def five_event():
      if Checkbutton5.get() == 0:
         Button5.config(text= " 60 day")
@@ -536,6 +536,11 @@ entry_var=Entry(frame1, textvariable=entry_variable,font=("Arial",12,"bold"),wid
 entry_var.place(relx=0.31,rely=0.78,relheight=0.18)
 button_close_search=tk.Button(frame1, text='Search Relay',font=('Arial',12,'bold'), command=call_text)    
 button_close_search.place(relx=0.6,rely=0.77 ) 
+entry_pubkey_var=StringVar()
+entry_pubkey_lab=Label(root,text="Author Pubkey",font=('Arial',12,'bold'))
+entry_pubkey_lab.place(relx=0.26,rely=0.24)
+entry_pubkey=Entry(root, textvariable=entry_pubkey_var,font=("Arial",12,"bold"),width=17)
+entry_pubkey.place(relx=0.25,rely=0.27)
 
 async def get_one_Event(client, event_):
     f = Filter().id(EventId.parse(event_))
@@ -866,12 +871,19 @@ def list_hashtag_fun():
     if db_note_1!=[]:
         for note_x in db_note_1:
             if tags_string(note_x,"t")!=[] and tags_string(note_x,"t")!=None:
+                
                 for hash_y in tags_string(note_x,"t"):
                     if hash_y not in one_hashtag:
                        one_hashtag.append(hash_y)
+                       
                     else:   
-                        if hash_y not in hashtag_list and tags_string(note_x,"t").count(hash_y)==1:
+                        if hash_y not in hashtag_list:
+                           if tags_string(note_x,"t").count(hash_y)==1:
                             hashtag_list.append(hash_y)
+                      
+                      
+                      
+                      
         return hashtag_list       
     else:
        return hashtag_list       
@@ -1032,6 +1044,17 @@ def print_list_tag():
               root.update_idletasks()
               s=s+1
               ra=ra+1   
+            else:
+               
+               while ra<len(test1):
+                  button_grid1=Button(scrollable_frame,text=f"{test1[ra][0:10]} ", command=lambda val=test1[ra]: print_id(val))
+                  button_grid1.grid(row=se,column=s,padx=5,pady=5)
+           
+                  root.update_idletasks()
+                  s=s+1
+                  ra=ra+1
+                     
+
 
     if test1!=None and test1!=[]:
      scrollbar.pack(side="bottom", fill="x",padx=20)
@@ -1042,10 +1065,10 @@ def print_list_tag():
        frame3.destroy()  
        button_close_.place_forget()
     
-    button_close_=tk.Button(root,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
+    button_close_=tk.Button(root,text=" 🗙 ",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     if test1!=[]:   
      
-     button_close_.place(relx=0.25,rely=0.24)
+     button_close_.place(relx=0.2,rely=0.32)
     else:
        Close_print() 
    else:
@@ -1077,7 +1100,7 @@ def print_list_tag():
       button_clo.place(relx=0.72,rely=0.12)  
 
 button_tag=tk.Button(root,text="# List",command=print_list_tag, font=('Arial',12,'bold'))
-button_tag.place(relx=0.2,rely=0.24)
+button_tag.place(relx=0.2,rely=0.26)
 
 async def get_kind(client, event_):
     hashtag_list=list_hashtag_fun()
@@ -1135,9 +1158,9 @@ filemenu.add_command(label="Search Note", command=lambda: result_note(entry_spac
 frame2.grid(padx=10)
 entry_note=StringVar()
 entry_space_note=tk.Entry(root, textvariable=entry_note, width=15,font=("Arial",12,"bold"))
-entry_space_note.place(relx=0.40,rely=0.24,relwidth=0.15,relheight=0.04,x=5)
+entry_space_note.place(relx=0.40,rely=0.26,relwidth=0.15,relheight=0.04,x=5)
 button_entry=tk.Button(root,text="Search note",command=lambda: result_note(entry_space_note.get()), font=('Arial',12,'bold'))
-button_entry.place(relx=0.56,rely=0.24)
+button_entry.place(relx=0.56,rely=0.26)
 
 relay_url_list=[]
 
@@ -1246,5 +1269,30 @@ def x_Profile(string:str):
    
   except NostrSdkError as e:
      print(e) 
+
+def timeline_created(list_new):
+  new_note=[] 
+  global db_note_1
+  if db_note_1!=[]:
+   for new_x in list_new:
+     if new_x not in db_note_1:
+        new_note.append(new_x)
+   print(len(new_note))      
+   i=0
+    
+   while i<len(new_note):
+     j=0
+     while j< len(db_note_1): 
+      if db_note_1[j]["created_at"]>(new_note[i]["created_at"]):
+         j=j+1
+      else:
+         db_note_1.insert(j,new_note[i])
+         break
+     i=i+1
+   return db_note_1  
+  else:
+        for list_x in list_new:
+            db_note_1.append(list_x)
+        return db_note_1   
 
 root.mainloop()

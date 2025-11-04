@@ -63,6 +63,25 @@ label_entry_id=tk.Label(root, text="Pubkey",font=("Arial",12,"normal"))
 label_entry_id.place(relx=0.07,rely=0.11)
 value=float(1*3600/86400)
 
+def on_topic(event):
+   if db_list!=[]:
+    note_value=""
+    number=1
+    for topic_str in list(Value_combo_tag.keys()):
+     if Value_combo_tag[topic_str][0]==combo_filter.get():
+      if number<9: 
+       note_value=note_value +"\n" +" n° "+ str(number)+ " "+str(topic_str) +"   "+ str(Value_combo_tag[topic_str][1])
+       number=number+1
+    value_topic.config(text=note_value)
+    value_topic.place(relx=0.05,rely=0.7)      
+
+combo_filter = ttk.Combobox(root, values=["Main topic","Low engagement topic", ""],font=('Arial',14,'normal'),width=10)
+combo_filter.place(relx=0.1,rely=0.65)
+combo_filter.set("")
+combo_filter.bind("<<ComboboxSelected>>", on_topic)
+test_label=Label(root,text="Type Filter")
+test_label.place(relx=0.01,rely=0.65)
+
 def on_time(event):
    select_time=int(combo_value.get())
    global value
@@ -735,7 +754,7 @@ def list_value_tag():
            note_value=note_value +"\n" +" n° "+ str(number)+ " "+str(topic_str) +"   "+ str(Value_combo_tag[topic_str][1])
            number=number+1
     value_topic.config(text=note_value)
-    value_topic.place(relx=0.05,rely=0.65)      
+    value_topic.place(relx=0.05,rely=0.7)      
 value_topic = tk.Label(root, text="",font=('Arial',14,'normal'))
 
 def Search_select(event):
