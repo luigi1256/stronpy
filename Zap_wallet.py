@@ -217,7 +217,7 @@ def list_timeline(Value):
          Inbox.clear()
          for db_x in db_list:
            if tags_string(db_x,"p")!=[]:
-            if len(tags_string(db_x,"p")):
+            
                 if db_x["pubkey"]!=entry_id.get():
                  Inbox.append(db_x)     
          return Inbox
@@ -1114,12 +1114,15 @@ def nota_reply_id(nota):
     return e_id    
 
 def kind_9735(x):
+        try: 
          Nota=tag_description(x)
          invoice=lnbc_zap(x)
          if bolt11_amount(invoice)==None:
           return None,None
          else:
            return Nota['pubkey'], bolt11_amount(invoice)
+        except TypeError as e:
+           print(e,x) 
      
 def tag_description(x):
     l=x['tags']

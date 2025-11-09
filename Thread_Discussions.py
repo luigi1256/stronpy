@@ -79,8 +79,8 @@ combo_filter = ttk.Combobox(root, values=["Main topic","Low engagement topic", "
 combo_filter.place(relx=0.1,rely=0.65)
 combo_filter.set("")
 combo_filter.bind("<<ComboboxSelected>>", on_topic)
-test_label=Label(root,text="Type Filter")
-test_label.place(relx=0.01,rely=0.65)
+test_label=Label(root,text="Type Filter",font=('Arial',12,'bold'))
+test_label.place(relx=0.03,rely=0.65)
 
 def on_time(event):
    select_time=int(combo_value.get())
@@ -747,14 +747,15 @@ def list_value_tag():
        else:
          if topic_list!=[]:
             Value_combo_tag[topic]= ["","Number of note is "+ str(len(topic_list))]
-    note_value=str("Low engagement topic")
+    note_value=str("Main topic")
     number=1        
     for topic_str in list(Value_combo_tag.keys()):
-        if Value_combo_tag[topic_str][0]=="Low engagement topic":
+        if Value_combo_tag[topic_str][0]=="Main topic":
            note_value=note_value +"\n" +" n° "+ str(number)+ " "+str(topic_str) +"   "+ str(Value_combo_tag[topic_str][1])
            number=number+1
-    value_topic.config(text=note_value)
-    value_topic.place(relx=0.05,rely=0.7)      
+    if number<1:       
+     value_topic.config(text=note_value)
+     value_topic.place(relx=0.05,rely=0.7)      
 value_topic = tk.Label(root, text="",font=('Arial',14,'normal'))
 
 def Search_select(event):
