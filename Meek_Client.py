@@ -107,7 +107,8 @@ root.geometry("1250x800")
 frame1=tk.Frame(root,height=100,width=200)
 
 note_tag = tk.Label(root, text="Note",font=('Arial',12,'bold'))
-entry4=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))
+scroll_bar_mini = tk.Scrollbar(root)
+entry4=tk.Text(root, font=('Arial',12,'normal'),yscrollcommand = scroll_bar_mini.set)
 str_test=StringVar()
 entry_note=ttk.Entry(root,justify='left', textvariable=str_test)
 
@@ -170,12 +171,13 @@ def Open_json_fake_note(name):
 def test_open():
     note_tag.place(relx=0.5,rely=0.24,relwidth=0.1,relheight=0.05,anchor='n' )
     entry4.place(relx=0.5,rely=0.3,relwidth=0.3,relheight=0.1,anchor='n' )
-        
+    scroll_bar_mini.place(relx=0.66,rely=0.3,relheight=0.1,anchor='n' )
+    scroll_bar_mini.config( command = entry4.yview )    
     close_["command"] = close_answer
     close_.place(relx=0.6,rely=0.25,relwidth=0.05,relheight=0.04,anchor='n' )
     
     def Preview():
-      if entry4.get()!="": 
+      if entry4.get('1.0', 'end-1c')!="": 
         frame1=Frame(root, width=310, height=100)
    
         canvas = Canvas(frame1)
@@ -208,8 +210,8 @@ def test_open():
 
         s = 1
         while s<2:
-         if entry4.get()!="":
-            create_note(entry4.get(), s)
+         if entry4.get('1.0', 'end-1c')!="":
+            create_note(entry4.get('1.0', 'end-1c'), s)
          s += 3   
 
         frame1.place(relx=0.35,rely=0.48, relheight=0.25,relwidth=0.3) 
@@ -232,9 +234,10 @@ def close_answer():
   button_send.place_forget() 
   button_pre.place_forget()  
   note_tag.place_forget() 
-  if entry4.get()!="":
-   entry4.delete(0, END)
+  if entry4.get('1.0', 'end-1c')!="":
+   entry4.delete("1.0", "end")
   entry4.place_forget()
+  scroll_bar_mini.place_forget()
   entry_note.place_forget()
   event_idone.place_forget()
   close_.place_forget()
@@ -242,7 +245,7 @@ def close_answer():
 list_tag=[]
 
 def send_event():
-    note=entry4.get()
+    note=entry4.get('1.0', 'end-1c')
     if note!="":
      if __name__ == '__main__':
                 
@@ -252,7 +255,7 @@ def send_event():
       asyncio.run(main_note(note,list_tag))
       
       messagebox.showinfo("Success", "You have sent \n this note")
-      entry4.delete(0, END)
+      entry4.delete("1.0", "end")
       list_pow.clear()
       list_content.clear()
       list_h.clear()
@@ -262,7 +265,7 @@ def send_event():
       check_square()
     else:
       messagebox.showerror("Fail", "Error, write something")
-      entry4.delete(0, END)
+      entry4.delete("1.0", "end")
 
 button_send=tk.Button(root,text="send note", background="darkgrey", command=send_event, font=('Arial',12,'normal'))         
 
@@ -444,13 +447,12 @@ def Look_profile():
 button_b0=tk.Button(root, background=colour2, foreground=colour4, activebackground=colour3,
                   activeforeground=colour4, highlightbackground=colour2,
                   highlightcolor='WHITE',
-                  width=10,height=1,border=2, cursor='hand1',
                   text='Account',
-                  font=('Arial',16,'bold'),
+                  font=('Arial',12,'bold'),
                   command=Look_profile            
                   )
 
-button_b0.place(relx=0.7,rely=0.1,relwidth=0.1)
+button_b0.place(relx=0.72,rely=0.18,relwidth=0.1)
 
 def metadata_get():
   if Metadata_dict!={}: 
@@ -489,6 +491,7 @@ def open_relay():
     entry_relay=ttk.Entry(frame_account,justify='left',font=("Arial",12,"bold"))
     structure_relay.grid(column=11, row=1, padx=5,pady=5) 
     button_beau.place_forget()
+    button_dwn.place(relx=0.42,rely=0.1)
 
     def relay_class():
      if entry_relay.get()!="":
@@ -545,8 +548,8 @@ def open_relay():
 
     def Close_profile(event):
        frame_account.destroy()
-       
-       button_beau.place(relx=0.5,rely=0.1) 
+       button_dwn.place_forget()
+       button_beau.place(relx=0.75,rely=0.1) 
      
     button_close=tk.Button(frame_account, background='red', text='❌',font=('Arial',12,'bold'))    
     button_close.bind("<Double-Button-1>" ,Close_profile) 
@@ -572,7 +575,7 @@ button_beau=tk.Button(root, background=colour2, foreground=colour4, activebackgr
                   command=open_relay            
                   )
 
-button_beau.place(relx=0.5,rely=0.1) 
+button_beau.place(relx=0.75,rely=0.1) 
 
 def write_json_relay(name,note_text):
        with open(name+".txt", 'w',encoding="utf-8") as file:
@@ -606,20 +609,17 @@ button_dwn=tk.Button(root, background=colour2, foreground=colour4, activebackgro
                   font=('Arial',12,'bold'),
                   command=download_file_relay          
                   )
-
-button_dwn.place(relx=0.6,rely=0.1)
-
 frame1.grid()    
-
 Check_raw =IntVar()
 
 def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
-        stuff_frame.place(relx=0.02,rely=0.5,relheight=0.45,relwidth=0.3)  
+        stuff_frame.place(relx=0.02,rely=0.5,relheight=0.4,relwidth=0.3)  
         h_tag.place(relx=0.04,rely=0.53)
         h_tag_entry.place(relx=0.1,rely=0.53,relwidth=0.1)
         h_button.place(relx=0.21,rely=0.52)
+        button_close_tag.place(relx=0.28,rely=0.52)
         h_view.place(relx=0.05,rely=0.57 )
         content_tag.place(relx=0.04,rely=0.65 )
         entry_content.place(relx=0.12,rely=0.65,relwidth=0.1 )
@@ -629,12 +629,14 @@ def raw_label():
         pow_view.place(relx=0.05,rely=0.85 )
         pow_tag.place(relx=0.04,rely=0.8 )
         pow_button.place(relx=0.23,rely=0.79)
-        button_list_id.place(relx=0.45,rely=0.8,anchor='n' )
-        button_entry1.place(relx=0.38,rely=0.8,relwidth=0.05, relheight=0.05,anchor="n" )
-       
+        #button_list_id.place(relx=0.45,rely=0.8,anchor='n' )
+        button_entry1.place(relx=0.12,rely=0.91,relwidth=0.04, relheight=0.04,anchor="n" )
+        label_check.place(relx=0.05,rely=0.92)
    else:
       Check_raw.set(0)
+      button_close_tag.place_forget()
       stuff_frame.place_forget() 
+      label_check.place_forget()
       h_tag.place_forget()
       h_tag_entry.place_forget()
       h_button.place_forget()
@@ -647,19 +649,20 @@ def raw_label():
       pow_view.place_forget()
       pow_tag.place_forget()
       pow_button.place_forget()
-      button_list_id.place_forget()
+      #button_list_id.place_forget()
       button_entry1.place_forget()
       
 lab_button = tk.Button(root, text="Raw tag", font=("Arial",12,"bold"), command=raw_label)
-lab_button.place(relx=0.75,rely=0.35)
+lab_button.place(relx=0.74,rely=0.33)
 stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)
+label_check=ttk.Label(root,text="Check",font=("Arial",12,"bold"))
 h_tag = tk.Label(root, text="Hashtag",font=("Arial",12,"bold"))
 h_tag_entry=ttk.Entry(root,justify='left',font=("Arial",12))
 pow_tag = tk.Label(root, text="pow-Tag",font=("Arial",12,"bold"))
 var_number=IntVar()
 entrypow_tag=ttk.Entry(root,justify='left',textvariable=var_number ,font=("Arial",12))
 pow_view = tk.Label(root, text="pow tag?: ", font=("Arial",12,"bold"))
-
+button_close_tag=tk.Button(root, background='red', text='❌',font=('Arial',12,'bold'),command=raw_label)
 list_pow=[]
 
 def pow_show():
@@ -786,7 +789,7 @@ def check_square():
     else:
         button_entry1.config(text="■",foreground="grey")
         
-button_list_id=tk.Button(root,text="Tag",command=link_share, background="darkgrey",font=("Arial",14,"bold"))  #only for fun
+#button_list_id=tk.Button(root,text="Tag",command=link_share, background="darkgrey",font=("Arial",14,"bold"))  #only for fun
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2) #only for fun
 
 def email_check(test:str):

@@ -3,9 +3,6 @@ from cryptography.fernet import Fernet
 from nostr_sdk import *
 import asyncio
 from datetime import timedelta
-from nostr_sdk import PublicKey, SingleLetterTag
-from nostr_sdk import Tag
-from nostr_sdk import EventId,Event,Events,Nip19Event,Nip19
 import time
 from datetime import datetime
 import uuid
@@ -205,7 +202,7 @@ async def link_it(tag,description):
         await asyncio.sleep(2.0) 
        except NostrSdkError as e:
           print(e)
-     f = Filter().authors([keys.public_key()])
+     f = Filter().authors([keys.public_key()]).kind(Kind(39701)).limit(10)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
        if event.verify():
@@ -244,7 +241,7 @@ def link_share():
       if list_title!=[]:   
          lists_id.append(Tag.title(list_title[0]))
          
-         if combo_lab.get()!="Type of Hash-el":        
+         if combo_lab.get()!="Type of Hashtag":        
             lists_id.append(Tag.hashtag(combo_lab.get()))
          else:
             pass   
@@ -258,7 +255,7 @@ def link_share():
           button_entry1.config(text="■",foreground="grey")
           list_content.clear()
           list_title.clear()
-          combo_lab.set("Type of Hash-el")
+          combo_lab.set("Type of Hashtag")
           d_identifier=""
           d_view.config(text="")  
           d_title.delete(0, END)
@@ -270,7 +267,7 @@ def link_share():
 label_var=StringVar()
 label_entry=ttk.Entry(root,justify='left',textvariable=label_var,font=("Arial",12))
 Check_lab_entry =IntVar(root,0,"raw_lab")
-button_enter_lab=tk.Button(root,text="Hash-el", background="darkgrey",font=("Arial",12,"bold"))
+button_enter_lab=tk.Button(root,text="Hashtag", background="darkgrey",font=("Arial",12,"bold"))
 
 def update_list():
      
@@ -331,9 +328,9 @@ def upload_label_list(name):
         combo_lab["values"]=Lab_list        
 
 frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
-button_add_lab=tk.Button(frame1,text="add hash_el",command=update_list, font=("Arial",12,"bold"))  
+button_add_lab=tk.Button(frame1,text="add hashtag",command=update_list, font=("Arial",12,"bold"))  
 button_add_lab.place(relx=0.2,rely=0.1)  
-button_add_lab=tk.Button(root,text="Upload hash_el",command=lambda val="label_test":upload_label_list(val), font=("Arial",12,"bold"))  
+button_add_lab=tk.Button(root,text="Upload hashtag",command=lambda val="label_test":upload_label_list(val), font=("Arial",12,"bold"))  
 button_add_lab.place(relx=0.32,rely=0.115)  
 Lab_list=["energy","nostr","bitcoin","money","ai"]
 
@@ -342,7 +339,7 @@ def on_tags_event(event):
 
 combo_lab = ttk.Combobox(root, values=Lab_list,font=('Arial',14,'bold'))
 combo_lab.place(relx=0.44,rely=0.12,relwidth=0.15)
-combo_lab.set("Type of Hash-el")
+combo_lab.set("Type of Hashtag")
 combo_lab.bind("<<ComboboxSelected>>", on_tags_event)
 list_h=[]
 list_title=[]
@@ -350,7 +347,7 @@ list_title=[]
 def check_square():
     if d_identifier!="" and list_title!=[]:
        
-       if combo_lab.get()!="Type of Hash-el":
+       if combo_lab.get()!="Type of Hashtag":
         print_label.config(text="Hashtag "+combo_lab.get(), font=("Arial",12,"bold"),foreground="blue")
         button_entry1.config(text="■",foreground="green")
         error_label.config(text="ok")
@@ -381,7 +378,7 @@ def Look_profile():
     name_label.grid(column=8,row=1,padx=10)
     label_about=Label(frame_pic, text="About ",font=('Arial',10,'bold'))
     label_about.grid(column=8,row=2,pady=2,padx=10)
-    button_b_0.place(relx=0.15,rely=0.8)   
+    button_b_0.place(relx=0.9,rely=0.02)   
     second_name= tk.Label(frame_pic,text="Name ",font=('Arial',10,'bold'))
     second_name.grid(column=8,row=4,pady=2,padx=10)
     label_picture=tk.Label(frame_pic,text="Picture ",font=('Arial',10,'bold'))
@@ -716,7 +713,7 @@ event_idone=Button(root,text="Search event one", font=('Arial',12,'normal'),comm
 event_idone.place(relx=0.18,rely=0.65,anchor='n' )
                
 def rep_event_():
-   if combo_lab.get()!= "Type of Hash-el":
+   if combo_lab.get()!= "Type of Hashtag":
     note=Open_sticky_note(combo_lab.get())   #tag
     if (note!=""or note!=[]) and note!=None:
      notes=[]
@@ -855,7 +852,7 @@ def metadata_stress():
         else:
             text=text+str(meta)+str(": ")+str(Metadata_dict[meta]) +"\n"
        counter_dict['text']=text
-       counter_dict.place(relx=0.75,rely=0.77)  
+       counter_dict.place(relx=0.05,rely=0.77)  
        
     else:
          Check_open.set(0)

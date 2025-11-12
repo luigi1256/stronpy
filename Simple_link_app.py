@@ -1064,7 +1064,7 @@ def link_share():
       if list_title!=[]:   
          lists_id.append(Tag.title(list_title[0]))
          
-         if combo_lab.get()!="Type of Hash-el":        
+         if combo_lab.get()!="Type of Hashtag":        
             lists_id.append(Tag.hashtag(combo_lab.get()))
          else:
             pass   
@@ -1078,7 +1078,7 @@ def link_share():
           button_entry1.config(text="■",foreground="grey")
           list_content.clear()
           list_title.clear()
-          combo_lab.set("Type of Hash-el")
+          combo_lab.set("Type of Hashtag")
           d_identifier=""
           d_view.config(text="")  
           d_title.delete(0, END)
@@ -1090,7 +1090,7 @@ def link_share():
 def check_square():
     if d_identifier!="" and list_title!=[]:
        
-       if combo_lab.get()!="Type of Hash-el":
+       if combo_lab.get()!="Type of Hashtag":
         print_label.config(text="Hashtag "+combo_lab.get(), font=("Arial",12,"bold"),foreground="blue")
         button_entry1.config(text="■",foreground="green")
         error_label.config(text="ok")
@@ -1117,7 +1117,7 @@ def add_tag(event):
         
 Lab_list=["energy","nostr","bitcoin","money","ai"]
 combo_lab = ttk.Combobox(root, values=Lab_list,font=('Arial',14,'bold'))
-combo_lab.set("Type of Hash-el")
+combo_lab.set("Type of Hashtag")
 combo_lab.bind("<<ComboboxSelected>>", add_tag)
 
 async def link_it(tag,description):

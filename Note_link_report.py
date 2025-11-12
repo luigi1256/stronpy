@@ -87,10 +87,14 @@ async def get_relay(client, user):
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
+senza=int(0)
+
 async def main(authors):
     # Init logger
-    init_logger(LogLevel.INFO)
-    
+    global senza
+    if senza==0:
+      init_logger(LogLevel.INFO)
+      senza=int(1) 
     client = Client(None)
     
     # Add relays and connect
@@ -137,7 +141,7 @@ def list_people_fun():
 
 def print_people(): 
    if db_list!=[]:  
-    
+    show_people()
     frame3=tk.Frame(root)
     canvas = tk.Canvas(frame3,width=270)
     scrollbar = ttk.Scrollbar(frame3, orient="vertical", command=canvas.yview)
@@ -307,7 +311,7 @@ def pubkey_rep(test):
    return len(note_pubkey),note_pubkey  
 
 button_people_=tk.Button(root,text="List of People",command=print_people, font=('Arial',12,'bold'))
-button_people_.place(relx=0.31,rely=0.25) 
+button_people_.place(relx=0.25,rely=0.25) 
 
 my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
@@ -440,14 +444,17 @@ def show_Teed():
      if note not in List_note_out:
         List_note_out.append(note)
      try:
-      context0="Pubkey "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
+      if note['pubkey'] in list(Pubkey_Metadata.keys()):
+         context0="Nickname "+Pubkey_Metadata[note['pubkey']]+"\n"+"id: "+note["id"]
+      else:
+         context0="Pubkey "+note['pubkey']+"\n"+"id: "+note["id"]
       if note['tags']!=[]:
-        context1=note['content']+"\n"
-        context2="\n"+" [  [ Tags ] ] "+"\n"+"\n"
+        context1=note['content']+ "Time: "+str(int(float(int(time.time())-note["created_at"])/(86400)))+str(" Days") 
+        context2="\n"+" [  [ Tags ] ] "+"\n"
         for xnote in note["tags"]:
          context2=context2+str(xnote) +"\n"
       else: 
-        context1=note['content']+"\n"
+        context1=note['content']
         context2=""
            
       var_id=StringVar()
@@ -457,7 +464,7 @@ def show_Teed():
       scroll_bar_mini = tk.Scrollbar(scrollable_frame_1)
       scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
       second_label10 = tk.Text(scrollable_frame_1, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
-      second_label10.insert(END,context1+"\n"+str(context2))
+      second_label10.insert(END,context1+str(context2))
       scroll_bar_mini.config( command = second_label10.yview )
       second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
       
@@ -466,9 +473,9 @@ def show_Teed():
            print(number)
                   
       def print_var(entry):
-                print(entry["content"])
+                print(entry)
            
-      button=Button(scrollable_frame_1,text=f"Content", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Note", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"Number note", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
@@ -489,7 +496,7 @@ def show_Teed():
     button_frame.place(relx=0.5,rely=0.78,relwidth=0.1)      
    
 button_read=Button(root,text="Stamp Note", command=show_Teed,font=("Arial",12,"normal"))
-button_read.place(relx=0.22, rely=0.25)
+button_read.place(relx=0.15, rely=0.25)
 label_combo_link=StringVar()      
 entry_label_theme=tk.Entry(root, textvariable=label_combo_link)    
 label_entry_theme=Label(root,text="label")
@@ -517,12 +524,12 @@ def show_note_link(note):
       else:
        context0="Pubkey "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
       if note['tags']!=[]:
-        context1=note['content']+"\n"
-        context2="\n"+" [ [ Tags ]  ] "+"\n"+"\n"
+        context1=note['content']+"Time: "+str(int(float(int(time.time())-note["created_at"])/(86400)))+str(" Days") 
+        context2="\n"+" [ [ Tags ]  ] "+"\n"
         for xnote in note["tags"]:
          context2=context2+str(xnote) +"\n"
       else: 
-        context1=note['content']+"\n"
+        context1=note['content']
         context2=""
            
       var_id=StringVar()
@@ -547,9 +554,9 @@ def show_note_link(note):
           print(len(report_manual))
                   
       def print_var(entry):
-                print(entry["content"])
+                print(entry)
                               
-      button=Button(scrollable_frame_1,text=f"Content!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Note", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"number note", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
@@ -578,8 +585,6 @@ def show_one_note(note):
     if note in db_list:
         show_note_link(note)
                              
-button_id=tk.Button(root,command=show_people,text="People",font=("Arial",12,"normal"))
-button_id.place(relx=0.01,rely=0.25, relheight=0.045)
 List_note_out=[]
 
 def print_text():  
@@ -601,7 +606,7 @@ def print_text():
          try:   
             var_time =StringVar()
             Message_time= Message(scrollable_frame, textvariable=var_time, width=350,font=('Arial',12,'normal'))
-            var_time.set("Time: "+str(round(float(int(time.time())-note["created_at"])/(86400),3))+str("Days") )
+            var_time.set("Time: "+str(round(float(int(time.time())-note["created_at"])/(86400),3))+str(" Days") )
             Message_time.grid(row=s, column=0, columnspan=2, padx=50, pady=5,sticky="w")
             var_id=StringVar()
             label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=370)
@@ -637,7 +642,7 @@ def print_text():
             button.grid(column=0,row=s+3,padx=5,pady=10)
             button_grid2=Button(scrollable_frame,text=f"Search pubkey Reported", command=lambda val=note: print_id(val))
             button_grid2.grid(row=s+3,column=1,padx=5,pady=10)
-            button_grid3=Button(scrollable_frame,text="Note", command=lambda val=note: show_one_note(val))
+            button_grid3=Button(scrollable_frame,text="Open Note", command=lambda val=note: show_one_note(val))
             button_grid3.grid(row=s+3,column=2,padx=5,pady=10)
                                                                                                              
             root.update()  
@@ -655,7 +660,7 @@ def print_text():
      button_close_.pack(pady=5,padx=5) 
 
 button4=tk.Button(root,text="View Note Report",command=print_text, font=("Arial",12,"normal"))
-button4.place(relx=0.1, rely=0.25) 
+button4.place(relx=0.02, rely=0.25) 
 frame1.grid()
 relay_list=[]
 
@@ -890,7 +895,7 @@ def show_print_test_tag():
              second_label10_r.insert(END,report+"\n")
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-             button_grid_4=Button(scrollable_frame_2,text=f"Open Report!", command=lambda val=note: show_one_note(val))
+             button_grid_4=Button(scrollable_frame_2,text=f"Open Report ", command=lambda val=note: show_one_note(val))
              button_grid_4.grid(row=z+2,column=0,padx=5,pady=5)    
              z=z+3
        root.update_idletasks()
@@ -919,7 +924,7 @@ def show_print_test_tag():
                 second_label10_r.insert(END,report+"\n")
                 scroll_bar_mini_r.config( command = second_label10_r.yview )
                 second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-                button_grid_4=Button(scrollable_frame_2,text=f"Open Report!", command=lambda val=note: show_one_note(val))
+                button_grid_4=Button(scrollable_frame_2,text=f"Open Report ", command=lambda val=note: show_one_note(val))
                 button_grid_4.grid(row=z+2,column=0,padx=5,pady=5)    
                 z=z+3
           root.update_idletasks()
@@ -946,13 +951,13 @@ def show_print_test_tag():
    button_frame_s2.grid(row=s+5,column=0,padx=5,pady=5)              
    entry_rep = Entry(scrollable_frame_2, textvariable=string_report)
   
-   button_frame_s=Button(scrollable_frame_2,command=lambda:count_report(entry_rep.get()),text="search Type",font=("Arial",12,"normal"))
+   button_frame_s=Button(scrollable_frame_2,command=lambda:count_report(entry_rep.get()),text="Report for Type",font=("Arial",12,"normal"))
    button_frame_s.grid(row=s+4,column=0,padx=5,pady=5)                
    entry_rep.grid(row=s+4,column=1,padx=5,pady=5)
    entry_rep_2.grid(row=s+5,column=1,padx=5,pady=5)
    frame3.place(relx=0.72,rely=0.25,relheight=0.38,relwidth=0.28) 
 
-button_frame=Button(root,command=show_print_test_tag,text="Test",font=("Arial",12,"normal"))
+button_frame=Button(root,command=show_print_test_tag,text="Report List",font=("Arial",12,"normal"))
 button_frame.place(relx=0.75,rely=0.25) 
 
 def timeline_created(db_list,list_new):
@@ -1000,11 +1005,12 @@ def search_report_time():
    if db_list!=[]:
       value=string_value.get()
       s=0
+      print("1")
       for note in db_list:
         select=str("")
         select1=str("")
         if (time.time()-float(note["created_at"]))<float(value*86400):
-         
+          
           if tags_string(note,"p")!=[] or tags_string(note,"e")!=[]:
                 if tags_string(note,"alt")!=[]:  
                           
@@ -1038,9 +1044,8 @@ def search_report_time():
                         if tags_string(note,"p")!=[]:
                          result_e2_stem[tags_string(note,"p")[0]]="Report for "+str(select)  
                       
-                   
-                                  
-        s=s+1               
+        s=s+1  
+      print(result_e2_stem)               
 
 def four_tags(x,obj):
    tags_list=[]

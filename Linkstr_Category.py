@@ -140,8 +140,11 @@ def link_share():
           lists_id.append(Tag.custom(TagKind.PUBLISHED_AT() , [str( int(time.time()) )]))
           list_content=[""]
           
-          test_result =asyncio.run(link_it(lists_id,list_content[0]))
+          test_result,builder =asyncio.run(link_it(lists_id,list_content[0]))
           messagebox.showinfo("Result",str(test_result))
+          if messagebox.askokcancel("Authenticate ","Yes/No") == True:
+           output =asyncio.run(send_link_it(builder))
+           messagebox.showinfo("Result",str(output))
           list_content.clear()
           list_title.clear()
           combo_lab.set("Tag")
@@ -469,7 +472,7 @@ def show_noted(some_list):
 
        button=Button(scrollable_frame_1,text=f"Print Note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=se+2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=se+2,column=s1+1,padx=5,pady=5)    
                                  
        s=s+2  
@@ -582,7 +585,10 @@ def show_print_test_tag(note):
    var_id_3=StringVar()
    label_id_3 = Message(scrollable_frame_2,textvariable=var_id_3, relief=RAISED,width=290,font=("Arial",12,"normal"))
    label_id_3.grid(pady=1,padx=8,row=s,column=0, columnspan=3)
-   var_id_3.set("Author: "+note['pubkey'])
+   if note['pubkey'] in list(Pubkey_Metadata.keys()):
+      var_id_3.set("Nickname " +Pubkey_Metadata[note["pubkey"]])
+   else:
+      var_id_3.set("Author: "+note['pubkey'])
 
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
@@ -657,16 +663,26 @@ async def link_it(tag,description):
    key_string=Keys.generate()
    if key_string!=None: 
     keys =key_string
-       
-    #signer=NostrSigner.keys(keys)
-    #client = Client(signer)
-
-                             
     builder= EventBuilder(Kind(39701),description).tags(tag)
     test_result_post=builder.build(keys.public_key())
-    # test_result_post= await client.send_event_builder(builder)
-    
-    return test_result_post    
+       
+    return test_result_post,builder    
+
+async def send_link_it(builder):
+   
+   key_string=log_these_key()
+   if key_string!=None: 
+    keys =key_string
+    keys = Keys.parse(key_string) 
+    signer=NostrSigner.keys(keys)
+    client = Client(signer)
+    if relay_list!=[]:
+     for j_relay in relay_list:
+      await client.add_relay(RelayUrl.parse(j_relay))
+     await client.connect() 
+     test_result_post= await client.send_event_builder(builder)
+      
+     return test_result_post    
 
 timeline_people=[]
 db_list_note_follow=[]
@@ -778,5 +794,25 @@ def pubkey_id(test):
           if note_x not in note_pubkey:
              note_pubkey.append(note_x)
    return len(note_pubkey),note_pubkey  
+
+def Open_txt_note(name):
+      if name:
+          try:
+            with open(name+str(".txt"), mode="r", encoding="utf-8") as f:
+                content = f.read()
+                return content
+          except FileNotFoundError as e:
+             print(e)      
+
+def log_these_key():
+   try: 
+    test_key= Open_txt_note("fernet_key_test")
+    fernet=Fernet(test_key[1:])
+    note=Open_txt_note("message_test")
+    
+    decMessage = fernet.decrypt(note[1:]).decode()
+    return decMessage
+   except FileNotFoundError as e:
+       print(e)
 
 root.mainloop()     
