@@ -274,11 +274,18 @@ def OpenColumn():
             s0=s0+1 
 
     def kind1_data_name():
+       try:
         note=fetch_content()  
         events=[]
         for j in note:
-            events.append(valore_tupla(j))
+            val_json=valore_json(j)
+            if Event.from_json(str(val_json)).verify():
+                events.append(valore_tupla(j))
+        
         return events   
+       except NostrSdkError as e:
+        print(e)  
+    
 
     def count_note(n:int):
         list_event=[]
@@ -378,6 +385,19 @@ def valore_tupla(event):
    sig=event_list[6]
    event_note={"id":id,"pubkey":pubkey,"created_at":created_at,"kind":kind,"tags":tags,"content":content,"sig":sig} 
    return event_note
+
+def valore_json(event):
+    event_list=list(event)
+    id = event_list[0]
+    pubkey=event_list[1] 
+    created_at=event_list[2]
+    kind=event_list[3]
+    tags=json.loads(event_list[4])
+    content=event_list[5] 
+    sig=event_list[6]
+    event_note={"id":id,"pubkey":pubkey,"created_at":created_at,"kind":kind,"tags":tags,"content":content,"sig":sig} 
+    json_data = json.dumps(event_note, ensure_ascii=False, indent=4)
+    return json_data
 
 def get_note(z):
     f=[]

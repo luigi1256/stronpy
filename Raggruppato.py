@@ -93,11 +93,12 @@ def list_pubkey_id():
       
    metadata_note=search_kind(0)
    if metadata_note!=[]:
+       
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
-        single_1=json.loads(single["content"])
         try:
+         single_1=json.loads(single["content"])
          if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
@@ -121,8 +122,10 @@ def list_pubkey_id():
                         
         except KeyError as e:
           print("KeyError ",e) 
+        except json.JSONDecodeError as e:
+         print(e, single["content"])  
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))       
-
+      
 button_people_2=Button(root,text=f"Metadata user ", command=list_pubkey_id,font=('Arial',12,'bold'))
 
 def search_note():
@@ -219,7 +222,7 @@ def print_people():
     labeL_button.grid(row=0,column=1,padx=5,pady=5,columnspan=2)           
     while ra<len(test1):
                 lenght,note_p=pubkey_id(test1[ra])
-                if lenght>1:
+                if lenght>1 and lenght<21:
                  sz=sz+1           
                  if test1[ra] in Pubkey_Metadata.keys():
                   button_grid1=Label(scrollable_frame,text=f"{Pubkey_Metadata[test1[ra]][0:15]} note {lenght}",width=20,font=('Arial',12,'normal'))
@@ -235,51 +238,110 @@ def print_people():
                  root.update()  
               
                 s=s+2
-            
                 ra=ra+1   
-    labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+"Number of poster more than one note "+ str(sz))
+    
+    labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+"Number of poster more than one note \n and less then 21, "+ str(sz))
     canvas.pack(side="left", fill="y", expand=True)
     button_people_2.place(relx=0.1,rely=0.2) 
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
+    
+    label_nick.place(relx=0.75,rely=0.08)     
+    entry_nick.place(relx=0.75,rely=0.12,relwidth=0.12,relheight=0.04) 
+    button_close_1['command']=search_nickname
+    button_close_1.place(relx=0.88,rely=0.12)
     frame3.place(relx=0.01,rely=0.28,relwidth=0.26, relheight=0.35)      
 
     def Close_print():
-       frame3.destroy()  
-             
+       frame3.destroy()
+       Close_search()  
+     
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
-    button_close_.pack(pady=5,padx=5)                 
+    button_close_.pack(pady=5,padx=5)  
+    
+    def Close_search():
+       button_close_find.place_forget()
+       button_close_1.place_forget()
+       entry_nick.place_forget()
+       label_nick.place_forget()
+       entry_nick.delete(0, END)
 
+    button_close_find=tk.Button(root,text="🗙",command=Close_search, font=('Arial',12,'bold'),foreground="red")
+    button_close_find.place(relx=0.9,rely=0.07)                               
+
+button_close_1=Button(root, text="Find ",font=('Arial',12,'normal'), fg="blue")
+label_nick=ttk.Label(root,text="Search Name", font=('Arial',12,'bold'))
+entry_nick=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))
 button_people_=tk.Button(root,text="List of People",command=print_people, font=('Arial',12,'bold'))
 button_people_.grid(row=5,column=2,pady=5,padx=10) 
 label_image = Label(root,text="")
 
+def search_nickname():
+ if entry_nick.get()!="":
+  Name_value=list(Pubkey_Metadata.values())
+  Name_key=list(Pubkey_Metadata.keys())
+  if entry_nick.get() in Name_value:
+   for key_x in Name_key:
+      if Pubkey_Metadata[key_x]==entry_nick.get():
+           
+         lenght,note_p= pubkey_id(key_x)
+         entry_nick.delete(0, END)
+         if lenght>1 and lenght<21:
+            show_lst_ntd(note_p)
+         else:
+            if key_x in list(photo_profile.keys()):
+               if str(photo_profile[key_x])!=None: 
+                  print_photo_url(str(photo_profile[key_x]))
+               else:
+                  if lenght==1:
+                   print(note_p)
+
+  else:
+     if len(entry_nick.get())==64:
+        lenght_2,note_2=pubkey_id(entry_nick.get()) 
+        if lenght_2>0:
+           show_lst_ntd(note_2)    
+        else:
+           Metadata=search_user(entry_nick.get())     
+           if Metadata:
+              if Metadata.as_record().display_name:         
+               if entry_nick.get() not in list(Pubkey_Metadata.keys()):
+                  Pubkey_Metadata[entry_nick.get()]=Metadata.as_record().display_name
+              else:
+                 if Metadata.as_record().name:         
+                  if entry_nick.get() not in list(Pubkey_Metadata.keys()):
+                     Pubkey_Metadata[entry_nick.get()]=Metadata.as_record().name
+              if  Metadata.as_record().picture:   
+                  if entry_nick.get() not in list(photo_profile.keys()):
+                     photo_profile[entry_nick.get()]=Metadata.as_record().picture
+        entry_nick.delete(0, END)
+        
 def print_photo_url(url):
    if url!="":
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers,stream=True)
     response.raise_for_status()
-    
-    with open('my_image.png', 'wb') as file:
+    if response.ok==TRUE:
+     with open('my_image.png', 'wb') as file:
        shutil.copyfileobj(response.raw, file)
-    del response
-    from PIL import Image
+     del response
+     from PIL import Image
      
-    image = Image.open('my_image.png')
-    image.thumbnail((250,150))  # Resize image if necessary
-    photo = ImageTk.PhotoImage(image)
-    label_image.config(image=photo)
-    label_image.image_names= photo 
+     image = Image.open('my_image.png')
+     image.thumbnail((250,150))  # Resize image if necessary
+     photo = ImageTk.PhotoImage(image)
+     label_image.config(image=photo)
+     label_image.image_names= photo 
      
-    label_image.place(relx=0.1,rely=0.7)     
+     label_image.place(relx=0.1,rely=0.7)     
        
-    def close_image():
+     def close_image():
         label_image.place_forget()         
         button_photo_close.place_forget()
     
-    button_photo_close=Button(root, text="X", command=close_image,font=('Arial',12,'normal'))
-    button_photo_close.place(relx=0.15,rely=0.65)
-    label_image.place(relx=0.1,rely=0.7)       
+     button_photo_close=Button(root, text="X", command=close_image,font=('Arial',12,'normal'))
+     button_photo_close.place(relx=0.15,rely=0.65)
+     label_image.place(relx=0.1,rely=0.7)       
     
 def show_lst_ntd(list_note_p):
  frame2=tk.Frame(root)  
@@ -308,7 +370,7 @@ def show_lst_ntd(list_note_p):
          context0="Author: "+note['pubkey']
       
        context1=note['content']+"\n"
-       context2=" Minutes "+str(round(float(int(time.time())-note["created_at"])/(60),4))+"\n"
+       context2=" Minutes "+str(int(float(int(time.time())-note["created_at"])/(60)))+"\n"
        context3=str("")
        if note['tags']!=[]: 
         
@@ -334,7 +396,7 @@ def show_lst_ntd(list_note_p):
             else: 
                tag_peple= tag_peple+" p " +str(znote)+"\n"
             
-         context3=context3+"\n"+"Tag "+str(tag_peple) +"\n"   
+         context3=context3+"Tag "+"\n"+str(tag_peple) +"\n"   
        
         if tags_string(note,"t")!=[] :
            s=0
@@ -386,6 +448,11 @@ def show_lst_ntd(list_note_p):
   button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
   button_frame.place(relx=0.7,rely=0.66,relwidth=0.1)      
 
+def search_user(pubkey):
+    if __name__ == "__main__":
+       single_results = asyncio.run(feed_metadta(pubkey))
+       if single_results:
+          return single_results
 
 def search_kind(x):
    if __name__ == "__main__":
@@ -398,6 +465,34 @@ def search_kind(x):
       if (r)['kind']==x:
          Z.append(r)
    return Z       
+
+async def feed_metadta(pubkey):
+       
+    client = Client(None)
+    add_relay_list.clear()
+    if relay_list!=[]:
+       
+       for relay_j in relay_list:
+           if RelayUrl.parse(relay_j) not in add_relay_list:
+                add_relay_list.append(RelayUrl.parse(relay_j))
+                await client.add_relay(RelayUrl.parse(relay_j))
+    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
+    if relay_url_1 not in add_relay_list:
+       add_relay_list.append(relay_url_1)
+       await client.add_relay(relay_url_1)
+    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
+    if relay_url_x not in add_relay_list:
+       add_relay_list.append(relay_url_x)
+       await client.add_relay(relay_url_x)
+    if relay_url_2 not in add_relay_list:
+       add_relay_list.append(relay_url_2)
+       await client.add_relay(relay_url_2)
+    await client.connect()
+    await asyncio.sleep(2.0)
+
+    combined_results = await client.fetch_metadata(PublicKey.parse(pubkey),timeout=timedelta(seconds=10))
+    return combined_results
 
 async def get_note_cluster(client, type_of_event):
     if timeline_people!=[]:
