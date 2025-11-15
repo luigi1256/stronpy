@@ -1,13 +1,11 @@
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, PublicKey,Kind, uniffi_set_event_loop
+from nostr_sdk import * 
 from datetime import timedelta
-from asyncio import get_event_loop
-from nostr_sdk import *
-import json
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+import json
 import requests
 import shutil
 
@@ -21,8 +19,8 @@ async def get_event(client, event_):
      else:
        try:
         if len(tag_id)>71 and tag_id[5]==":" and tag_id[70]==":":
-         coord = Coordinate(Kind(int(tag_id[0:5])),PublicKey.parse(tag_id[6:70]),str(tag_id[71:]))
-         if coord not in tag_identifiers:
+         coord = Coordinate.parse(tag_id)
+         if coord.identifier() not in tag_identifiers:
            tag_identifiers.append(coord.identifier())
            tag_pubkey.append(coord.public_key())
        except NostrSdkError as e:
@@ -70,7 +68,7 @@ async def get_relay(client, user):
     return z
 
 async def get_metadata(user):
-    uniffi_set_event_loop(asyncio.get_running_loop())  
+      
     client = Client(None)
     
     # Add relays and connect
@@ -175,7 +173,7 @@ my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae580
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              " Hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
-             "me": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
+             "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 
 root = tk.Tk()
@@ -192,7 +190,7 @@ def on_select(event):
     selected_item = combo_box.get()
     label.config(text="Selected Item: " + my_dict[selected_item][0:9])
 
-combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","me"],font=('Arial',12,'bold'))
+combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","il_lost_"],font=('Arial',12,'bold'))
 combo_box.grid(pady=5,column=1, row=0,ipadx=1)
 combo_box.set("Name")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -465,7 +463,7 @@ def layout():
          
          # Button down
          Button(scrollable_frame, text="Open", command=lambda: show_print_test_tag(note_text)).grid(row=s+3, column=0, padx=5, pady=5)
-         blo_label = Button(scrollable_frame, text="Share",font=('Arial',12,'normal'),command=lambda: share_note(note_text) )
+         blo_label = Button(scrollable_frame, text="Share note",font=('Arial',12,'normal'),command=lambda: share_note(note_text) )
          blo_label.grid(row=s + 3, column=1, padx=2, pady=5)
          Button(scrollable_frame, text="Print Note", command=lambda: print(note_text)).grid(row=s +3, column=2, padx=5, pady=2)
          
@@ -868,7 +866,8 @@ def like_long_thread():
       name= tags_string(x,'a')[0]
       if name[0:6]=="30023:":
           print("note like",x["kind"],"\n", name)
-          if tags_string(x,'a')[0] not in vore_id:   
+          if tags_string(x,'a')[0] not in vore_id:
+            share_naddr(x)   
             vore_id.append(tags_string(x,'a')[0])
    if vore_id!=[]:
       for vore_x in vore_id:
@@ -882,6 +881,16 @@ def like_long_thread():
                   long_article.append(j)   
       if long_article!=[]:
          return long_article                 
+
+def share_naddr(note):
+   try: 
+    if tags_string(note,"a")!=[]:
+       coordinate_a=tags_string(note,"a")[0]
+       coord = Coordinate.parse(coordinate_a)
+       coordinate = Nip19Coordinate(coord, [])
+       print(f" https://njump.me/{coordinate.to_bech32()}")
+   except IndexError as e:
+      print (e)
 
 def more_spam(x):
  z=x['content']
@@ -1158,22 +1167,22 @@ def val_number(number:int):
 def amount_zap(note):
     number_string.set(0)
     stringa_nota_id.set(note["id"])
-    Zap_frame.place(relx=0.77,rely=0.2,relheight=0.25,relwidth=0.22) 
+    Zap_frame.place(relx=0.77,rely=0.75,relheight=0.2,relwidth=0.22) 
     button_zap_1=tk.Button(root,text="5", background="darkgrey", command=lambda val=5: val_number(val))
-    button_zap_1.place(relx=0.8,rely=0.25)   
+    button_zap_1.place(relx=0.8,rely=0.8)   
     button_zap_2=tk.Button(root,text="10", background="darkgrey", command=lambda val=10: val_number(val))
-    button_zap_2.place(relx=0.85,rely=0.25)   
+    button_zap_2.place(relx=0.85,rely=0.8)   
     button_zap_3=tk.Button(root,text="20", background="darkgrey", command=lambda val=20: val_number(val))
-    button_zap_3.place(relx=0.9,rely=0.25)   
+    button_zap_3.place(relx=0.9,rely=0.8)   
     button_zap_4=tk.Button(root,text="50", background="darkgrey", command=lambda val=50: val_number(val))
-    button_zap_4.place(relx=0.8,rely=0.3)   
+    button_zap_4.place(relx=0.8,rely=0.85)   
     button_zap_5=tk.Button(root,text="100", background="darkgrey", command=lambda val=100: val_number(val))
-    button_zap_5.place(relx=0.85,rely=0.3)   
+    button_zap_5.place(relx=0.85,rely=0.85)   
     button_zap_6=tk.Button(root,text="200", background="darkgrey", command=lambda val=200: val_number(val))
-    button_zap_6.place(relx=0.9,rely=0.3)  
-    select_number.place(relx=0.82,rely=0.4)
-    pre_nota_tag.place(relx=0.78,rely=0.5,relwidth=0.2,relheight=0.05 )
-    pre_nota_lab.place(relx=0.8,rely=0.45,relwidth=0.1,relheight=0.05 )
+    button_zap_6.place(relx=0.9,rely=0.85)  
+    select_number.place(relx=0.82,rely=0.9)
+    pre_nota_tag.place(relx=0.6,rely=0.85,relwidth=0.15,relheight=0.05 )
+    pre_nota_lab.place(relx=0.6,rely=0.9,relwidth=0.1,relheight=0.05 )
 
     def close_stuff():
        button_zap_1.place_forget()
@@ -1190,9 +1199,9 @@ def amount_zap(note):
        pre_nota_lab.place_forget()
 
     button_zap_c=tk.Button(root,text="close", background="darkgrey", command=close_stuff)
-    button_zap_c.place(relx=0.95,rely=0.22)       
+    button_zap_c.place(relx=0.95,rely=0.72)       
     button_zap_o1=tk.Button(root,text=f"Zap", background="darkgrey", command=zap_id_note2)  
-    button_zap_o1.place(relx=0.9,rely=0.4)    
+    button_zap_o1.place(relx=0.9,rely=0.9)    
 
 number_string=IntVar()
 select_number=Entry(root, textvariable=number_string,font=('Arial',12,'bold'),width=10)
@@ -1212,40 +1221,45 @@ def reply_id_zap():
    event=pre_nota_tag.get()
    search_id=evnt_id(event)
    if search_id!=None:
-    found_nota=asyncio.run(Get_id(search_id))
-    nota=get_note(found_nota)
-    if nota!=None:
-     return nota[0]
-    else:
+    if __name__ == '__main__':
+     found_nota=asyncio.run(Get_id(search_id))
+     nota=get_note(found_nota)
+     if nota!=None:
+      return nota[0]
+     else:
       print ("error")
 
 def zap_id_note():
   note=reply_id_zap()
   if note:
-   if __name__ == '__main__':
+    print("1")
     callback=fetch_lud_16(note)
     if callback!=None:
-     request,amount_=asyncio.run(zap_request(note, callback))
+            print("2")
+            
+            if __name__ == '__main__': 
+             request,amount_=asyncio.run(zap_request(note, callback))
+            
+             invoice,preimage=asyncio.run(main_2(callback,amount_))
+             if preimage:
+              return invoice,request,preimage
+             else:
+               return None,None,None   
     else:
-       return None,None,None 
-    
-    if __name__ == '__main__':
-     invoice,preimage=asyncio.run(main_2(callback,amount_))
-    if invoice!=None and preimage!=None: 
-     return invoice,request,preimage  
+       return None,None,None
   else:
-     return None,None,None
-  
+   return None,None,None 
+
 def zap_id_note2():
-  if pre_nota_tag.get()!="" and number_string.get()!=0:
-   invoice,request,preimage=zap_id_note()
-   
-   if __name__ == '__main__':
-       if preimage!=None:
-          asyncio.run(zap_ing(invoice,preimage,request))
-   else:
+  if pre_nota_tag.get()!="":
+    invoice,request,preimage=zap_id_note()
+    if preimage!=None:
+          if __name__ == '__main__':
+              asyncio.run(zap_ing(invoice,preimage,request))
+    else:
           print("Error")
-          entry_preimage.insert(0, "Error ")
+          entry_preimage.insert(0, "Error ") 
+
 
 def fetch_lud_16(note):
  public_key_=PublicKey.parse(note['pubkey'])
@@ -1253,6 +1267,7 @@ def fetch_lud_16(note):
  if kind_0!=[]:
   content=json.loads((kind_0[0]['content']))    
   if 'lud16' in list(content.keys()):
+  
    try:
     url_16=content['lud16']
     i=0
@@ -1264,16 +1279,14 @@ def fetch_lud_16(note):
     print(name,suff) 
     request=str(str("https://")+suff+str("/.well-known/"))+str("lnurlp/")+str(name)
     print(request) 
+   
     return request
    except KeyError as e:
      print(e )
      return None 
-  else:
-    return None 
  else:
     return None
- 
-
+  
 def qrcode_f(invoice):
     for j in invoice.split():
         if j[0:4]=="lnbc":
@@ -1289,10 +1302,25 @@ async def zap_ing(invoice,preimage,public_zap_):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
-    relay_url_x = RelayUrl.parse("wss://nostr.lol/")
-    await client.add_relay(relay_url_x)
+    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    await client.add_relay(relay_url_1)
+    await client.add_relay(relay_url_2)
+
     await client.connect()
-            
+    metadata = MetadataRecord(
+        name="Just The Second",
+        display_name="Just The Second")
+         
+        #about="",
+        #picture="",
+        #banner="", 
+        #nip05="",
+        
+
+    metadata_obj = Metadata.from_record(metadata)
+    await client.set_metadata(metadata_obj)
+        
     eventis_= EventBuilder.zap_receipt(invoice,preimage,public_zap_ )
     await client.send_event_builder(eventis_)
        
@@ -1302,7 +1330,7 @@ async def zap_ing(invoice,preimage,public_zap_):
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
      if event.verify():
-      print(event.as_json())
+         print(event.as_json())
 
 async def get_relays(client, authors):
     f = Filter().authors(authors)
@@ -1351,19 +1379,17 @@ async def get_one_Event(client, event_):
     return z
 
 async def Get_id(event_):
-    # Init logger
-    init_logger(LogLevel.INFO)
     
     client = Client(None)
     
-    # Add relays and connect
-    
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    relay_url_2 = RelayUrl.parse("wss://relay.primal.net/")
+    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
+    relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
+    relay_url_3=RelayUrl.parse("wss://relay.primal.net")
     await client.add_relay(relay_url_1)
     await client.add_relay(relay_url_2)
-    await client.connect()
+    await client.add_relay(relay_url_3)
 
+    await client.connect()
     await asyncio.sleep(2.0)
 
     if isinstance(event_, list):
@@ -1373,39 +1399,28 @@ async def Get_id(event_):
     return test_kind
 
 async def zap_request(test, callback):
-    init_logger(LogLevel.INFO)
-    #uniffi_set_event_loop(asyncio.get_running_loop())
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
+   
     client = Client(signer)
-    relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
-
+    relay_url_1=RelayUrl.parse("wss://nostr.mom")
     await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
     await client.connect()
-        
-    public_key_ = PublicKey.parse(test['pubkey'])
-    relays = [RelayUrl.parse("wss://nostr.mom")]
-    msg = "Zap!"
-    amount_=int(number_string.get())*1000
-    url=callback
     
-    data = ZapRequestData(public_key_, relays).message(msg).event_id(EventId.parse(test['id'])).amount(amount_).lnurl(url)
-    public_zap_ = EventBuilder.public_zap_request(data).sign_with_keys(keys)               #to_event(keys)
+    public_key_ = PublicKey.parse(test['pubkey'])
+    relays = [RelayUrl.parse("wss://nostr.mom/")]
+    msg = "Zap!"
+    amount_=int(int(select_number.get())*1000)
+    url=callback
+    data = ZapRequestData(public_key_, relays).message(msg).amount(amount_).lnurl(url)
+    public_zap_ = EventBuilder.public_zap_request(data).sign_with_keys(keys)            
     return public_zap_,amount_
-
+   
 async def main_2(url,amount_):
     # create the background task
     task = asyncio.create_task(background())
-    # allow the background task to start executing
-    await asyncio.sleep(0)
-    pre_image_tag = tk.Label(root, text="call lnurlp")
-    pre_image_tag.place(relx=0.55,rely=0.9,relwidth=0.1,relheight=0.05 )
-    entry_preimage=ttk.Entry(root,justify='left')
-    entry_preimage.place(relx=0.55,rely=0.95,relwidth=0.2 ) 
-    entry_preimage.insert(0,url)
-  
+    # allow the background task to start execut
+    await asyncio.sleep(0.01)
     if url[8:19]!="getalby.com" or url[8:14]!="zbd.gg":
      r2=requests.get(url) 
      data_test2=json.loads(r2.text)
@@ -1414,34 +1429,24 @@ async def main_2(url,amount_):
      data_test3=json.loads(r3.text)
      print(data_test3)
      data_test4= data_test3["pr"]
-
+    
     else:  
      try: 
          print(url[8:19]) 
          r4=requests.get(url+"/callback"+str(f"?&amount={amount_}"))
-         print(r4.status_code)
-         if r4.status_code ==1:
-          data_test3=json.loads(r4.text)
-          print(data_test3)
-          data_test4= data_test3["pr"]
-         else:
-             return None,None 
+         data_test3=json.loads(r4.text)
+         print(data_test3)
+         data_test4= data_test3["pr"]
      except KeyError as e:
         print(e)
-        return None,None
-         
+        return None,None    
     qrcode_f(data_test4)
     task2 = await background2(data_test3)
     if task2:
      return data_test4,task2
     else:
-       #qrcode_f(data_test4)
+       
        return None,None
-
-async def background():
-    while True:
-        print('Running in the background...')
-        await asyncio.sleep(0.01)
 
 async def background2(data_test1):
     while True:
@@ -1463,6 +1468,11 @@ async def background2(data_test1):
           return data_test_3
          else:
             print(data_test_2)
+
+async def background():
+    while True:
+        print('Running in the background...')
+        await asyncio.sleep(0.01)
 
 def reply_re_action(note):
   
@@ -1603,7 +1613,7 @@ def print_people():
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)                 
 
-button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
+button_people_=tk.Button(root,text="List of People",command=print_people, font=('Arial',12,'bold'))
 button_people_.place(relx=0.12,rely=0.58) 
 
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))

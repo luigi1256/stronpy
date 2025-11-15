@@ -1119,8 +1119,8 @@ entry_preimage=ttk.Entry(root,justify='left')
 def zap_id_note2():
   if pre_nota_tag.get()!="":
    invoice,request,preimage=zap_id_note()
-   pre_image_tag.place(relx=0.75,rely=0.9,relwidth=0.1,relheight=0.05 )
-   entry_preimage.place(relx=0.75,rely=0.95,relwidth=0.2 ) 
+   #pre_image_tag.place(relx=0.75,rely=0.9,relwidth=0.1,relheight=0.05 )
+   #entry_preimage.place(relx=0.75,rely=0.95,relwidth=0.2 ) 
    if __name__ == '__main__':
        if preimage!=None:
           asyncio.run(zap_ing(invoice,preimage,request))

@@ -171,7 +171,7 @@ my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae580
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              " Hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
-             "me": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
+             "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 import tkinter as tk
 from tkinter import *
@@ -190,7 +190,7 @@ def on_select(event):
     selected_item = combo_box.get()
     label.config(text="Selected Item: " + my_dict[selected_item][0:9])
 
-combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","me"],font=('Arial',12,'bold'))
+combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","il_lost_"],font=('Arial',12,'bold'))
 combo_box.grid(pady=5,column=1, row=0,ipadx=1)
 combo_box.set("Name")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -328,13 +328,13 @@ def choice_kind(x):
                if zeta_j not in kind_db_list:
                  if len(kind_db_list)<100:
                   kind_db_list.append(zeta_j)
-             #print(len(kind_db_list))  
+               
           else:
                 test= like_note_seven()  
                 if test:
                  for tex in test:
                     note_lile.append(tex)
-                 #print("note lile ",len(note_lile))   
+                    
 
        if x==30023:
            kind_30023=like_long_thread()
@@ -877,6 +877,16 @@ def like_note_7():
       print("print ", len(note_kind_one))
       return note_kind_one    
 
+def share_naddr(note):
+   try: 
+    if tags_string(note,"a")!=[]:
+       coordinate_a=tags_string(note,"a")[0]
+       coord = Coordinate.parse(coordinate_a)
+       coordinate = Nip19Coordinate(coord, [])
+       print(f" https://njump.me/{coordinate.to_bech32()}")
+   except IndexError as e:
+      print (e)
+
 def like_long_thread():
    vore_id=[]
    kind_long=choice_kind_to_list(30023) 
@@ -887,7 +897,8 @@ def like_long_thread():
       name= tags_string(x,'a')[0]
       if name[0:6]=="30023:":
           print("note like",x["kind"],"\n", name)
-          if tags_string(x,'a')[0] not in vore_id:   
+          if tags_string(x,'a')[0] not in vore_id:
+            share_naddr(x)   
             vore_id.append(tags_string(x,'a')[0])
    if vore_id!=[]:
       for vore_x in vore_id:
@@ -1209,18 +1220,17 @@ def list_pubkey_id():
         single_1=json.loads(single["content"])
         try:
          if single_1["name"]!="":
-           #print("Pubkey", single["pubkey"],"\n","Npub ",PublicKey.parse(single["pubkey"]).to_bech32())
+           
            
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
-              print(single_1["name"])
+              
          else:   
             if single_1["display_name"]!="":
-                #print("Pubkey", single["pubkey"],"\n","Npub ",PublicKey.parse(single["pubkey"]).to_bech32())
-                
+                                
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]   
-                  print(single_1["display_name"])       
+                         
         except KeyError as e:
           print("KeyError ",e)             
    
@@ -1275,7 +1285,7 @@ def print_people():
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)                 
 
-button_people_=tk.Button(root,text="Print People",command=print_people, font=('Arial',12,'bold'))
+button_people_=tk.Button(root,text="List of People",command=print_people, font=('Arial',12,'bold'))
 button_people_.place(relx=0.12,rely=0.58) 
 
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))

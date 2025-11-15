@@ -268,6 +268,8 @@ def OpenColumn():
           s0=1
           
           for test in event_list:
+           val_json=valore_json(test)
+           if Event.from_json(str(val_json)).verify(): 
             test_x=valore_tupla(test)
             test_note="note n " +str(s0)+"\n"+  "pubkey: "+str(test_x['pubkey'])+"\n"+"id: "+str(test_x["id"])+"\n"+"Time: "+str(test_x["created_at"])+"\n"+"Content: "+ str(test_x["content"])+"\n"+"\n"
             Text_t.insert(END,test_note)  
@@ -526,7 +528,9 @@ def kind1_data_name_g():
         note=fetch_content_g()  
         events=[]
         for j in note:
-            events.append(valore_tupla(j))
+            val_json=valore_json(j)
+            if Event.from_json(str(val_json)).verify():
+                events.append(valore_tupla(j))
         return events
 
 def search_title(string):

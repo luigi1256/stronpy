@@ -338,7 +338,7 @@ def Alt_tag(note):
       return(note)
       
 def show_noted():
- frame2=tk.Frame(root)  
+ frame2=tk.Frame(root,)  
  canvas_1 = tk.Canvas(frame2)
  scrollbar_1 = ttk.Scrollbar(frame2, orient=HORIZONTAL,command=canvas_1.xview)
  scrollable_frame_1 = tk.Frame(canvas_1,background="#E3E0DD")
@@ -369,7 +369,7 @@ def show_noted():
          context2=context2+"\n"+str(xnote) +"\n"
        if tags_string(note,"summary")!=[]: 
          for xnote in tags_string(note,"summary"):
-          context2=context2+"\n"+"Summary "+tags_string(note,"summary")[0][0:140]+"\n"
+          context2=context2+"\n"+"Summary "+tags_string(note,"summary")[0]+"\n"
        if len(tags_string(note,"t"))==1:
          for xnote in tags_string(note,"t"):
           context2=context2+"Category "+str(xnote) +" "  
@@ -379,6 +379,11 @@ def show_noted():
             if s<5:
              context2=context2+"#"+str(xnote) +" "
             s=s+1
+       price=""     
+       for xnote_z in tags_str(note,"price"):
+          price=price+" "+ str(xnote_z)+" "
+       if price!="":   
+        context2=context2+"\n"+"Price "+str(price) +"\n"        
        if note["kind"]!=30402:
             context2=context2+"\n"+"kind "+str(note["kind"]) +"\n"                                  
             for xnote_a in tags_string(note,"d"):
@@ -484,7 +489,7 @@ def show_noted():
    scrollbar_1.pack(side="bottom", fill="x",padx=20)
    scrollbar_2.pack(side=LEFT, fill="y",pady=5,padx=2)
    canvas_1.pack( fill="y", expand=True)
-   frame2.place(relx=0.35,rely=0.3,relwidth=0.32) #relheight=0.42
+   frame2.place(relx=0.35,rely=0.35,relwidth=0.31) 
 
    def close_frame():
         frame2.destroy()    
@@ -598,12 +603,14 @@ def print_list_tag():
 
                 button_clo_1=Button(root,text="X", command=close_cash,font=('Arial',12,'bold'),foreground="red")
                 button_clo_1.place(relx=0.47,rely=0.04)   
-                search_for_channel(test)
+                number_list=search_for_channel(test)
+                label_number=tk.Label(root,text=str(len(number_list)),font=("Arial",12,"bold"))
                 entry_space=tk.Entry(root, textvariable=entry_channel, width=30)
                 entry_space.place(relx=0.55,rely=0.11,relwidth=0.15)
                 Label_channel_name=tk.Label(root, text="Hashtag",font=("Arial",12,"bold"))
                 Label_channel_name.place(relx=0.57,rely=0.06)
                 button_open.place(relx=0.71,rely=0.09)
+                label_number.place(relx=0.75,rely=0.05)
 
                 def close_button():
                    entry_channel.set("")
@@ -613,6 +620,8 @@ def print_list_tag():
                    button_open.place_forget()
                    Channel_frame.place_forget()
                    Alt_tag.place_forget()
+                   label_number.config(text="")
+                   label_number.place_forget()
 
                 button_clo=Button(root,text="Close", command=close_button,font=('Arial',12,'bold'),foreground="red")
                 button_clo.place(relx=0.84,rely=0.04)   
