@@ -613,11 +613,13 @@ def id_other_list(id_):
    value=[]
    if db_list_note!=[]:
       for db_note in db_list_note:
+       if tags_string(db_note,"title")[0] in list(list_id.keys()):  
          if id_ in list_id[tags_string(db_note,"title")[0]]:
             value.append(tags_string(db_note,"title")[0])
        
-      print(value)     
-      return value    
+      print(value)
+      if value!=[]:     
+       return value    
 
 list_id={}
 
