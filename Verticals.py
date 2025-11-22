@@ -1,4 +1,4 @@
-#to do LabelFrame
+#Verticals
 import asyncio
 from nostr_sdk import *
 from datetime import timedelta 
@@ -38,11 +38,11 @@ combo_list_lay = ttk.Combobox(frame1, values=relay_list,font=('Arial',12,'bold')
 combo_list_lay.grid(column=7, row=1,padx=20,pady=5,ipadx=2,ipady=1)
 combo_list_lay.set("Relay List")
 combo_list_lay.bind("<<ComboboxSelected>>", on_server) 
+frame1.grid()
 
 async def get_result_(client,relay_1):
     
     f = Filter().kind(Kind(10002)).reference(relay_1).limit(10)
-   
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -112,10 +112,10 @@ def Open_source(value_kind):
      if __name__ == "__main__":
       test_kinds = [Kind(my_kind[value_kind])]  
       test = asyncio.run(Get_event_from(test_kinds))
-     if test!=[]:
-      note= get_note(test)
-      timeline_created(note)
-      search_for_kind(my_kind[value_kind])
+      if test!=[]:
+       note= get_note(test)
+       timeline_created(note)
+       search_for_kind(my_kind[value_kind])
                
 async def get_kind_relay(client, event_):
     f = Filter().kinds(event_).limit(16)
@@ -141,11 +141,15 @@ async def get_kind(client, event_):
        print (e)
     
 def get_note(z):
+   try: 
     f=[]
     import json
     for j in z:
        f.append(json.loads(j))
     return f   
+   except TypeError as e:
+      print(e)
+      return []
 
 def tags_string(x,obj):
     f=x['tags']
@@ -174,7 +178,6 @@ def tags_str(x,obj):
     return z    
 
 def more_link(f):
-   
    list_video=['mov','mp4']
    list1=["webm"]
    img=['png','jpg','gif']
@@ -234,10 +237,7 @@ def photo_print(note):
       try:
        headers = {"User-Agent": "Mozilla/5.0"}
        response = requests.get(label_pic.get(),headers=headers, stream=True)
-       
        response.raise_for_status()  
-        
-   
        if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
@@ -269,7 +269,6 @@ def photo_print(note):
 async def Get_event_from(event_):
     # Init logger
     init_logger(LogLevel.INFO)
-    
     client = Client(None)
 
     # Add relays and connect
@@ -280,8 +279,8 @@ async def Get_event_from(event_):
     
     if relay_list!=[]:
      for jrelay in relay_list:
-       relay_url = RelayUrl.parse(jrelay)
-       await client.add_relay(relay_url)
+       
+       await client.add_relay(RelayUrl.parse(jrelay))
     else:
        relay_list.append("wss://nostr.mom/")
        relay_list.append("wss://nos.lol/")
@@ -298,8 +297,6 @@ async def Get_event_from(event_):
        test_kind = await get_kind_relay(client, event_)
        print("from relay")
     return test_kind
-
-frame1.grid()
 
 def search_for_kind(kind_int:int):
      Notes=db_note
@@ -344,7 +341,7 @@ def print_text():
         for note in db_pin:
            
             var_id=StringVar()
-            label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=340)
+            label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=340,font=('Arial',11,'normal'))
             var_id.set(note[list(note.keys())[0]]) 
             label_id.grid(pady=2,column=1,row=s)
 
@@ -376,7 +373,7 @@ def print_text():
                                  
             button=Button(scrollable_frame,text=f"{list(note.keys())[0]}", command=lambda val=note: print_var(val),font=('Arial',10,'bold'))
             button.grid(column=0,row=s,padx=10,pady=5)
-            button_grid2=Button(scrollable_frame,text=f"Search kind", command=lambda val=note: Open_source(list(val.keys())[0]))
+            button_grid2=Button(scrollable_frame,text=f"Search kind", command=lambda val=note: Open_source(list(val.keys())[0]), font=('Arial',10,'normal'))
             button_grid2.grid(row=s,column=2,padx=5,pady=5)
             root.update()       
             s=s+1
@@ -414,23 +411,20 @@ def Alt_tag(note):
    else:
       return(note)
 
-photo_Show=IntVar()
-
 def check_photo():
    if photo_Show.get()==1:
       Label_photo.config(text="Download the photos and show on the card")
-      Label_photo.place(relx=0.02,rely=0.64)  
+      Label_photo.place(relx=0.02,rely=0.6)  
    else:
-      Label_photo.config(text="show one photo, when click on Read Tags \n on the card")   
-      Label_photo.place(relx=0.02,rely=0.64)  
+      Label_photo.config(text="show photo, when click on Open Tags on the card")   
+      Label_photo.place(relx=0.02,rely=0.6)  
 
+photo_Show=IntVar()
 photo_show= Checkbutton(root, text = "Photo", variable = photo_Show,onvalue = 1, offvalue = 0, height = 2, font=('Arial',14,'bold'), command=check_photo)
 photo_show.place(relx=0.05,rely=0.55)  
 Label_photo=Label(root,font=('Arial',12,'normal'))
-     
 entry_channel=StringVar()
 hashtag_title=StringVar()
-sats_ = IntVar() 
 alt_string= IntVar()
 
 def print_list_tag(): 
@@ -526,10 +520,10 @@ button_tag=tk.Button(root,text="# List",command=print_list_tag, font=('Arial',12
 button_tag.grid(column=1,row=3,pady=30,padx=5)
 
 def layout():
-   """Widget function \n
-   Vertical feed 
-   """
-   if db_note!=[]: 
+    """Widget function \n
+    Vertical feed 
+    """
+    
     frame1=Frame(root, width=400, height=100)
     canvas = Canvas(frame1)
     canvas.pack(side="left", fill=BOTH, expand=True)
@@ -541,8 +535,7 @@ def layout():
     lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
     scrollable_frame = Frame(canvas, background="#E3E0DD")
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    list_note_lib=[]
-    
+        
     def print_id(entry):
            print(entry['tags'])
            show_print_test_tag(entry)
@@ -560,8 +553,6 @@ def layout():
          
     def create_note(note_text, s):
             
-        if note_text["content"] not in list_note_lib:
-         list_note_lib.append(note_text["content"])
          button_grid2=Button(scrollable_frame,text= "Author "+note['pubkey'][0:44], command=lambda val=note["pubkey"]: pubkey_id_ver(val))
          button_grid2.grid(row=s,column=0,padx=5,pady=5, columnspan=3)  
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
@@ -571,10 +562,7 @@ def layout():
             try:
              headers = {"User-Agent": "Mozilla/5.0"}
              response = requests.get(url,headers=headers, stream=True)
-       
              response.raise_for_status()  
-        
-   
              if response.ok==TRUE:
               with open('my_image.png', 'wb') as file:
                 shutil.copyfileobj(response.raw, file)
@@ -609,13 +597,19 @@ def layout():
             label_image.grid(pady=2,row=s+1,column=0, columnspan=3)
           
          second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
-         context2=""   
+         context1=""
+         context2=""  
+         if tags_string(note_text,"title")!=[]:
+            for note_t in tags_string(note_text,"title"):
+               context1=context1+str("Title: ")+note_t+"\n"
+         else:
+            context1=" No Title \n"   
          if tags_string(note_text,"t")!=[]:
             for note_tags in tags_string(note_text,"t"):
                context2=context2+str("#")+note_tags+" "
          else:
             context2=""  
-         second_label10.insert(END,note_text["content"]+"\n"+str(context2))
+         second_label10.insert(END,context1+"\n"+str(context2))
          scroll_bar_mini.config( command = second_label10.yview )
          if tags_string(note_text,"content-warning")==[]:
           second_label10.grid(padx=10, column=0, columnspan=3, row=s+2) 
@@ -646,6 +640,8 @@ def layout():
       n=n+1
       create_note(note, s)
       s += 4   
+    else:
+       close_canvas()  
     frame1.place(relx=0.3,rely=0.3, relheight=0.4,relwidth=0.31)  
 
     def close_canvas():
@@ -654,9 +650,6 @@ def layout():
         frame1.destroy()
         button_close.place_forget()
 
-    if list_note_lib==[]:
-     close_canvas()    
-    
     button_close=Button(root, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
     button_close.place(relx=0.4,rely=0.22)   
 
@@ -664,11 +657,10 @@ def share_naddr(note):
     coord = Coordinate(Kind(note["kind"]),PublicKey.parse(note["pubkey"]),str(tags_string(note,"d")[0]))
     coordinate = Nip19Coordinate(coord, [])
     print(f" Coordinate (encoded): {coordinate.to_bech32()}")
-    print(f" https://njump.me/{coordinate.to_bech32()}")
+    print(f" https://njump.to/{coordinate.to_bech32()}")
 
 from smart_open import open
 import os
-
 
 def stream_uri(uri_in, uri_out, chunk_size=1 << 18):  # 256kB chunks
     """Write from uri_in to uri_out with minimal memory footprint."""
@@ -708,9 +700,11 @@ def zap_stream_event(note):
          coordinate = Nip19Coordinate(coord, [])
          #print(f" Coordinate (encoded): {coordinate.to_bech32()}")
          print(f" https://zap.stream/{coordinate.to_bech32()}")
-        market=note["pubkey"]
-        print(f" https://zap.stream/p/{PublicKey.parse(market).to_bech32()}")
-
+        else:
+           if note["kind"]==22:
+              nevent=Nip19Event(EventId.parse(note["id"]),PublicKey.parse(note["pubkey"]),Kind(note["kind"]),[RelayUrl.parse(relay_list[0])]).to_bech32()
+              print(f" https://zaptok.social/{nevent}")
+        
 def video_thumb(nota):
   if tags_str(nota,"imeta")!=[]:
    url=""
@@ -786,7 +780,7 @@ def search_title(string):
                   note_list.append(note_x)
       
       if note_list!=[]:
-       print(len(note_list),"\n",note_list[0])            
+       #print(len(note_list),"\n",note_list[0])            
        return note_list    
 
 vertical_note=[]
@@ -821,21 +815,21 @@ def search_title_c(string):
     if search_note!=[]:
        print("Search, ",string,"\n","Number of note ",len(search_note))
        title_s.set("")
-       search_for_note(search_note)
+       search_v_note(search_note)
        layout()
        return search_note     
 
 def search_word_title():
-   if db_note!=[]:
+     if db_note!=[]:
       note_words=[]
       note_words_2=[]
       list_words={}
       for note_x in db_note:
-        if tags_string(note_x,"title")!=[]:
-         for title in tags_string(note_x,"title"):
+        if note_x["content"]!="":
+            title= note_x["content"]
             title_list=title.split(" ")
             title_list = [str(title).lower() for title in title_list]
-         for string_x in title_list:
+            for string_x in title_list:
                if type(string_x)==str and len(string_x)>3:
                
                 if string_x not in note_words:
@@ -849,11 +843,34 @@ def search_word_title():
            list_words[note_l_word]=note_words_2.count(note_l_word)+1
       
       threeview_dict_l(list_words)  
+      
       return list_words           
+
+def new_dict(list_words:dict):
+   value=list(list_words.values())
+   value.sort()
+   temp_list = []
+   for i in value:
+    if i not in temp_list:
+        temp_list.append(i)
+   new_value = temp_list
+   new_diz={}
+   for value in new_value:
+      for list_x in list(list_words.keys()):
+         if list_words[list_x]==value:
+            new_diz[list_x]=value
+   return new_diz
+
+all_words=[]
 
 def threeview_dict_l(list_words):
  if list_words!={} and  list_words!=NONE:
+  list_words=new_dict(list_words)
+  global all_words
+  all_words=list(list_words.keys())[0:100]
+  print_people()
   treeview = ttk.Treeview(root, columns=("Value"),height=8)
+  scrollbar_view = ttk.Scrollbar(root, orient=VERTICAL,command=treeview.yview)
   treeview.heading("#0", text="key")
   treeview.heading("Value", text="Value")
   db_list=[]
@@ -865,22 +882,100 @@ def threeview_dict_l(list_words):
        db_list.append(value)
        for key_one in key_value:
         treeview.insert(level1, tk.END,text=str(key_one),values=f"{value}")
-  treeview.place(relx=0.6,rely=0.8,relheight=0.2)   
+  scrollbar_view.place(relx=0.88,rely=0.75,relheight=0.2)      
+  treeview.place(relx=0.55,rely=0.75,relheight=0.2)   
   
   def close_tree():
      treeview.place_forget()
+     scrollbar_view.place_forget()
      button_c2.place_forget()
 
   button_c2=Button(root,text="Close", command=close_tree,font=('Arial',12,'bold'))
   button_c2.place(relx=0.91,rely=0.82)
+
+def print_people(): 
+   if all_words!=[]:  
+    frame3=tk.Frame(root)
+    canvas = tk.Canvas(frame3,width=200)
+    scrollbar = ttk.Scrollbar(frame3, orient="vertical", command=canvas.yview)
+    scrollable_frame = ttk.Frame(canvas,border=2)
+
+    scrollable_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
+     
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    s=1     
+    
+    test1=all_words
+    dict_words={}
+    for test_x in test1:
+       if str(test_x)[0] in list(dict_words.keys()):
+          list_in:list=dict_words[str(test_x)[0]]
+          list_in.append(test_x)
+          dict_words[str(test_x)[0]]=list_in
+       else:
+          list_in=[test_x]
+          dict_words[str(test_x)[0]]=list_in
+            
+    ra=0
+    sz=0
+    test_2=list(dict_words.keys())
+    labeL_button=Label(scrollable_frame,text="Number of Words "+str(len(test_2)))
+    labeL_button.grid(row=0,column=1,padx=5,pady=5,columnspan=2)        
+    test_2.sort()   
+    while ra<len(test_2):
+                 sz=sz+1           
+                 label_button_grid1=Label(scrollable_frame,text=f"{test_2[ra]} ",font=("Arial",12,"normal"))
+                 label_button_grid1.grid(row=s,column=1,padx=5,pady=5)
+                 button_grid2=Button(scrollable_frame,text=f"Open", command= lambda val=test_2[ra]: open_letter(val))
+                 button_grid2.grid(row=s,column=2,padx=5,pady=5)
+                                              
+                 root.update()  
+              
+                 s=s+1
+                 ra=ra+1   
+    canvas.pack(side="left", fill="y", expand=True)
+
+    def open_letter(key):
+ 
+       ra=0
        
+       test_1=dict_words[key]
+       test_text2=""
+       while ra<len(test_1):
+            if ra<5:  
+                test_text2=test_text2+ str(test_1[ra]) +"   "
+                ra=ra+1        
+            else:
+               ra=len(test_1)                   
+       test_text.set(test_text2)
+       label_button_2.place(relx=0.02,rely=0.75)
+              
+    if len(test1)>5:
+     scrollbar.pack(side="right", fill="y")  
+    frame3.place(relx=0.325,rely=0.75,relwidth=0.2, relheight=0.22)      
+
+    def Close_print():
+       frame3.destroy()  
+       
+    button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
+    button_close_.pack(pady=5,padx=5)                 
+
+test_text=StringVar()
+label_button_2=Label(root,textvariable=test_text,font=("Arial",12,"normal"))
 title_s=StringVar()
-entry_t=tk.Entry(root, textvariable=title_s, width=20,font=('Arial',12,'normal'))
-entry_t.place(relx=0.02,rely=0.8,relwidth=0.2)
-button_s=Button(root,text="search", command=lambda: search_title_c(entry_t.get()),font=('Arial',12,'normal'))
-button_s.place(relx=0.24,rely=0.79)
+entry_t=tk.Entry(root, textvariable=title_s, width=15,font=('Arial',12,'normal'), background="grey")
+entry_t.place(relx=0.02,rely=0.8,relwidth=0.15, relheight=0.04)
+button_s=Button(root,text="Search", command=lambda: search_title_c(entry_t.get()),font=('Arial',12,'normal'),background="grey")
+button_s.place(relx=0.18,rely=0.8)
 button_s2=Button(root,text="Search Words", command=search_word_title,font=('Arial',12,'bold'))
-button_s2.place(relx=0.1,rely=0.9)
+button_s2.place(relx=0.07,rely=0.87)
 
 list_p=[]
 outbox_list=[]
@@ -904,7 +999,10 @@ def show_print_test_tag(note):
    s=1
    context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"+"Time "+str(note["created_at"]) +"\n"
    if note['tags']!=[]:
-        context1=note['content']
+        if tags_string(note,"alt")!=[]:
+         context1="Alt: "+str(tags_string(note,"alt")[0])
+        else:
+           context1="" 
         context2="\n"+"\n"
         context2=context2+"Tags number: "+str(len(note["tags"])) +"\n"
    else: 
@@ -945,9 +1043,74 @@ def show_print_test_tag(note):
       e_string_var.set(entry["id"])   
 
    def print_content(entry):
-      pass   
+    result=show_note_from_id(entry)
+    if result!=[]: 
+     z=6
+     
+     for jresult in result[::-1]:
+       if jresult["id"]!=entry["id"]:  
+         var_id_r=StringVar()
+         label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
+         label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
+         str_time_1=note_time_reply(entry,jresult)
+         var_id_r.set(" Author: "+jresult["pubkey"]+"\n" +"Time: "+str(str_time_1))
+     
+         scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
+         scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
+         second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
+         context22="\n"+ " Important tags: "+"\n"   
+         if tags_string(jresult,"E")!=[]:
+          if four_tags(jresult,"E")!=None:
+            for f_note in four_tags(jresult,"E"):
+              context22=context22+str(" < "+ f_note[0]+" > ")+f_note[1][0:9]+ "\n"
+              if f_note[2]!="" and f_note not in relay_list:
+                      relay_list.append(f_note[2])
+         else:
+            context22=" < E > Probably some errors \n"              
+         if tags_string(jresult,"e")!=[]:
+          if four_tags(jresult,"e")!=None:
+            for F_note in four_tags(jresult,"e"):
+                 context22=context22+str(" < "+ F_note[0]+" > ")+F_note[1][0:9]+ "\n"
+                 if F_note[2]!="" and F_note not in relay_list:
+                    relay_list.append(F_note[2])
+         if tags_string(jresult,"P")!=[]:
+            
+            for pr in tags_string(jresult,"P"):
+            
+              context22=context22+str(" Author Thread: ")+pr[0:9]+ "\n"
+         if tags_string(jresult,"p")!=[]:             
+            for Pr in tags_string(jresult,"p"):
+               context22=context22+str("Cited in the reply ")+Pr[0:9]+ "\n"    
+        
+         second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
+         scroll_bar_mini_r.config( command = second_label10_r.yview )
+         second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
+         button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: print_var(val))
+         button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+         button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
+         button_print.grid(column=1,row=z+2,padx=5,pady=5)
+         button_grid4=Button(scrollable_frame_2,text=f"Comment ", command=lambda val=jresult: reply_to(val))
+         button_grid4.grid(row=z+2,column=2,padx=5,pady=5)        
+     z=z+3     
 
-
+   def reply_to(entry):
+    if entry["kind"]==1111:
+     list_p.clear()
+     list_p.append(PublicKey.parse(entry["pubkey"]))
+     Get_outbox_relay(10002,list_p)
+     if tags_string(entry,"E")!=[]:
+      var_entry_first.set(tags_string(entry,"E")[0])
+      add_note_idto_comment() 
+      var_entry_second.set(entry["id"])
+      add_reply_idto_comment()
+    else:
+     if entry["kind"]==22:
+         list_p.clear()
+         list_p.append(PublicKey.parse(entry["pubkey"]))
+         Get_outbox_relay(10002,list_p)
+         var_entry_first.set(entry["id"])
+         var_entry_second.set("")
+         add_note_idto_comment()   
 
    def reply_root(entry):
      if entry["kind"]==22:
@@ -1037,7 +1200,7 @@ def show_print_test_tag(note):
      frame3.destroy()    
    button_frame=Button(frame3,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
    button_frame.place(relx=0.7,rely=0.9)   
-   frame3.place(relx=0.3,rely=0.3,relheight=0.55,relwidth=0.4) 
+   frame3.place(relx=0.3,rely=0.3,relheight=0.55,relwidth=0.38) 
 
 def tags_first(x):
    tags_list=[]
@@ -1308,12 +1471,12 @@ var_entry_first=StringVar()
 var_entry_second=StringVar()
 entry_first_note=ttk.Entry(root,justify='left',textvariable=var_entry_first)
 entry_first_note.place(relx=0.04,rely=0.65)
-button_create=Button(root,text="Reply Root", command=test_open)
-button_create.place(relx=0.15,rely=0.65)
+button_create=Button(root,text="Reply Root", command=test_open,font=('Arial',10,'normal'))
+button_create.place(relx=0.15,rely=0.64)
 entry_second_note=ttk.Entry(root,justify='left',textvariable=var_entry_second)
 entry_second_note.place(relx=0.04,rely=0.7)
-button_create=Button(root,text="Re Comment", command=third_open)
-button_create.place(relx=0.15,rely=0.7)
+button_create=Button(root,text="Re Comment", command=third_open,font=('Arial',10,'normal'))
+button_create.place(relx=0.15,rely=0.69)
 comment_frame = ttk.LabelFrame(root, text="Comment Post", labelanchor="n", padding=10)
 preview_c_frame = ttk.LabelFrame(root, text="Preview Post", labelanchor="n", padding=10)
 note_c_tag = tk.Label(root, text="Note",font=('Arial',12,'normal'))
@@ -1377,6 +1540,13 @@ async def get_more_Event(client, event_list):
     z = [event.as_json() for event in events.to_vec()]
     return z
 
+async def get_one_note(client, e_id):
+    f = Filter().event(EventId.parse(e_id)).kinds([Kind(1111)]).limit(100)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10)) 
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
+    SubscribeAutoCloseOptions()
+    return z
+
 async def get_one_Event(client, event_):
     f = Filter().id(event_)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
@@ -1393,9 +1563,9 @@ async def Get_id(event_):
        for jrelay in relay_list:
           await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol"))
-     await client.add_relay(RelayUrl.parse("wss://relay.primal.net"))
+     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+     await client.add_relay(RelayUrl.parse("wss://relay.primal.net/"))
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -1403,7 +1573,14 @@ async def Get_id(event_):
     if isinstance(event_, list):
         test_kind = await get_more_Event(client, event_)
     else:
-        test_kind = await get_one_Event(client, event_)
+        if isinstance(event_, str):
+           print(type(event_))
+           test_kind = await get_one_note(client, event_)
+        else:
+           print(type(event_))
+           test_kind = await get_one_Event(client, event_)
+        
+        
     return test_kind
 
 async def reply(note,tag):
@@ -1544,7 +1721,7 @@ def call_text():
        if jnote not in db_list_note:
           db_list_note.append(jnote)
        if jnote["tags"]!=[]:
-          second_label_g.insert(END,str(jnote["tags"]))
+          second_label_g.insert(END,"- Kind "+str(jnote["kind"])+"\n"+str(jnote["tags"]))
        else:
              second_label_g.insert(END,str(" no tags"))
        second_label_g.insert(END,"\n"+"____________________"+"\n")
@@ -1846,11 +2023,49 @@ def show_print_test(note):
             
    def print_var(entry):
             print("id ", entry["id"])
-  
+   
+   def show_video(entry):
+      if tags_string(entry,"e")!=[]:
+       try:   
+         e_id_vn=[]
+         video_l=[]
+         e_id=[]
+         for ev in tags_string(entry,"e"):
+          e_id.append(ev)
+         if db_note!=[]:
+          for note_x in db_note:
+             
+             if note_x["id"] in e_id:
+                if note_x not in video_l: 
+                  video_l.append(note_x)
+                e_id.remove(note_x["id"])
+            
+            
+         if e_id!=[]:
+          for e_x in e_id:
+               e_id_vn.append(EventId.parse(e_x))
+              
+                  
+          if __name__ == '__main__':       
+           result= get_note(asyncio.run(Get_id(e_id_vn)))
+           if result!=[]:
+            for res in result:
+             if res not in video_l:
+                video_l.append(res)
+         if video_l!=[]:
+            search_v_note(video_l)
+            layout()
+         else:
+            print("Error")   
+       except ValueError as e:
+         print(e)    
+
    button=Button(scrollable_frame_2,text=f"id ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text="Pubkey", command=lambda val=note: print_zap(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
+   button_grid3=Button(scrollable_frame_2,text="Video", command=lambda val=note: show_video(val))
+   button_grid3.grid(row=s+2,column=2,padx=5,pady=5)
    scrollbar_2.pack(side="right", fill="y",pady=20) 
    canvas_2.pack( fill="y", expand=True)
    
@@ -1860,7 +2075,7 @@ def show_print_test(note):
 
    button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
    button_frame.place(relx=0.9,rely=0.16)
-   frame3.place(relx=0.65,rely=0.22,relwidth=0.35,relheight=0.4 ) 
+   frame3.place(relx=0.69,rely=0.22,relwidth=0.31,relheight=0.4 ) 
 
 def raw_label():
    if Check_raw.get()==0:
@@ -2012,7 +2227,7 @@ button_send=tk.Button(root,text="send bookmark",command=create_bookmark, backgro
 error_label = tk.Label(root, text="Problem:",font=("Arial",12))
 print_label = ttk.Label(root, text="Wait for the bookmark",font=("Arial",12))
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
-Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/","wss://relay.nostr.band/","wss://relay.momostr.pink/","wss://relay.phoenix.social/","wss://nostr.fmt.wiz.biz/"]
+Bad_relay_connection=["wss://relay.chakany.systems/","wss://nostrelites.org/","wss://feeds.nostr.band/","wss://relay.noswhere.com/","wss://relay.purplestr.com/","wss://relay.nostr.band/","wss://relay.momostr.pink/","wss://relay.phoenix.social/","wss://nostr.fmt.wiz.biz/"]
 list_e=[]
 
 class edit_json:
@@ -2172,5 +2387,69 @@ async def search_box_relay():
                  relay_list.append(xrelay) 
               
             i=i+1             
+
+#reply kind 1111
+
+def note_time_reply(note,reply):
+    value=int((float(reply["created_at"]-note["created_at"])/(60)))
+    if value>0:
+       pass
+    else:
+          
+       return str(int((float(note["created_at"]-reply["created_at"])/(3600))))+str(" hours ago")
+    if value>60:
+        if value>1440:
+            if value>2880:
+               return str(int((float(reply["created_at"]-note["created_at"])/(86400))))+str(" days later") 
+            else:
+             return str(int((float(reply["created_at"]-note["created_at"])/(86400))))+str(" day later") 
+        else:
+            if value>120:
+              return str(int((float(reply["created_at"]-note["created_at"])/(3600))))+str(" hours later") 
+            else:
+               return str(int((float(reply["created_at"]-note["created_at"])/(3600))))+str(" hour later") 
+    else:
+        if value>2:
+          return str(int((float(reply["created_at"]-note["created_at"])/(60))))+str(" minutes later") 
+        else:
+           return str(int((float(reply["created_at"]-note["created_at"])/(60))))+str(" minute later") 
+
+def four_tags(x,obj):
+   tags_list=[]
+   
+   if tags_string(x,obj)!=[]:
+      for jtags in tags_str(x,obj):
+        if len(jtags)>2:
+          for xtags in jtags[2:]:
+           if jtags not in tags_list:
+             tags_list.append(jtags)
+      return tags_list     
+
+def show_note_from_id(note):
+        result:str=note["id"]
+        replay=nota_reply_id(note)
+        
+        if replay!=[]:
+           items=get_note(asyncio.run(Get_id(replay)))
+        else:
+           items=get_note(asyncio.run(Get_id(result)))
+        return items   
+
+def nota_reply_id(nota):
+    e_id=[]
+    if tags_string(nota,'e')!=[] and tags_string(nota,"e")!=None:
+            for event_id in tags_string(nota,'e'):
+                  if event_id not in e_id:
+                    e_id.append(event_id)   
+    return e_id          
+
+def add_reply_idto_comment():
+    if entry_second_note.get()!="" and evnt_id(entry_second_note.get())!=None:
+       if first_reply==[]:
+        first_reply.append(entry_second_note.get())
+       else:
+         first_reply.clear()
+         first_reply.append(entry_second_note.get())  
+       print(first_reply)
 
 root.mainloop()

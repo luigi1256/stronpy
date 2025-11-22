@@ -177,7 +177,7 @@ string_var_1=StringVar()
 select_label = ttk.Label(root, textvariable=string_var_1,font=("Arial",12,"bold"))
 select_label_list = ttk.Label(root, text="Name List",font=("Arial",12,"bold"))
 select_label_list.place(relx=0.74,rely=0.37)
-combo_to_do_list = ttk.Combobox(root, values=["To do","Wish list", "Done", "To complete" ],width=10,font=("Arial",12,"normal"))
+combo_to_do_list = ttk.Combobox(root, values=["To do","Wish", "Done", "Possible" ],width=10,font=("Arial",12,"normal"))
 combo_to_do_list.place(relx=0.74,rely=0.42)
 combo_to_do_list.set("")
 combo_to_do_list.bind("<<ComboboxSelected>>",select_type)
@@ -415,7 +415,7 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count", font=('Arial',12,'normal'))
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)
@@ -489,23 +489,25 @@ db_note=[]
 list_notes=[]
 public_list=[]
 
-def Open_card(key:int):
-     """Key = kind number \n
+def Open_kinds(list_int:list[int]):
+     """list_int = kinds number \n
         2323 = notes of kind 2323 
+        2424 = notes of kind 2424 
      """
-     test=[]
+     test_kinds=[]
      if __name__ == "__main__":
-      test_kinds = [Kind(key)]  
-      test = asyncio.run(Get_event_from(test_kinds))
-     if test!=[] and test!=None:
-      note= get_note(test)
-      for xnote in note:
-        if xnote not in db_note:
-         db_note.append(xnote)
-         list_notes.append(xnote) 
-      show_noted()   
+       for key in list_int:
+        test_kinds.append(Kind(key))  
+       test = asyncio.run(Get_event_from(test_kinds))
+       if test!=[] and test!=None:
+        note= get_note(test)
+        for xnote in note:
+         if xnote not in db_note:
+            db_note.append(xnote)
+            list_notes.append(xnote) 
+        show_noted()   
   
-button4=tk.Button(root,text="Search Card Note",command=lambda: Open_card(2323),font=('Arial',12,'bold'))
+button4=tk.Button(root,text="Search Card Note",command=lambda: Open_kinds([2323,2424]),font=('Arial',12,'bold'))
 button4.place(relx=0.42,rely=0.15)
 
 async def Get_event_from(event_):
@@ -582,20 +584,32 @@ def show_noted():
      
       try:
        context0="Author: "+note['pubkey']
-       for xnote in tags_string(note,"title"):
-         context0=context0+"\n"+"Title "+str(xnote) 
-       context1=note['content']  
+       context0=context0+"\n"+"Kind "+str(note["kind"])
+       if tags_string(note,"e")!=[]:
+          if note["kind"]==2424:
+           context1="Possible"
+          else:
+             context1="Update"
+       else:
+          if note["kind"]==2424:
+            context1="Wish"
+          else:
+            context1="Todo or Done"          
+       
        if note['tags']!=[]:
         
         context2=" "
-        if tags_string(note,"alt")!=[]:
-         for xnote in tags_string(note,"alt"):
-          context2=context2+"\n"+str(xnote) +"\n"
+        if tags_string(note,"title")!=[]:
+            context2=context2+"\n"+"- Title "+str(tags_string(note,"title")[0]) +"\n"
         if tags_string(note,"summary")!=[]:
-         for xnote in tags_string(note,"summary"):
-           context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
+            context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
         if tags_string(note,"description")!=[]: 
-                context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0]) +"\n"    
+            context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0]) +"\n"
+        if tags_string(note,"r")!=[]: 
+            for tag_link in tags_string(note,"r"):
+             context2=context2+"\n" +"- Link "+tag_link +"\n"    
+
+
        else: 
         
         context2=" "
@@ -626,9 +640,9 @@ def show_noted():
                                
        button=Button(scrollable_frame_1,text=f"Print id", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=3,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
-       button_grid3=Button(scrollable_frame_1,text=f"Add to bookmark!", command=lambda val=note: send_var(val))
+       button_grid3=Button(scrollable_frame_1,text=f"Add to bookmark ", command=lambda val=note: send_var(val))
        button_grid3.grid(row=3,column=s1+2,padx=5,pady=5) 
        s=s+2  
        s1=s1+4

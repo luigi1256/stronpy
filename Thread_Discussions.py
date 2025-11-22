@@ -530,7 +530,7 @@ button_close_1.place(relx=0.88,rely=0.12)
 
 def show_print_test():
  frame3=tk.Frame(root,height=150)  
- canvas_2 = tk.Canvas(frame3,width=390)
+ canvas_2 = tk.Canvas(frame3,width=410)
  scrollbar_2 = ttk.Scrollbar(frame3, orient="vertical", command=canvas_2.yview)
  scrollable_frame_2 = ttk.Frame(canvas_2,width=380)
 
@@ -629,7 +629,7 @@ def show_print_test():
          button_6.grid(column=0,row=s,padx=1,pady=5)
     if context1!="":     
      scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
-     scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
+     scroll_bar_mini.grid( sticky=NS,column=4,row=s+1,pady=5)
      second_label10 = tk.Text(scrollable_frame_2, padx=2, height=5, width=32, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
      second_label10.insert(END,context1+"\n"+str(context2))
      scroll_bar_mini.config( command = second_label10.yview )
@@ -646,9 +646,11 @@ def show_print_test():
          var_entry_first.set(entry["id"])
          var_entry_second.set("")       
          add_note_idto_comment()
-         if messagebox.askokcancel("Add Like ","Yes/No") == True:
+
+   def like_upvote(entry):      
+       if messagebox.askokcancel("Add Like ","Yes/No") == True:
             reply_re_action(entry,"good")
-         else:   
+   def like_downvote(entry):      
           if messagebox.askokcancel("Add Dislike ","Yes/No") == True:
               reply_re_action(entry,"bad")   
 
@@ -676,7 +678,10 @@ def show_print_test():
     Button(scrollable_frame_2, text="Open Thread", command=lambda val=note: respond_to(val),background="#b0aba6").grid(row=s + 2, column=2, padx=5, pady=5)
     button_grid3=Button(scrollable_frame_2,text="Reply", command=lambda val=note: reply_root(val),background="#b0aba6")
     button_grid3.grid(row=s+2,column=3,padx=5,pady=5)
-   
+    button_grid4=Button(scrollable_frame_2,text=" ⬆️", foreground="#0096FF",command=lambda val=note: like_upvote(val),width=3,font=("Arial",12,"normal"))
+    button_grid4.grid(row=s,column=4,ipadx=1,pady=5)
+    button_grid5=Button(scrollable_frame_2,text=" ⬇️", foreground="#0096FF",command=lambda val=note: like_downvote(val),width=3, font=("Arial",12,"normal"))
+    button_grid5.grid(row=s+2,column=4,ipadx=1,pady=5)
    
    s=s+3
    def close_frame():
@@ -1471,11 +1476,6 @@ def show_print_test_tag(note):
          add_note_idto_comment() 
          var_entry_second.set(entry["id"])
          add_reply_idto_comment()
-         if messagebox.askokcancel("Add Like ","Yes/No") == True:
-           reply_re_action(entry,"good")
-         else:   
-          if messagebox.askokcancel("Add Dislike ","Yes/No") == True:
-           reply_re_action(entry,"bad")   
       else:
         if entry["kind"]==11:
             list_p.clear()
@@ -1484,13 +1484,14 @@ def show_print_test_tag(note):
             var_entry_first.set(entry["id"])
             var_entry_second.set("")
             add_note_idto_comment()   
-            if messagebox.askokcancel("Add Like ","Yes/No") == True:
-                reply_re_action(entry,"good")
-            else:   
-              if messagebox.askokcancel("Add Dislike ","Yes/No") == True:
-                reply_re_action(entry,"bad")                 
-      
 
+   def like_upvote(entry):   
+    if messagebox.askokcancel("Add Like ","Yes/No") == True:
+        reply_re_action(entry,"good")
+   def like_downvote(entry):         
+       if messagebox.askokcancel("Add Dislike ","Yes/No") == True:
+        reply_re_action(entry,"bad")            
+            
    def print_content(entry):
        result=show_note_from_id(entry)
        if result!=None: 

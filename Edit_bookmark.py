@@ -182,10 +182,12 @@ def call_text():
      for jnote in note_:
        if jnote not in db_list_note:
           db_list_note.append(jnote)
-       if len(jnote["content"])<800:
-          second_label10.insert(END,str(jnote["content"]))
-       else:
+       if jnote["content"]!="":
+          pass
+       else: 
+             second_label10.insert(END,str("- Kind ")+str(jnote["kind"])+"\n")
              second_label10.insert(END,str(jnote["tags"]))
+             button_id.place(relx=0.36,rely=0.24)
        second_label10.insert(END,"\n"+"____________________"+"\n")
        second_label10.insert(END,"\n"+"\n")
 
@@ -196,19 +198,19 @@ def call_text():
           if __name__ == "__main__":
             response=asyncio.run(Search_d_tag())
           if len(relay_list)>0:
-             button_close_search["text"]="Search 🔍"
+             button_close_search["text"]="🔍 Bookmarks"
           else:
              if response!=None:
                 print(str(len(response)),"\n",response[0]) 
 
 button_close_search=tk.Button(root, text='Search Relay',font=('Arial',12,'bold'), command=call_text)    
-button_close_search.place(relx=0.5,rely=0.24 ) 
+button_close_search.place(relx=0.5,rely=0.1 ) 
 p_tag = tk.Label(root, text="Pubkey",font=("Arial",12,"bold"))
 entryp_tag=ttk.Entry(root,justify='left',font=("Arial",12),)
 p_tag.place(relx=0.05,rely=0.35,relwidth=0.1 )
 entryp_tag.place(relx=0.05,rely=0.4,relwidth=0.1 )
 p_view = tk.Label(root, text="", font=("Arial",12))
-p_view.place(relx=0.15,rely=0.45,relwidth=0.1 )
+p_view.place(relx=0.15,rely=0.35,relwidth=0.1 )
 
 def p_show():
     title=entryp_tag.get()
@@ -322,21 +324,21 @@ def show_Teed():
      try:
       context0="Pubkey "+note['pubkey']+"\n"
       if note['tags']!=[]:
-        context1="Content lenght "+str(len(note["content"]))+"\n"+"kind "+str(note["kind"])+"\n"
-        context2="\n"
+        context1="Number of cards "+str(len(tags_string(note,"e")))+"\n"+"kind "+str(note["kind"])+"\n"
+        context2=""
         if tags_string(note,"title")!=[]: 
-         xnote= "Title: "+str(tags_string(note,"title")[0])
-         context2=context2+str(xnote) +"\n"
+         xnote= "Title: "+str(tags_string(note,"title")[0])+"\n"
+         context2=context2+str(xnote) 
         else: 
          context1="there is no Title"+ " kind "+str(note["kind"])
          context2=""
         if tags_string(note,"description")!=[]: 
-         xnote= "Description: "+str(tags_string(note,"description")[0])
-         context2=context2+str(xnote) +"\n" 
+         xnote= "- Description: "+str(tags_string(note,"description")[0])+"\n" 
+         context2=context2+str(xnote) 
         if tags_string(note,"summary")!=[]:
           if str(tags_string(note,"summary")[0])!="": 
-           xnote= "\n"+"Summary: "+str(tags_string(note,"summary")[0])
-           context2=context2+str(xnote) +"\n"
+           xnote= "\n"+"- Summary: "+str(tags_string(note,"summary")[0])+"\n"
+           context2=context2+str(xnote) 
       else:
           context1="no tags"+ " kind "+str(note["kind"])
           context2=""   
@@ -366,12 +368,14 @@ def show_Teed():
       def print_var(entry):
                 if entry["content"]!="":
                   print(entry["content"])
+                else:
+                   print(entry)  
        
-      button=Button(scrollable_frame_1,text=f"Content!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Content", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
-      button_grid2=Button(scrollable_frame_1,text=f"EDIT it!", command=lambda val=note: print_edit(val))
+      button_grid2=Button(scrollable_frame_1,text=f"EDIT it ", command=lambda val=note: print_edit(val))
       button_grid2.grid(row=s+2,column=2,padx=5,pady=5) 
-      button_grid3=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+      button_grid3=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
       button_grid3.grid(row=s+2,column=1,padx=5,pady=5)      
       s=s+3  
 
@@ -402,8 +406,7 @@ def show_Teed():
 frame_3=tk.Frame(root,height=20,width=80) 
 frame_id=tk.Frame(frame_3,height=30,width= 100)  
 frame_T=tk.Frame(frame_3,height=20,width= 30)      
-button_id=tk.Button(root,command=show_Teed,text="Go Result",font=('Arial',12,'bold'))
-button_id.place(relx=0.36,rely=0.24)
+button_id=tk.Button(root,command=show_Teed,text="Bookmarks",font=('Arial',12,'bold'))
 frame_T.grid(column=0, row=1, columnspan=2)
 frame_id.grid(column=2, row=1, columnspan=4, rowspan=3)
 frame_3.grid()
@@ -534,11 +537,11 @@ def show_edit_test(note):
    def print_content(entry):
       reply_re_action(entry)
                   
-   button=Button(scrollable_frame_2,text=f"Edit test!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Edit test ", command=lambda val=note: print_var(val))
    button.grid(row=s,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text="Send event", command=lambda val=note: print_zap(val))
    button_grid2.grid(row=s,column=1,padx=5,pady=5)
-   button_grid3=Button(scrollable_frame_2,text=f"like this!", command=lambda val=note: print_content(val))
+   button_grid3=Button(scrollable_frame_2,text=f"like this ", command=lambda val=note: print_content(val))
    button_grid3.grid(row=s,column=2,padx=5,pady=5)    
    scrollbar_2.pack(side="right", fill="y",pady=20) 
    canvas_2.pack( fill="y", expand=True)
@@ -630,7 +633,7 @@ def show_print_test(note):
    def print_var(entry):
             print("id ", entry["id"])
   
-   button=Button(scrollable_frame_2,text=f"id!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"id ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text="Pubkey", command=lambda val=note: print_zap(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
@@ -813,24 +816,26 @@ def log_these_key():
 db_note=[]
 list_notes=[]
 
-def Open_card(key:int):
-     """Key = kind number \n
+def Open_kinds(list_int:list[int]):
+     """list_int = kinds number \n
         2323 = notes of kind 2323 
+        2424 = notes of kind 2424 
      """
-     test=[]
+     test_kinds=[]
      if __name__ == "__main__":
-      test_kinds = [Kind(key)]  
-      test = asyncio.run(Get_event_from(test_kinds))
-     if test!=[] and test!=None:
-      note= get_note(test)
-      for xnote in note:
-        if xnote not in db_note:
-         db_note.append(xnote)
-         list_notes.append(xnote) 
-      show_noted()   
-     
-button4=tk.Button(root,text="Search Card Note",command=lambda: Open_card(2323),font=('Arial',12,'bold'))
-button4.place(relx=0.22,rely=0.24)
+       for key in list_int:
+        test_kinds.append(Kind(key))  
+       test = asyncio.run(Get_event_from(test_kinds))
+       if test!=[] and test!=None:
+        note= get_note(test)
+        for xnote in note:
+         if xnote not in db_note:
+            db_note.append(xnote)
+            list_notes.append(xnote) 
+        show_noted()   
+
+button4=tk.Button(root,text="Search Card Note",command=lambda: Open_kinds([2323,2424]),font=('Arial',12,'bold'))
+button4.place(relx=0.05,rely=0.5)
 
 async def Get_event_from(event_):
     # Init logger
@@ -906,15 +911,14 @@ def show_noted():
      
       try:
        context0="Author: "+note['pubkey']
-       for xnote in tags_string(note,"title"):
-         context0=context0+"\n"+"Title "+str(xnote) 
+       context0=context0+"\n"+"Kind "+str(note["kind"]) 
        context1=note['content']  
        if note['tags']!=[]:
         
         context2=" "
-        if tags_string(note,"alt")!=[]:
-         for xnote in tags_string(note,"alt"):
-          context2=context2+"\n"+str(xnote) +"\n"
+        if tags_string(note,"title")!=[]:
+         for xnote in tags_string(note,"title"):
+          context2=context2+"\n"+"- Title "+str(xnote) +"\n"
         if tags_string(note,"summary")!=[]:
          for xnote in tags_string(note,"summary"):
            context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
@@ -946,13 +950,28 @@ def show_noted():
                 print("event_id",entry["id"])
 
        def send_var(entry):
-            e_string_var.set(entry["id"])           
+            if tags_string(entry,"e")!=[]:
+               if entry["kind"]==2424:
+                  if messagebox.askyesno("kind "+str(entry["kind"]),"Possible card \n is the right bookmakrs?"):
+                     e_string_var.set(entry["id"])
+               else:
+                 if messagebox.askyesno("kind "+str(entry["kind"]),"Update card \n is the right bookmakrs?"):
+                    e_string_var.set(entry["id"])
+                  
+            else:
+               if entry["kind"]==2424:
+                       if messagebox.askyesno("kind "+str(entry["kind"]),"Wish card \n is the right bookmakrs?"):
+                          e_string_var.set(entry["id"])
+               else:
+                  if messagebox.askyesno("kind "+str(entry["kind"]),"Todo Done card \n is the right bookmakrs?"):
+                     e_string_var.set(entry["id"])    
+                       
                
        button=Button(scrollable_frame_1,text=f"Print id", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=3,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read", command=lambda val=note: print_id(val))
        button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
-       button_grid3=Button(scrollable_frame_1,text=f"Add to bookmark!", command=lambda val=note: send_var(val))
+       button_grid3=Button(scrollable_frame_1,text=f"Add to bookmark", command=lambda val=note: send_var(val))
        button_grid3.grid(row=3,column=s1+2,padx=5,pady=5) 
        s=s+2  
        s1=s1+4
@@ -970,7 +989,7 @@ def show_noted():
         button_frame.place_forget()
     
     button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
-    button_frame.place(relx=0.15,rely=0.50,relwidth=0.1)      
+    button_frame.place(relx=0.2,rely=0.50)      
 
 def pubkey_id(test):
    note_pubkey=[]

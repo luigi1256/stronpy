@@ -75,7 +75,7 @@ def share_naddr(note):
     #print(f" Coordinate (encoded): {coordinate.to_bech32()}")
     print(f"https://njump.me/{coordinate.to_bech32()}")
   
-List_combo_value={"To do":[],"Wish list":[], "Done":[], "To complete":[]}
+List_combo_value={"To do":[],"Wish":[], "Done":[], "Possible":[]}
 
 def show_print_test_tag():
   if db_list_note!=[]: 
@@ -333,7 +333,7 @@ def select_type(event):
 
 db_list_note=[]
 
-combo_to_do_list = ttk.Combobox(root, values=["To do","Wish list", "Done", "To complete" ],width=10,font=("Arial",12,"normal"))
+combo_to_do_list = ttk.Combobox(root, values=["To do","Wish", "Done", "Possible" ],width=10,font=("Arial",12,"normal"))
 combo_to_do_list.set("")
 combo_to_do_list.bind("<<ComboboxSelected>>",select_type)
 
@@ -357,7 +357,7 @@ def call_text():
           if __name__ == "__main__":
             response=asyncio.run(Search_d_tag())
           if len(relay_list)>0:
-             button_close_search["text"]="Search 🔍"
+             button_close_search["text"]="Bookmarks 🔍"
           else:
              if response!=None:
                 print(str(len(response)),"\n",response[0]) 
@@ -685,23 +685,25 @@ def show_db_list(note_link:dict):
 db_note_card=[]
 list_notes=[]
 
-def Open_card(key:int):
-     """Key = kind number \n
+def Open_kinds(list_int:list[int]):
+     """list_int = kinds number \n
         2323 = notes of kind 2323 
+        2424 = notes of kind 2424 
      """
-     test=[]
+     test_kinds=[]
      if __name__ == "__main__":
-      test_kinds = [Kind(key)]  
-      test = asyncio.run(Get_event_from(test_kinds))
-     if test!=[] and test!=None:
-      note= get_note(test)
-      for xnote in note:
-        if xnote not in db_note_card:
-         db_note_card.append(xnote)
-         list_notes.append(xnote) 
-      show_card()   
+       for key in list_int:
+        test_kinds.append(Kind(key))  
+       test = asyncio.run(Get_event_from(test_kinds))
+       if test!=[] and test!=None:
+        note= get_note(test)
+        for xnote in note:
+         if xnote not in db_note_card:
+            db_note_card.append(xnote)
+            list_notes.append(xnote) 
+        show_card()   
 
-button4=tk.Button(root,text="Search Card Note",command=lambda: Open_card(2323),font=('Arial',12,'bold'))
+button4=tk.Button(root,text="Search Card Note",command=lambda: Open_kinds([2323,2424]),font=('Arial',12,'bold'))
 button4.place(relx=0.42,rely=0.1)
 
 def show_card():
@@ -724,23 +726,33 @@ def show_card():
      
       try:
        context0="Author: "+note['pubkey']
-       for xnote in tags_string(note,"title"):
-         context0=context0+"\n"+"Title "+str(xnote) 
-       context1=note['content']  
+       context0=context0+"\n"+"Kind "+str(note["kind"])
+       if tags_string(note,"e")!=[]:
+         if note["kind"]==2424:
+            context1="Possible"
+         else:
+            context1="Update"
+       else:
+            if note["kind"]==2424:
+               context1="Wish"
+            else:
+               context1="Todo or Done"     
+       
        if note['tags']!=[]:
         
         context2=" "
-        if tags_string(note,"alt")!=[]:
-         for xnote in tags_string(note,"alt"):
-          context2=context2+"\n"+str(xnote) +"\n"
+        if tags_string(note,"title")!=[]:
+         for xnote in tags_string(note,"title"):
+            context2=context2+"\n"+"- Title "+str(xnote) +"\n"
+                
         if tags_string(note,"summary")!=[]:
-         for xnote in tags_string(note,"summary"):
-           context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
+            for xnote in tags_string(note,"summary"):
+               context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
         if tags_string(note,"description")!=[]: 
-                context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0])
+         context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0]) +"\n"
+               
        else: 
-        
-        context2=" "
+            context2=" "
            
        var_id=StringVar()
        label_id = Message(scrollable_frame_1,textvariable=var_id, relief=RAISED,width=310,font=("Arial",12,"normal"))

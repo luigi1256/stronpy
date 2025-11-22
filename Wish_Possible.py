@@ -10,6 +10,8 @@ import io
 import json
 from cryptography.fernet import Fernet
 
+list_notes=[]
+
 def write_txt_note(name,note_text):
        with open(name+".txt", 'w',encoding="utf-8") as file:
     
@@ -106,28 +108,25 @@ async def kanban_note(tag):
     signer=NostrSigner.keys(keys)
     client = Client(signer)
     if relay_list!=[]:
-       
-        for jrelay in relay_list:
+      try: 
+       for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
     
-
-        await client.connect()
-     
-        builder = EventBuilder(Kind(2323),"").tags(tag)
-   
-        test= await client.send_event_builder(builder)
-    
-        print(test.id)
-
-        print("Event sent:")
-        await asyncio.sleep(2.0)
-    
-        print("Getting events from relays...")
-        f = Filter().authors([keys.public_key()]).kind(Kind(2323))
-        events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-        for event in events.to_vec():
+       await client.connect()
+       builder = EventBuilder(Kind(2424),"").tags(tag)
+       test= await client.send_event_builder(builder)
+       print(test.id)
+       print("Event sent:")
+       await asyncio.sleep(2.0)
+       print("Getting events from relays...")
+       f = Filter().authors([keys.public_key()]).kind(Kind(2424))
+       events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))
+       for event in events.to_vec(): 
+        if event.verify():
             print(event.as_json())
+      except NostrSdkError as e:
+         print(e)       
        
 def Gm_status():
    check_square()
@@ -151,10 +150,10 @@ def Gm_status():
         for zlist in list_r:
             lists_id.append(Tag.reference(zlist))
       if list_e!=[]:
-        for liste in list_e:
+         for liste in list_e:
             test=evnt_id(liste)
             if test:
-                lists_id.append(Tag.from_standardized(TagStandard.EVENT_TAG(test,None,Marker.REPLY,None,FALSE)))                      
+             lists_id.append(Tag.from_standardized(TagStandard.EVENT_TAG(test,None,Marker.REPLY,None,FALSE)))           
          
     if __name__ == '__main__':
                
@@ -162,9 +161,8 @@ def Gm_status():
          asyncio.run(kanban_note(lists_id))
     clear_list()
     error_label.config(text="Problem:")
-    print_label.config(text="Wait for the card note",foreground="blue")
+    print_label.config(text="Probably sent the card note",foreground="blue")
 
-list_notes=[]
 since_variable=IntVar(value=0)
 since_entry=Entry(root,textvariable=since_variable,font=("Arial",12,"normal"),width=6)
 text_var=StringVar()
@@ -184,15 +182,10 @@ def check_square():
         button_entry1.config(text="■",foreground="grey")
         
 button_send=tk.Button(root,text="Card Note",command=Gm_status, background="darkgrey",font=("Arial",14,"bold"))
-button_send.place(relx=0.5,rely=0.35,relwidth=0.1,relheight=0.08,anchor='n' )
-
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
-button_entry1.place(relx=0.57,rely=0.35,relwidth=0.05, relheight=0.08,anchor="n" )
 frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
 error_label = tk.Label(frame1, text="Problem:",font=("Arial",12))
-error_label.grid(column=3, rowspan=2, row=0, pady=5,padx=5)
-print_label = ttk.Label(frame1, text="Wait for the card note",font=("Arial",12))
-print_label.grid(column=3, columnspan=2, row=2, pady=5,padx=10)
+print_label = ttk.Label(frame1, text="Wait for the Card note",font=("Arial",12))
 frame1.pack(side=TOP,fill=X)
 p_tag = tk.Label(root, text="p-Tag",font=("Arial",12,"bold"))
 entryp_tag=ttk.Entry(root,justify='left',font=("Arial",12),)
@@ -200,7 +193,6 @@ p_view = tk.Label(root, text="p tag?: ", font=("Arial",12))
 Checkbutton8 = IntVar() 
 Type_band = Checkbutton(root, text = "More p tag", variable = Checkbutton8, onvalue = 1, offvalue = 0, height = 2, width = 10,font=('Arial',16,'normal'))
 list_p=[]
-list_e=[]
 
 def p_show():
     title=entryp_tag.get()
@@ -247,6 +239,7 @@ list_title=[]
 list_summary=[]
 list_description=[]
 list_r=[] 
+list_e=[]
 
 def t_show():
     title=t_tag_entry.get()
@@ -310,9 +303,9 @@ def clear_list():
    """Remove Tags and Update"""
    list_p.clear()
    list_r.clear()
+   list_e.clear()
    list_title.clear()
    list_description.clear()
-   list_e.clear()
    list_summary.clear()
    r_view.config(text="link: ")
    s_view.config(text="Summary: ")
@@ -320,19 +313,22 @@ def clear_list():
    t_view.config(text="Title: ")
    p_view.config(text="p tag?: ")
    button_entry1.cget('foreground')=="grey"
-   type_Label.config(text="Todo or Done")
+   type_Label.config(text="Wish")
 
 def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
-        stuff_frame.place(relx=0.68,rely=0.12,relheight=0.85,relwidth=0.3)  
+        stuff_frame.place(relx=0.68,rely=0.15,relheight=0.82,relwidth=0.3)  
+        error_label.place(relx=0.6,rely=0.1)
+        print_label.place(relx=0.6, rely=0.4)
+        button_send.place(relx=0.55,rely=0.2,relwidth=0.1,relheight=0.08,anchor='n' )
+        button_entry1.place(relx=0.62,rely=0.2,relwidth=0.05, relheight=0.08,anchor="n" )
         t_button.place(relx=0.82,rely=0.2)
         t_view.place(relx=0.77,rely=0.30,relwidth=0.2 )
         t_tag.place(relx=0.7,rely=0.2,relwidth=0.1 )
         t_tag_entry.place(relx=0.7,rely=0.25,relwidth=0.2)
         s_tag.place(relx=0.7,rely=0.35,relwidth=0.1)
         entry_s.place(relx=0.7,rely=0.4,relwidth=0.2 )
-        type_Label.place(relx=0.55,rely=0.3)
         s_button.place(relx=0.82,rely=0.35,relwidth=0.1)
         s_view.place(relx=0.82,rely=0.45)
         button_clear.place(relx=0.7,rely=0.9)
@@ -340,7 +336,7 @@ def raw_label():
         entry_d.place(relx=0.7,rely=0.6,relwidth=0.2 )
         d_button.place(relx=0.82,rely=0.54)
         d_view.place(relx=0.82,rely=0.65)
-
+        type_Label.place(relx=0.6,rely=0.15)
         r_tag.place(relx=0.7,rely=0.7,relwidth=0.1 )
         r_summary.place(relx=0.7,rely=0.75,relwidth=0.2 )
         r_button.place(relx=0.7,rely=0.8,relwidth=0.1)
@@ -350,16 +346,20 @@ def raw_label():
         p_button.place(relx=0.1,rely=0.9)
         p_tag.place(relx=0.1,rely=0.8,relwidth=0.1 )
         entryp_tag.place(relx=0.1,rely=0.85,relwidth=0.2 )
-        lab_button_close.place(relx=0.9,rely=0.15)
+        lab_button_close.place(relx=0.9,rely=0.18)
    
    else:
       Check_raw.set(0)
-      stuff_frame.place_forget() 
+      error_label.place_forget()
+      print_label.place_forget()
+      stuff_frame.place_forget()
+      button_send.place_forget()
+      button_entry1.place_forget()
+      lab_button_close.place_forget() 
       t_tag.place_forget()
       t_tag_entry.place_forget()
       t_button.place_forget()
       t_view.place_forget()
-      lab_button_close.place_forget() 
       s_tag.place_forget()
       entry_s.place_forget()
       s_button.place_forget()
@@ -383,11 +383,11 @@ def raw_label():
 lab_button = tk.Button(frame1, text="Create Card", font=("Arial",12,"bold"), command=raw_label)
 lab_button.place(relx=0.75,rely=0.2)
 stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)
-button_clear=Button(root,text="Remove", command=clear_list, font=("Arial",12,"bold"))
-t_button = tk.Button(root, text="title tag", font=("Arial",12,"bold"), command=t_show)
 lab_button_close = tk.Button(root, text="Close Card", font=("Arial",12,"bold"), command=raw_label)
-type_Label = tk.Label(root, text="Todo or Done", font=("Arial",12,"bold"))
+button_clear=Button(root,text="Default", command=clear_list, font=("Arial",12,"bold"))
+t_button = tk.Button(root, text="title tag", font=("Arial",12,"bold"), command=t_show)
 t_view = tk.Label(root, text="Title: ", font=("Arial",12,"bold"))
+type_Label = tk.Label(root, text="Wish", font=("Arial",12,"bold"))
 t_tag = tk.Label(root, text="title-Tag",font=("Arial",12,"bold"))
 t_tag_entry=ttk.Entry(root,justify='left',font=("Arial",12))
 s_tag = tk.Label(root, text="summary-Tag",font=("Arial",12,"bold"))
@@ -402,8 +402,8 @@ r_tag = tk.Label(root, text="r-Tag",font=("Arial",12,"bold"))
 r_summary=ttk.Entry(root,justify='left',font=("Arial",12))
 r_button = tk.Button(root, text="reference tag", font=("Arial",12,"bold"), command=r_show)
 r_view = tk.Label(root, text="link: ", font=("helvetica",13,"bold"),justify="center")
-entry_Home_title=ttk.Label(frame1,text="Send Card Note", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
-entry_Home_title.place(relx=0.4,rely=0.05,relwidth=0.2)
+entry_Home_title=ttk.Label(frame1,text="Send Card Note \n Wish | Possible Card", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
+entry_Home_title.place(relx=0.35,rely=0.15,relwidth=0.25)
 relay_list=[]
 
 async def get_one_Event(client, event_):
@@ -425,7 +425,7 @@ async def Get_id(event_):
     else:
      relay_url_1=RelayUrl.parse("wss://nostr.mom/")
      relay_url_2=RelayUrl.parse("wss://nos.lol/")
-     relay_url_3=RelayUrl.parse("wss://relay.primal.net/")
+     relay_url_3=RelayUrl.parse("wss://relay.primal.net")
      await client.add_relay(relay_url_1)
      await client.add_relay(relay_url_2)
      await client.add_relay(relay_url_3)
@@ -445,14 +445,13 @@ def open_relay():
     entry_relay=ttk.Entry(frame_account,justify='left',font=("Arial",12,"bold"))
     structure_relay.grid(column=11, row=1, padx=5,pady=5) 
     button_beau.destroy()
-    
     def relay_class():
      if entry_relay.get()!="":
         if entry_relay.get()[0:6]=="wss://" and entry_relay.get()[-1]=="/":
            
             if entry_relay.get() not in relay_list:
                 relay_list.append(entry_relay.get())
-                
+                #print(relay_list)  
             counter_relay['text']=str(len(relay_list)) 
             counter_relay.grid(column=12,row=1)
             entry_relay.delete(0, END)
@@ -476,23 +475,23 @@ def open_relay():
         if combo_bo_r.get() in relay_list:
             number=relay_list.index(combo_bo_r.get())
             relay_list.pop(number)
-            counter_relay['text']=str(len(relay_list))
+            counter_relay['text']=str(len(relay_list)) 
             counter_relay.grid(column=12,row=1)
             combo_bo_r['value']=relay_list
             return relay_list  
      else:
-        if relay_list!=[]:  
-            counter_relay['text']=str(len(relay_list)) 
-            counter_relay.grid(column=12,row=1)
-            combo_bo_r['value']=relay_list
-        else:
-            upload_relay_list("relay")  
-            counter_relay['text']=str(len(relay_list)) 
-            counter_relay.grid(column=12,row=1)
-            combo_bo_r['value']=relay_list                      
+      if relay_list!=[]:  
+        counter_relay['text']=str(len(relay_list)) 
+        counter_relay.grid(column=12,row=1)
+        combo_bo_r['value']=relay_list
+       
+      else:
+        upload_relay_list("relay")  
+        counter_relay['text']=str(len(relay_list)) 
+        counter_relay.grid(column=12,row=1)
+        combo_bo_r['value']=relay_list                    
 
-
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count", font=('Arial',12,'normal'))
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)
@@ -556,7 +555,7 @@ db_note=[]
 
 def Open_card(key:int):
      """Key = kind number \n
-        2323 = notes of kind 2323 
+        2424 = notes of kind 2424 
      """
      test=[]
      if __name__ == "__main__":
@@ -570,7 +569,7 @@ def Open_card(key:int):
          list_notes.append(xnote) 
       show_noted()   
  
-button4=tk.Button(frame1,text="Search Card Note",command=lambda: Open_card(2323),font=('Arial',12,'bold'))
+button4=tk.Button(frame1,text="Search Card Note",command=lambda: Open_card(2424),font=('Arial',12,'bold'))
 button4.place(relx=0.22,rely=0.15)
 
 async def Get_event_from(event_):
@@ -652,22 +651,24 @@ def show_noted():
      
       try:
        context0="Author: "+note['pubkey']
-       context0=context0+"\n"+"Kind "+str(note["kind"]) 
-       context1=""  
+       for xnote in tags_string(note,"title"):
+         context0=context0+"\n"+"Title "+str(xnote) 
+       if tags_string(note,"e")!=[]:   
+        context1="- Possible card" "\n"
+        "- Reply to "+ str(tags_string(note,"e")[0][0:9])+"\n"
+       else:
+          context1="- Wish Card"+"\n"   
        if note['tags']!=[]:
         
         context2=" "
-        if tags_string(note,"title")!=[]:
-         context2=context2+"\n"+"- Title "+tags_string(note,"title")[0]+"\n"
-          
         if tags_string(note,"summary")!=[]:
          for xnote in tags_string(note,"summary"):
            context2=context2+"\n"+"- Summary "+tags_string(note,"summary")[0]+"\n"
         if tags_string(note,"description")!=[]: 
                 context2=context2+"\n" +"- Description "+str(tags_string(note,"description")[0]) +"\n"
-        if tags_string(note,"r")!=[]:    
-           for tag_link in tags_string(note,"r"):     
-                context2=context2+"\n"+"- Link "+tag_link+"\n"            
+        if tags_string(note,"r")!=[]:
+            for xnote in tags_string(note,"r"):
+                context2=context2+"\n"+"- Link "+str(xnote) +"\n"            
        else: 
         
         context2=" "
@@ -691,19 +692,21 @@ def show_noted():
            print(entry['tags'])
                   
        def print_var(entry):
-                print(entry["content"])
+                print(entry)
 
        def print_reply(entry):
-            if tags_string(entry,"e")==[] and entry["kind"]==2323:
-                list_e.clear()
-                type_Label.config(text="Update")
-                list_e.append(entry["id"])
-                raw_label()         
+           if tags_string(entry,"e")==[] and entry["kind"]==2424:
+              list_e.clear()
+              type_Label.config(text="Possible")
+              list_e.append(entry["id"])
+              
+              raw_label()
+                   
                                                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=3,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
-       button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read", command=lambda val=note: print_id(val))
+       button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)
        if tags_string(note,"e")==[]:
         button_grid3=Button(scrollable_frame_1,text=f"Reply", command=lambda val=note: print_reply(val))
         button_grid3.grid(row=3,column=s1+2,padx=5,pady=5)        
