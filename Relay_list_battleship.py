@@ -163,8 +163,12 @@ frame_login.grid(columnspan=3,rowspan=3)
 frame_relay=Frame(root,width=100, height=50)
 label_relay=Label(frame_relay,text="Show Relays: ",font=("Arial",16,"normal"))
 label_relay.grid(column=0,row=0)
-Text_relay = tk.Text(frame_relay, height=10, width=50)
+scroll_bar_mini = tk.Scrollbar(frame_relay)
+
+Text_relay = tk.Text(frame_relay, height=10, width=50, yscrollcommand = scroll_bar_mini.set)
+scroll_bar_mini.config( command = Text_relay.yview )
 Text_relay.grid(row=1, column=0,padx=30, columnspan=3,ipadx=10)
+scroll_bar_mini.grid( sticky = NS,column=4,row=1,pady=5)
 frame3=tk.Frame(root,height=20,width= 80)
 frame4=tk.Frame(root,height=20,width= 80)
 Checkbutton5 = IntVar() 
@@ -331,22 +335,37 @@ def relay_c(x):
           pass   
             
 button_relay=Button(frame_relay,width=5, command=stamp_relay,text= "10002", font=("Arial",14,"normal"),foreground="blue")
-button_relay.grid(column=1, row=0)
+button_relay.grid(column=1, row=0,pady=5)
 button_relay=Button(frame_relay,width=8, command=stamp_relay_all,text= "3+10002", font=("Arial",14,"normal"),foreground="blue")
 button_relay.grid(column=2, row=0)
-frame_relay.grid(columnspan=3,rowspan=2)
+frame_relay.grid(columnspan=3,rowspan=2,pady=5)
 
 async def get_relays(client, authors,x):
-    f = Filter().authors(authors).kind(Kind(x))
+    if x==int(1):
+      f = Filter().authors(authors).kind(Kind(x)).limit(500)
+    else:
+       f = Filter().authors(authors).kind(Kind(x))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def get_relay(client, user,x):
     f = Filter().author(user)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
+
+async def feed_note(authors,x):
+            
+    client = Client(None)
+    if relay_note_list!=[]:
+       for relay_x in relay_note_list:
+           await client.add_relay(RelayUrl.parse(relay_x))
+       for i,relay in enumerate(relay_note_list):    
+        print(str(i) +" "+ str(relay)+"\n")     
+       await client.connect()
+       combined_results = await get_relays(client, authors,x)
+       return combined_results
 
 async def main(authors,x):
     # Init logger
@@ -399,8 +418,8 @@ def list_pubkey_id():
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
-        single_1=json.loads(single["content"])
         try:
+         single_1=json.loads(single["content"])
          if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
@@ -424,6 +443,8 @@ def list_pubkey_id():
                         
         except KeyError as e:
           print("KeyError ",e) 
+        except json.JSONDecodeError as b:
+           print(b,"\n","Pubkey ",single["pubkey"])  
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))       
 
 
@@ -510,7 +531,7 @@ def print_people():
      
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
-    frame3.place(relx=0.05,rely=0.45,relwidth=0.26, relheight=0.35)      
+    frame3.place(relx=0.02,rely=0.5,relwidth=0.26, relheight=0.35)      
 
     def Close_print():
        frame3.destroy()  
@@ -518,9 +539,49 @@ def print_people():
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)                 
 
-button_people_=tk.Button(root,text="Relay & Notes",command=print_people, font=('Arial',12,'bold'))
-button_people_.grid(row=6,column=1,pady=10,padx=10) 
+button_people_c=tk.Button(root,text="Relay & Notes",command=print_people, font=('Arial',12,'bold'))
+
 label_image = Label(root,text="")
+
+def more_link(f):
+   
+   list_video=['mov','mp4']
+   img=['png','jpg','gif']
+   img1=['jpeg','webp'] 
+   if f==None:
+                 return "no spam"
+   if f[-3:] in list_video:
+        return "video"
+   if f[-3:] in img:
+           return "pic" 
+   if f[-4:] in img1:
+            return "pic"
+   else:
+       return "spam" 
+
+def balance_photo_print(nota):
+  if tags_str(nota,"imeta")!=[]:
+   balance=[]
+   url_=[]
+   for dim_photo in tags_str(nota,"imeta"):
+     if more_link(dim_photo[1][4:])=="pic": 
+      url_.append(dim_photo[1][4:])
+      
+      for jdim in dim_photo:
+       if jdim[0:3]=="dim":
+        list_number=dim_photo.index(jdim)   
+        for xdim in dim_photo[list_number][4:]:
+         if xdim=="x":
+          number=dim_photo[list_number].index(xdim)
+       
+          numberx=number
+          numbery=number+1
+          balx=dim_photo[list_number][4:numberx]
+          baly=dim_photo[list_number][numbery:]  
+          
+          balance.append(float(int(balx)/int(baly)))
+   
+   return balance,url_      
 
 def print_photo_url(url):
    if url!="":
@@ -546,15 +607,18 @@ def print_photo_url(url):
         button_photo_close.place_forget()
     
     button_photo_close=Button(root, text="X", command=close_image,font=('Arial',12,'normal'))
-    button_photo_close.place(relx=0.15,rely=0.65)
-    label_image.place(relx=0.1,rely=0.7)       
-    
+    button_photo_close.place(relx=0.45,rely=0.65)
+    label_image.place(relx=0.4,rely=0.7)       
+
+label_relay_w_r = Label(root,text="",font=("Arial",12,"normal"))
+
 def show_lst_ntd(list_note_p):
  frame2=tk.Frame(root)  
  canvas_1 = tk.Canvas(frame2,width=800)
  scrollbar_1 = ttk.Scrollbar(frame2, orient=HORIZONTAL,command=canvas_1.xview)
  scrollable_frame_1 = tk.Frame(canvas_1,background="#E3E0DD")
  scrollbar_2 = ttk.Scrollbar(frame2, orient=VERTICAL,command=canvas_1.yview)
+ label_relay_w_r.config(text="")
  scrollable_frame_1.bind(
          "<Configure>",
             lambda e: canvas_1.configure(
@@ -601,7 +665,7 @@ def show_lst_ntd(list_note_p):
        second_label10.insert(END,str(context2)+"\n"+context1+"\n"+context3)
        scroll_bar_mini.config( command = second_label10.yview )
        second_label10.grid(padx=10, column=s1, columnspan=3, row=1) 
-       label_relay_w_r = Label(root,text="",font=("Arial",12,"normal"))
+       
        label_relay_w_r.place(relx=0.7,rely=0.01,relheight=0.2,relwidth=0.3)
 
        def print_id(entry):
@@ -654,7 +718,7 @@ def show_lst_ntd(list_note_p):
   if len(list_note_p)==1:
     frame2.place(relx=0.68,rely=0.2,relwidth=0.62,relheight=0.35)
   else:
-    frame2.place(relx=0.38,rely=0.28,relwidth=0.62,relheight=0.35)
+    frame2.place(relx=0.39,rely=0.28,relwidth=0.55,relheight=0.35)
 
   def close_frame():
         frame2.destroy()    
@@ -716,13 +780,17 @@ def outbox_model():
     my_relay1=relay_numbers_list()
     print(my_relay1)
     Fun_outbox(2,my_relay1)
+    if my_relay1!=[]:
+        button_people_b.grid(row=6,column=1,pady=5,padx=5) 
+        button_people_c.grid(row=6,column=2,pady=5,padx=5) 
 
-button_people_=tk.Button(root,text="List of relays",command=outbox_model, font=('Arial',12,'bold'))
-button_people_.grid(row=1,column=6,pady=10,padx=10) 
-
+button_people_a=tk.Button(root,text="List of Relays",command=outbox_model, font=('Arial',12,'bold'))
+button_people_a.grid(column=0,row=6,padx=5,pady=5)
+list_pubkey_relay=[]
 relay_note_list=[]
 
 def Outbox_list_relays(): 
+   
    if Outboxes!=[]:  
     
     frame3=tk.Frame(root)
@@ -740,7 +808,7 @@ def Outbox_list_relays():
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
     
-    s=1 
+    s=2 
     relay_list=[]
     for relay_x in Outboxes:
      if str(relay_x).startswith("wss://"):
@@ -751,6 +819,16 @@ def Outbox_list_relays():
           select=relay_x+"/"
           if select not in relay_list:
             relay_list.append(select)
+
+    def search_note():
+       if relay_note_list!=[]:
+        list_pubkey=list_pubkey_relay
+        author_pubkey=user_convert(list_pubkey)
+        list_str=asyncio.run(feed_note(authors=author_pubkey,x=1))
+        if list_str!=[]: 
+           note_upload=get_note(list_str)
+           show_list_note(note_upload[0:100])
+           
     test1=Outboxes
    
     def Add_relay(value):
@@ -772,18 +850,19 @@ def Outbox_list_relays():
                  if note_x==note_y["pubkey"]:
                   if note_y["pubkey"] not in list_pubkey:
                    list_pubkey.append(note_y["pubkey"])
+                   if note_y["pubkey"] not in list_pubkey_relay:
+                    list_pubkey_relay.append(note_y["pubkey"])
                    if relay_y ==value:
                      new_pubkey.append(note_y["pubkey"])
        print(value, "\n", relay_note_list)            
        print("Number of Pubkey ",len(list_pubkey), " new pubkey ",len(new_pubkey) )
-       if len(new_pubkey)>0:
-        if messagebox.askokcancel("List missing people ","Yes/No") == True:
+       if len(new_pubkey)>2:
               test_missing,test_relays=list_follow_missing(list_pubkey)
-              print(len(test_missing),"\n")
-              print(len(test_relays),"\n",test_relays)
-              if messagebox.askokcancel("Add relays ","Yes/No") == True:
-                relay_add=[]
-                for relay_test in test_relays:
+              print("- People ",len(test_missing),"\n")
+              print("-Relays ",len(test_relays),"\n",test_relays)
+              if len(test_relays)>0:
+               relay_add=[]
+               for relay_test in test_relays:
                     if str(relay_test).startswith("wss://"):
                         if str(relay_test).endswith("/"):
                             if relay_test not in Outboxes:
@@ -794,20 +873,24 @@ def Outbox_list_relays():
                                 if select_1 not in Outboxes:
                                     Outboxes.append(select_1)
                                     relay_add.append(select_1)
-                print("New relay add ", len(relay_add))  
-              else:
-                 print(test_relays)                   
-        print_people_from_relay(list_pubkey)                  
+               if relay_add!=[]:                      
+                print("New relay add ", len(relay_add))
+               else:   
+                print_people_from_relay(list_pubkey) 
+                 
+       else:
+              pass                      
+                       
     
     ra=0
     sz=0
     labeL_button=Label(scrollable_frame,text="Number of Relays "+str(len(test1)),width=40)
-    labeL_button.grid(row=0,column=1,padx=5,pady=5,columnspan=2)           
+    labeL_button.grid(row=1,column=1,padx=5,pady=5,columnspan=2)           
     while ra<len(test1):
                if str(test1[ra]).endswith("/"): 
                 lenght,note_p=relay_id(test1[ra])
                 if lenght:
-                 if lenght>int(1):
+                 if lenght>int(2):
                   dict_relay_number[test1[ra]]=lenght
                   sz=sz+1           
                  
@@ -822,22 +905,22 @@ def Outbox_list_relays():
                 s=s+3
             
                ra=ra+1   
-    labeL_button.config(text="Number of Relays on lists "+str(len(test1))+"  "+"\n"+"Number of Relay more than one Note "+ str(sz))
+    labeL_button.config(text="Number of Relays on lists "+str(len(test1))+"  "+"\n"+"Number of Relay more than two Note "+ str(sz))
     canvas.pack(side="left", fill="y", expand=True)
      
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
-    frame3.place(relx=0.05,rely=0.45,relwidth=0.3, relheight=0.35)      
+    frame3.place(relx=0.02,rely=0.5,relwidth=0.3, relheight=0.35)      
 
     def Close_print():
        frame3.destroy()  
              
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
-    button_close_.pack(pady=5,padx=5)                 
-
-
-button_people_=tk.Button(root,text="List of Outbox Relays",command=Outbox_list_relays, font=('Arial',12,'bold'))
-button_people_.grid(row=1,column=7,pady=10,padx=10) 
+    button_close_.pack(pady=5,padx=5)
+    button_open_=tk.Button(scrollable_frame,text="Search Note",command=search_note, font=('Arial',12,'bold'))
+    button_open_.grid(column=1,row=0)      
+   
+button_people_b=tk.Button(root,text="List of Outbox Relays",command=Outbox_list_relays, font=('Arial',12,'bold'))
 
 def list_follow_missing(list_people):
    follow_list=people()
@@ -875,14 +958,14 @@ def print_people_from_relay(list_fun:list):
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
     
-    s=1     
+    s=2     
     
     test1=list_fun
         
     ra=0
     sz=0
     labeL_button=Label(scrollable_frame,text="Number of pubkey "+str(len(test1))+"\n")
-    labeL_button.grid(row=0,column=1,padx=5,pady=5,columnspan=2)           
+    labeL_button.grid(row=1,column=1,padx=5,pady=10,columnspan=2)           
     while ra<len(test1):
               
                lenght,note_p=pubkey_id(test1[ra])
@@ -914,5 +997,84 @@ def print_people_from_relay(list_fun:list):
              
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)                 
+
+def show_list_note(list_outrelay:list):
+  frame3=tk.Frame(root,height=150,width=200)  
+  canvas_2 = tk.Canvas(frame3)
+  scrollbar_2 = ttk.Scrollbar(frame3, orient="vertical", command=canvas_2.yview)
+  scrollable_frame_2 = tk.Frame(canvas_2, background="#E3E0DD")
+
+  scrollable_frame_2.bind(
+         "<Configure>",
+            lambda e: canvas_2.configure(
+            scrollregion=canvas_2.bbox("all")))
+
+  canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
+  canvas_2.configure(yscrollcommand=scrollbar_2.set)
+  
+  s=1
+  for note in list_outrelay:            
+   var_id_3=StringVar()
+   label_id_3 = Message(scrollable_frame_2,textvariable=var_id_3, relief=RAISED,width=270,font=("Arial",12,"normal"))
+   label_id_3.grid(pady=1,padx=8,row=s,column=0, columnspan=3)
+   if note['pubkey'] in list(Pubkey_Metadata.keys()):
+         
+         var_id_3.set("Nickname " +Pubkey_Metadata[note["pubkey"]])
+   else: 
+         var_id_3.set("Author: "+note['pubkey'])
+
+   scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
+   scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
+   second_label_10 = tk.Text(scrollable_frame_2, padx=5, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+   context2=""   
+   if tags_string(note,"t")!=[]:
+        for note_tags in tags_string(note,"t"):
+            context2=context2+str("#")+note_tags+" "
+   if tags_string(note,"e")!=[]:
+        context2=context2+str(tags_string(note,"e"))+ "\n"
+                    
+   second_label_10.insert(END,note["content"]+"\n"+str(context2))
+   scroll_bar_mini.config( command = second_label_10.yview )
+   second_label_10.grid(padx=10, column=0, columnspan=3, row=s+1)
+   if tags_string(note,"imeta")!=[]:
+    button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
+    button.grid(column=0,row=s+2,padx=5,pady=5)
+   button_grid2=Button(scrollable_frame_2,text=f"Print Note ", command=lambda val=note: print(val))
+   button_grid2.grid(row=s+2,column=1,padx=5,pady=5)     
+   if tags_string(note,"e")!=[]:
+    button_grid3=Button(scrollable_frame_2,text=f"Print reply ", command=lambda val=note: print_content(val))
+    button_grid3.grid(row=s+2,column=2,padx=5,pady=5)     
+   s=s+3 
+
+  def print_var(entry):
+       if tags_string(entry,"imeta")!=[]:
+        balance,urL_list=balance_photo_print(entry)
+        if urL_list:
+         print_photo_url(url=urL_list[0])    
+
+  def print_content(entry):
+       print("Reply \n",tags_string(entry,"e"))                                          
+                                          
+  scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
+  canvas_2.pack( fill="y", expand=True)
+   
+  def close_frame():
+     button_frame.place_forget()
+     frame3.destroy()    
+    
+  button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
+  button_frame.place(relx=0.75,rely=0.04) 
+  frame3.place(relx=0.66,rely=0.1,relheight=0.35,relwidth=0.33) 
+
+def four_tags(x,obj):
+   tags_list=[]
+   
+   if tags_string(x,obj)!=[]:
+      for jtags in tags_str(x,obj):
+        if len(jtags)>2:
+          for xtags in jtags[2:]:
+           if jtags not in tags_list:
+             tags_list.append(jtags)
+      return tags_list 
 
 root.mainloop()

@@ -3,11 +3,8 @@ from tkinter import *
 from tkinter import ttk,messagebox
 import asyncio
 from nostr_sdk import *
-from asyncio import get_event_loop
 from datetime import timedelta
-from PIL import Image, ImageTk
-import requests
-import shutil
+import datetime
 
 root = tk.Tk()
 root.title("Tags test")
@@ -98,13 +95,21 @@ def show_print_test_tag():
    
    for note in list_note:
     context0="id: "+note["id"][0:17]+"....."+note["id"][47:63]+"\n"
-    if tags_string(note,"title")!=[]:
-     for xnote in tags_string(note,"title"):
-         context0=context0+"\n"+"Title "+str(xnote)
     if note['tags']!=[]:
-        context2="[ [  Tags ] ]"+"\n"+"\n"
+        if tags_string(note,"title")!=[]:
+         for xnote in tags_string(note,"title"):
+          context0=context0+"\n"+"Title "+str(xnote)
+        context2=""
         if tags_string(note,"e")!=[]:
-         context2=context2+"tags event number: "+str(len(tags_string(note,"e"))) +"\n"
+         if tags_string(note,"title")!=[]:
+          context2=context2+"Event number card: "+str(tags_string(note,"title")[0])+" "+str(len(tags_string(note,"e"))) +"\n"
+         else:
+            context2=context2+"Event number card: "+" "+str(len(tags_string(note,"e"))) +"\n"
+        list_note_month=month_data(note) 
+        if isinstance(list_note_month,list): 
+         context2=context2+"- Month updates " + str(list_note_month[0]) +"\n"+"- Month create " + str(list_note_month[1]) 
+        else:
+           context2=context2+"- Month create " + str(list_note_month) 
     else: 
         context2=""
          
@@ -124,7 +129,7 @@ def show_print_test_tag():
           context2=create_tags(note,note["kind"])
          if tags_string(note,"t")!=[] :
             for note_tags in tags_string(note,"t"):
-               context2=context2+str("#")+note_tags+" "
+               context2=context2+"\n"+str("#")+note_tags+" "
          if tags_string(note,"e")!=[]:
            
            if four_tags(note,"e") and note["kind"]!=30023:
@@ -134,7 +139,7 @@ def show_print_test_tag():
              
          else:
           pass            
-    second_label_2.insert(END,note["content"]+"\n"+str(context2))
+    second_label_2.insert(END,str(context2))
     scroll_bar_mini_2.config( command = second_label_2.yview )
     second_label_2.grid(padx=10, column=0, columnspan=3, row=s+2,rowspan=2)
 
@@ -880,5 +885,44 @@ async def get_kind_relay(client, event_):
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
+
+def month_data(note:dict):
+   """note --> {"id:"","pubkey":""...} \n
+   list -> Month event and Month tag  \n
+   str ->  Month 
+   """
+   resut_time=time_for_bookmarks(note)
+   if isinstance(resut_time,list):
+      update_list=return_data_action(resut_time)
+      return update_list
+   else:
+      first_list=return_data_int(resut_time)   
+      return first_list
+   
+def time_for_bookmarks(note):
+   time_c=note["created_at"]
+   if tags_string(note,"published_at")!=[]:
+      time_p=tags_string(note,"published_at")[0]
+      if time_c !=int(time_p):
+       
+       return [int(time_c),int(time_p)]
+      else:
+         return int(time_c)
+   else:
+      return int(time_c)
+
+def return_data_action(list:list):
+    date_1= datetime.datetime.fromtimestamp(float(list[0])).strftime("%m")
+    date_2= datetime.datetime.fromtimestamp(float(list[1])).strftime("%m")
+    return [month_list[date_1],month_list[date_2]]
+
+def return_data_int(value:int):
+    date_1= datetime.datetime.fromtimestamp(float(value)).strftime("%m")
+    
+    return month_list[date_1]
+                
+month_list={"01":"January", "02":"February","03": "March","04":"April","05":"May","06":"June","07":"July","08":"August","09": "September","10":"October", "11":"November", "12": "December"}
+
+years_q={"Q1":["January", "February", "March"],"Q2":["April","May","June"],"Q3":["July", "August", "September"],"Q4":["October", "November",  "December"]}
 
 root.mainloop()

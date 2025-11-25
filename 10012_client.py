@@ -47,7 +47,7 @@ label = tk.Label(root, text="Name",font=('Arial',12,'normal'))
 label.place(relx=0.02,rely=0.06)
 combo_box = ttk.Combobox(root, values=["Sebastix","Cody","Dawn","Silberengel","il_lost_"],font=('Arial',12,'normal'),width=15)
 combo_box.place(relx=0.06,rely=0.06)
-combo_box.set("Cluster")
+combo_box.set("Some Users")
 combo_box.bind("<<ComboboxSelected>>", on_select)
 
 combo_relay = ttk.Combobox(root, values=[],font=('Arial',14,'normal'),width=18)

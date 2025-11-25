@@ -599,7 +599,7 @@ def layout():
          second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
          context1=""
          context2=""  
-         if tags_string(note_text,"title")!=[]:
+         if tags_string(note_text,"title")!=[] and str(tags_string(note,"title")[0])!="":
             for note_t in tags_string(note_text,"title"):
                context1=context1+str("Title: ")+note_t+"\n"
          else:
@@ -765,7 +765,7 @@ def photo_list_2(note):
         print(f"Error exceptions: {e}")  
                      
    print_photo()     
-   frame_pic.place(relx=0.72,rely=0.35,relwidth=0.3) 
+   frame_pic.place(relx=0.72,rely=0.55,relwidth=0.3) 
 
 def search_title(string):
    if db_note!=[]:
@@ -997,14 +997,19 @@ def show_print_test_tag(note):
    canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
    canvas_2.configure(yscrollcommand=scrollbar_2.set)
    s=1
-   context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"+"Time "+str(note["created_at"]) +"\n"
+   context0="Pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"+"- Time "+str(note["created_at"]) +"\n"
    if note['tags']!=[]:
-        if tags_string(note,"alt")!=[]:
-         context1="Alt: "+str(tags_string(note,"alt")[0])
-        else:
-           context1="" 
-        context2="\n"+"\n"
-        context2=context2+"Tags number: "+str(len(note["tags"])) +"\n"
+        context1=""
+        if tags_string(note,"d")!=[]:
+         context1=context1+"- d Tag "+str(tags_string(note,"d")[0][0:10])+"\n"
+        if tags_string(note,"alt")!=[] and str(tags_string(note,"alt")[0])!="":
+         context1=context1+"- Alt "+str(tags_string(note,"alt")[0])+"\n"
+        if tags_string(note,"client")!=[]:
+         context1=context1+"- Client "+str(tags_string(note,"client")[0])+"\n" 
+        if tags_string(note,"published_at")!=[]:
+         context1=context1+"- Time first event "+str(tags_string(note,"published_at")[0])+"\n"  
+        context2=""
+        context2=context2+"- Tags number: "+str(len(note["tags"])) +"\n"
    else: 
         context1=""
         context2=""
@@ -1880,7 +1885,7 @@ def show_Teed():
 
     scrollbar_1.pack(side="right", fill="y",pady=20)
     canvas_1.pack( fill="y", expand=True)
-    frame2.place(relx=0.35,rely=0.32,relwidth=0.30,relheight=0.4)
+    frame2.place(relx=0.28,rely=0.3,relwidth=0.35,relheight=0.4)
     
     def close_number() -> None :
         frame2.destroy()    
