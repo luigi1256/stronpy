@@ -211,20 +211,21 @@ def OpenColumn():
             if conn:
                 conn.close() 
     
-    def no_id(event):
+    def no_id(event,Nostr_note):
         Nostr_note_id=[]
-        Nostr_note=kind1_data_name()
-        
+               
         for Nostr_x in Nostr_note:
-            Nostr_note_id.append(Nostr_x)
+            Nostr_note_id.append(Nostr_x["id"])
         if event.id().to_hex() not in Nostr_note_id:  
             return event
 
     def test_input():
         list_event=test_relay()
         if list_event!=None:
+         list_db=kind1_data_name()
          for event in list_event[::-1]:
-            if no_id(event)!=None:
+
+            if no_id(event,list_db)!=None:
                 add_Rel_event(event)
     
     Send_pc_message=Button(frame3, command=test_input, text="Send message")
@@ -713,7 +714,7 @@ def show_noted():
                 if entry["kind"]>=30000:
                  print("ok")
                                                                                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=4,padx=5,pady=5)
        button_grid2=Button(scrollable_frame_1,text=f"Read Tags", command=lambda val=note: print_id(val))
        button_grid2.grid(row=4,column=s1+1,padx=5,pady=5)    

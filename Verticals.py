@@ -601,9 +601,10 @@ def layout():
          context2=""  
          if tags_string(note_text,"title")!=[] and str(tags_string(note,"title")[0])!="":
             for note_t in tags_string(note_text,"title"):
-               context1=context1+str("Title: ")+note_t+"\n"
+               context1=context1+str("- Title: ")+note_t+"\n"
          else:
-            context1=" No Title \n"   
+            if tags_string(note_text,"alt")!=[] and str(tags_string(note,"alt")[0])!="":
+             context1=context1+str("- Alt: ")+str(tags_string(note,"alt")[0])+"\n"
          if tags_string(note_text,"t")!=[]:
             for note_tags in tags_string(note_text,"t"):
                context2=context2+str("#")+note_tags+" "
@@ -825,11 +826,11 @@ def search_word_title():
       note_words_2=[]
       list_words={}
       for note_x in db_note:
-        if note_x["content"]!="":
-            title= note_x["content"]
+        if tags_string(note_x,"title")!=[] and tags_string(note_x,"title")[0]!="":
+            title= tags_string(note_x,"title")[0]
             title_list=title.split(" ")
-            title_list = [str(title).lower() for title in title_list]
-            for string_x in title_list:
+            title_list_r = [str(title).lower() for title in title_list]
+            for string_x in title_list_r:
                if type(string_x)==str and len(string_x)>3:
                
                 if string_x not in note_words:

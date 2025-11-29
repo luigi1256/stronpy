@@ -99,7 +99,7 @@ def search_o_tags(x):
 my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
-             " hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
+             "tanel": "5c508c34f58866ec7341aaf10cc1af52e9232bb9f859c8103ca5ecf2aa93bf78", 
              "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 my_list = list(my_dict.values())
@@ -120,7 +120,7 @@ Profile_frame = ttk.LabelFrame(root, text="Profile", labelanchor="n", padding=10
 Profile_frame.place(relx=0.01,rely=0.03,relwidth=0.2,relheight=0.3)
 label = tk.Label(root, text="Name",font=('Arial',12,'normal'))
 label.place(relx=0.08,rely=0.07)
-combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor"," hodlbod","il_lost_"],font=('Arial',12,'normal'),width=15)
+combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor","tanel","il_lost_"],font=('Arial',12,'normal'),width=15)
 combo_box.place(relx=0.06,rely=0.12)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -131,13 +131,14 @@ label_entry_id.place(relx=0.08,rely=0.18)
 label_entry_name=tk.Label(root, text="",font=("Arial",12,"normal"))
 time_frame = ttk.LabelFrame(root, text="Notification", labelanchor="n", padding=10)
 time_frame.place(relx=0.21,rely=0.03,relwidth=0.13,relheight=0.3)
-combo_note = ttk.Combobox(root, values=["Total","My In","Inbox","Hashtag","my hashtag","my time"],width=10, font=("Arial",12,"normal"))
+combo_note = ttk.Combobox(root, values=["Total","My In","Inbox","Hashtag","my hashtag","my time","Root"],width=10, font=("Arial",12,"normal"))
 combo_note.place(relx=0.23,rely=0.08)
 combo_note.set("Type of feed")
 combo_note.bind("<<ComboboxSelected>>", None)
 Timeline=[]
 My_post=[]
 Inbox=[]
+Root=[]
 Hashtag=[]
 my_hashtag=[]
 my_time=[]
@@ -254,6 +255,20 @@ def list_timeline(Value):
                 if db_x["pubkey"]!=entry_id.get():
                  Inbox.append(db_x)     
          return Inbox
+      if Value=="Root":
+       Root.clear()
+       root_note=[]
+       for db_x in db_list:
+        if four_tags(db_x,"e")!=None:
+         for e_tag in four_tags(db_x,"e"):
+          if len(e_tag)==4:
+           if e_tag[3]=="root": 
+            root_note.append(e_tag[1])
+       if root_note!=[] and db_note!=[]:
+           for note_x in db_note:
+              if note_x["id"] in root_note:
+                 Root.append(note_x)     
+           return Root
       if Value=="Hashtag": 
          Hashtag.clear()
          for db_x in db_list:
@@ -540,13 +555,13 @@ def show_Teed():
       def print_var(entry):
                 print(entry["content"])
            
-      button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+3,padx=5,pady=5)
-      button_grid2=Button(scrollable_frame_1,text=f"click to read!", command=lambda val=note: print_id(val))
+      button_grid2=Button(scrollable_frame_1,text=f"click to read ", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+3,column=1,padx=5,pady=5)  
       if note["tags"]!=[]: 
        if tags_string(note,"imeta")!=[] or tags_string(note,"image")!=[]:   
-        button_grid3=Button(scrollable_frame_1,text=f"Photo!", command=lambda val=note: photo_var(val))
+        button_grid3=Button(scrollable_frame_1,text=f"Photo ", command=lambda val=note: photo_var(val))
         button_grid3.grid(column=2,row=s+3,padx=5,pady=5)
       s=s+4  
 
@@ -660,11 +675,11 @@ def note_text_kind1():
    scroll_bar_mini.config( command = second_label_10.yview )
    second_label_10.grid(padx=10, column=0, columnspan=3, row=s+1) 
 
-   button=Button(scrollable_frame_2,text=f"Print!", command=lambda val=note: print(val))
+   button=Button(scrollable_frame_2,text=f"Print ", command=lambda val=note: print(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    if note["tags"]!=[]: 
        if tags_string(note,"imeta")!=[] or tags_string(note,"image")!=[]:   
-        button_2=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: photo_var(val))
+        button_2=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: photo_var(val))
         button_2.grid(column=1,row=s+2,padx=5,pady=5)
        
    scrollbar_2.pack(side="right", fill="y",padx=2,pady=5) 
@@ -1598,6 +1613,7 @@ def show_print_test_tag(note):
        if result!=None: 
         z=4
         for jresult in result:
+          try: 
            if jresult["id"]!=entry["id"]:  
              var_id_r=StringVar()
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
@@ -1623,12 +1639,14 @@ def show_print_test_tag(note):
              scroll_bar_mini_r.config( command = second_label10_r.yview )
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
+          except KeyError as e:
+             print(e) 
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
      
    if tags_string(note,"e")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
 
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
