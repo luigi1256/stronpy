@@ -13,6 +13,41 @@ from PIL import Image, ImageTk
 from tkinter import messagebox 
 from cryptography.fernet import Fernet
 
+
+Nostr_relay_list={"wss://nos.lol/":"","wss://nostr.mom/":"","wss://nostr-pub.wellorder.net/":""}
+
+async def check_relay_dict(dict_relay:dict):
+   
+   for relay_x in list(dict_relay.keys()):
+      if dict_relay[relay_x]!="bad":   
+         if get_nostr_relay_info(relay_x):
+            dict_relay[relay_x]="good"
+         else:
+            dict_relay[relay_x]="bad"       
+
+def get_nostr_relay_info(relay_url: str):
+    """
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Error while requesting {relay_url}: {e}")
+        return None
+
+
 root = tk.Tk()
 root.geometry("1300x800")
 root.title("Heya 24")
@@ -64,8 +99,8 @@ def search_kind(user,x):
           Z.append(r)
     return Z        
 
-my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52", 
-           "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
+my_dict = {"Dawn": "c230edd34ca5c8318bf4592ac056cde37519d395c0904c37ea1c650b8ad4a712", 
+           "Cesar Dias": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              "Laeserin": "dd664d5e4016433a8cd69f005ae1480804351789b59de5af06276de65633d319", 
              "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
@@ -88,7 +123,7 @@ Profile_frame = ttk.LabelFrame(root, text="Profile", labelanchor="n", padding=10
 Profile_frame.place(relx=0.01,rely=0.03,relwidth=0.2,relheight=0.3)
 label = tk.Label(root, text="Name",font=('Arial',12,'normal'))
 label.place(relx=0.08,rely=0.07)
-combo_box = ttk.Combobox(root, values=["Pablo","jb55","Vitor","Laeserin","il_lost_"],font=('Arial',12,'normal'),width=15)
+combo_box = ttk.Combobox(root, values=["Dawn","Cesar Dias","Vitor","Laeserin","il_lost_"],font=('Arial',12,'normal'),width=15)
 combo_box.place(relx=0.06,rely=0.12)
 combo_box.set("Cluster")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -287,16 +322,17 @@ def list_note_draft(list_note):
 async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
-    # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
+      # Add relays and connect
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+         await client.add_relay(RelayUrl.parse(relay_c))        
+           
     await client.connect()     
     await asyncio.sleep(2.0)
     if WoT_check.get()==1:
@@ -502,7 +538,7 @@ def show_Teed():
                 quote=quote_content(entry["content"])
                 if quote:
                    print(quote)
-                if tags_string(entry,"e")!=[] or tags_string(entry,"q"):
+                if tags_string(entry,"e")!=[] or tags_string(entry,"q")!=[]:
                   show_print_test_tag(entry)
            else: 
              if messagebox.askyesno("This create a new window","Do you want Reply? "):
@@ -637,11 +673,11 @@ def note_text_kind1():
    scroll_bar_mini.config( command = second_label_10.yview )
    second_label_10.grid(padx=10, column=0, columnspan=3, row=s+1) 
 
-   button=Button(scrollable_frame_2,text=f"Print!", command=lambda val=note: print(val))
+   button=Button(scrollable_frame_2,text=f"Print ", command=lambda val=note: print(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    if note["tags"]!=[]: 
        if tags_string(note,"imeta")!=[] or tags_string(note,"image")!=[]:   
-        button_2=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: photo_var(val))
+        button_2=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: photo_var(val))
         button_2.grid(column=1,row=s+2,padx=5,pady=5)
        
    scrollbar_2.pack(side="right", fill="y",padx=2,pady=5) 
@@ -663,9 +699,12 @@ def four_tags(x,obj):
    if tags_string(x,obj)!=[]:
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
-          for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
+            for xtags in jtags[2:]:
+               if xtags != "":
+                  if jtags not in tags_list:
+                     tags_list.append(jtags)
+                  break  
+           
       return tags_list 
 
 async def get_outbox(client):
@@ -681,20 +720,18 @@ async def get_outbox(client):
 async def outboxes():
     init_logger(LogLevel.INFO)
     client = Client(None)
-    
+
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+        await client.add_relay(RelayUrl.parse(relay_c))
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
-             
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+            await client.add_relay(RelayUrl.parse(jrelay))
     else:
-        relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-        relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-        await client.add_relay(relay_url_1)
-        await client.add_relay(relay_url_2)
-     
-       
+      await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
     await client.connect()
     db_note.clear()
     note_result= await get_outbox(client)
@@ -736,16 +773,17 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
-    await client.add_relay(relay_url_1)
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_2)
-    
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    await client.add_relay(RelayUrl.parse("wss://relay.damus.io/"))
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+         await client.add_relay(RelayUrl.parse(relay_c))        
+            
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -1144,15 +1182,11 @@ async def feed_cluster(authors,type_of_event):
     #uniffi_set_event_loop(asyncio.get_running_loop())
 
     # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    relay_url_3=RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
-    await client.add_relay(relay_url_3)
-   
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+         await client.add_relay(RelayUrl.parse(relay_c))
+    
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(authors, list):
@@ -1172,25 +1206,26 @@ def list_pubkey_id():
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+       
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
@@ -1198,9 +1233,9 @@ def list_pubkey_id():
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
                         
-        except KeyError as e:
-          print("KeyError ",e) 
-       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
+      except KeyError as e:
+       print("KeyError ",e) 
+         
 
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))
 #button_people_2.place(relx=0.22,rely=0.45) 
@@ -1287,7 +1322,7 @@ def layout():
           
            button_photo=Button(scrollable_frame, text="Photo", command=lambda  val=str(photo_profile[name_pubkey]): print_photo_url(val),font=('Arial',12,'normal'))
            button_photo.grid(row=s+4, column=0, padx=5, pady=5)
-         blo_label = Button(scrollable_frame, text=f"Reply to {str(Pubkey_Metadata[name_pubkey][0:9])}",font=('Arial',12,'normal'),command=lambda val=name_pubkey :test_open(val) )
+         blo_label = Button(scrollable_frame, text=f"Reply to User",font=('Arial',12,'normal'),command=lambda val=name_pubkey :test_open(val) )
          blo_label.grid(row=s + 4, column=1, padx=2, pady=5)
          Button(scrollable_frame, text="Print Metadata",command=lambda val=meta_test: print(val),font=('Arial',12,'normal')).grid(row=s +4, column=2, padx=5, pady=2)
         s += 5   
@@ -1376,17 +1411,17 @@ async def Get_event_from(event_):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
-
-    # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2=RelayUrl.parse("wss://relay.damus.io/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
-    
     if relay_list!=[]:
-        for xrelay in relay_list:
-            relay_url_list=RelayUrl.parse(xrelay)
-            await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+         await client.add_relay(RelayUrl.parse(relay_c))        
+        
     await client.connect()
     await asyncio.sleep(2.0)
     try:   
@@ -1432,7 +1467,7 @@ async def get_kind_relay(client, event_):
 public_list=[]
 
 async def Tag_note(note,tag):
-   
+  try: 
    init_logger(LogLevel.INFO)
    key_string=log_these_key()
    if key_string!=None: 
@@ -1444,11 +1479,10 @@ async def Tag_note(note,tag):
     if outbox_list!=[]:
        
        for jrelay in outbox_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+         await client.add_relay(RelayUrl.parse(jrelay))
     else:
        if relay_list!=[]:
-          for xrelay in outbox_list:
+          for xrelay in relay_list:
             relay_url_1=RelayUrl.parse(xrelay)
             await client.add_relay(relay_url_1)
     await client.connect()
@@ -1463,19 +1497,23 @@ async def Tag_note(note,tag):
     await asyncio.sleep(2.0)
     
     print("Getting events from relays...")
-    f = Filter().authors([keys.public_key()]).kind(Kind(24))
+    f = Filter().authors([keys.public_key()]).kind(Kind(24)).limit(20)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
      if event.verify():
       print(event.as_json())
+  except NostrSdkError as e:
+     print(e)    
 
 list_q=[]
 
 def Gm_status():
-   check_square()
-   lists_id=[] 
+   
+   
+   if button_entry1.cget('foreground')!="green":
+      check_square()
    if button_entry1.cget('foreground')=="green":
-     
+    lists_id=[]   
     if list_p!=[]:        
         for alist in list_p:
             if outbox_list!=[]:
@@ -1519,7 +1557,8 @@ def check_square():
     if list_p!=[] and Text!="":
         quote=quote_content(Text)
         if quote:
-           list_q.append(EventId.parse(quote))
+           if EventId.parse(quote) not in list_q:
+            list_q.append(EventId.parse(quote))
         print_label.config(text="Ready", font=("Arial",12,"bold"),foreground="blue")
         button_entry1.config(text="■",foreground="green")
         error_label.config(text="ok")
@@ -1767,7 +1806,7 @@ def show_print_test_tag(note):
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
      
    if tags_string(note,"e")!=[] or tags_string(note,"q")!=[]:
@@ -1804,14 +1843,22 @@ def show_note_from_id(note):
          if replay_note!=[]:
             return replay_note
                
-
 def nota_reply_id(nota):
-    e_id=[]
-    if tags_string(nota,'e')!=[]:
+   e_id=[]
+   if tags_string(nota,'e')!=[]:
             for event_id in tags_string(nota,'e'):
                   if event_id not in e_id:
-                    e_id.append(event_id)   
-    return e_id    
+                    e_id.append(event_id) 
+   if tags_string(nota,'q')!=[]:
+    for event_q in tags_string(nota,'q'):
+        if event_q not in e_id:
+            e_id.append(event_q)              
+            if four_tags(nota,"q")!=[]:
+                for event_q in four_tags(nota,"q"):
+                    if str(event_q[2]).startswith("wss://") and event_q[2] not in list(Nostr_relay_list.keys()) :
+                        Nostr_relay_list[event_q[2]]="" 
+
+   return e_id    
 
 relay_url_list=[]
 

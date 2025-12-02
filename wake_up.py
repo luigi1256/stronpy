@@ -2,7 +2,7 @@ from nostr_sdk import *
 import asyncio
 from datetime import timedelta
 import time
-from datetime import datetime
+from datetime import datetime 
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
@@ -265,6 +265,14 @@ def until_hour_time(until_time:int):
     date_1=datetime.datetime.combine(date, datetime.time(until_time, 0, 0)).timestamp()
     #print(int(float(date_1)))
     return date_1
+
+def until_day_time(day_u:int):
+    import datetime
+    date = datetime.date.today() + datetime.timedelta(days=int(day_u))
+    date_1=datetime.datetime.combine(date, datetime.time(0, 0, 0)).timestamp()
+    
+    return date_1
+
 
 button_1=tk.Button(root,text="Time",command=lambda:return_data_action(6,10),font=("Arial",12))
 button_1.place(relx=0.6,rely=0.25,relwidth=0.04)
@@ -535,7 +543,6 @@ entry_Home_title.place(relx=0.4,rely=0.2,relwidth=0.2)
 str_test=StringVar()
 entry_note=ttk.Entry(root,justify='left', textvariable=str_test,font=("Arial",12,"normal"))
 
-
 def reply_event():
      
   try:   
@@ -623,7 +630,6 @@ async def Get_id(event_):
     return test_kind
 
 event_idone=Button(root,text="Search Note", font=('Arial',12,'normal'),command=reply_event ) 
-
 
 def open_relay():
     frame_account=tk.Frame(root, background="darkgrey")
@@ -774,7 +780,7 @@ async def Get_event_from(event_):
 
     # Add relays and connect
     relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://wot.utxo.one/")
+    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
     await client.add_relay(relay_url_1)
     await client.add_relay(relay_url_2)
     
@@ -892,9 +898,9 @@ def show_noted():
                 print(entry["content"])
                 
                                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=3,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
        s=s+2  
        s1=s1+4
@@ -934,4 +940,84 @@ def search_for_note(note_found:list):
                list_notes.append(note_x)
         return list_notes 
 
+async def Tell_me_your_dream(tag,status):
+   
+  init_logger(LogLevel.INFO)
+  try:
+   key_string=log_these_key()
+   if key_string!=None: 
+    keys = Keys.parse(key_string)
+    
+    signer=NostrSigner.keys(keys)
+    client = Client(signer)
+    if relay_list!=[]:
+       
+       for jrelay in relay_list:
+            await client.add_relay(RelayUrl.parse(jrelay))
+
+       await client.connect()
+     
+       builder = EventBuilder(Kind(2222),status).tags(tag)
+        
+       test= await client.send_event_builder(builder)
+    
+       print(test.failed.values())
+
+  except NostrSdkError as e:
+     print (e)  
+
+def word_to_use(string_str:str):
+   
+      text_message=string_str     
+      message_str=text_message.replace(",", "").replace(".", "")
+      message=message_str.split()
+      
+      for note in message:
+         if note=="dream" or note=="dreams":
+           return string_str
+
+def send_dream():
+   if second_text.get('1.0', 'end-1c')!="":
+    if word_to_use(str(second_text.get('1.0', 'end-1c'))):
+        list_id_dream=[]
+        list_id_dream.append(Tag.expiration(Timestamp.from_secs(int(until_day_time(30)))))
+        list_id_dream.append(Tag.hashtag("dream"))
+        asyncio.run(Tell_me_your_dream(list_id_dream,second_text.get('1.0', 'end-1c')))
+        delete_text()
+
+def create_note():
+      if Check_raw_1.get()==0:
+       Check_raw_1.set(1)
+       scroll_bar_mini.place(relx=0.6,rely=0.6,relheight=0.25)
+       scroll_bar_mini.config( command = second_text.yview )
+       second_text.place(relx=0.38,rely=0.6,relwidth=0.22,relheight=0.25) 
+       Message_tag1.place(relx=0.38,rely=0.56 )
+       button_send_text.place(relx=0.52,rely=0.85)   
+       button_del_text.place(relx=0.52,rely=0.55)
+       button_Close_text.place(relx=0.6,rely=0.55)   
+       
+      else: 
+         Check_raw_1.set(0)
+         scroll_bar_mini.place_forget()
+         second_text.delete("1.0", "end")
+         second_text.place_forget()
+         Message_tag1.place_forget()
+         button_send_text.place_forget()
+         button_del_text.place_forget()
+         button_Close_text.place_forget()
+
+Check_raw_1 =IntVar()
+scroll_bar_mini = tk.Scrollbar(root)
+second_text = tk.Text(root, padx=5, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+Message_tag1 = tk.Label(root, text="Send your dreams...",font=("Arial",12,"bold"))         
+button_Open_text=Button(frame1, command=create_note, text="Open",font=('Arial',12,'normal'))
+button_Close_text=Button(root, command=create_note, text="Close",font=('Arial',12,'normal'))
+button_Open_text.place(relx=0.85,rely=0.2)     
+button_send_text=Button(root, command=send_dream, text="Send",font=('Arial',12,'normal'))
+
+def delete_text():
+   second_text.delete("1.0", "end")
+
+button_del_text=Button(root, command=delete_text, text="Delete",font=('Arial',12,'normal'))
+  
 root.mainloop()         

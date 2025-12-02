@@ -707,8 +707,11 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
+            if xtags != "":
+                        if jtags not in tags_list:
+                            tags_list.append(jtags)
+                        break  
+           
       return tags_list 
 
 async def get_outbox(client):

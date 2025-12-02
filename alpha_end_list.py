@@ -1,9 +1,9 @@
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, PublicKey,Kind, uniffi_set_event_loop
 from datetime import timedelta
-from asyncio import get_event_loop
 from nostr_sdk import *
 import json
+from tkinter import ttk,messagebox
+import time
 
 async def get_event(client, event_):
     tag_event=[]
@@ -15,7 +15,7 @@ async def get_event(client, event_):
      else:
        try:
         if len(tag_id)>71 and tag_id[5]==":" and tag_id[70]==":":
-         coord = Coordinate(Kind(int(tag_id[0:5])),PublicKey.parse(tag_id[6:70]),str(tag_id[71:]))
+         coord = Coordinate.parse(tag_id)
          if coord not in tag_identifiers:
            tag_identifiers.append(coord.identifier())
            tag_pubkey.append(coord.public_key())
@@ -32,6 +32,12 @@ async def get_event(client, event_):
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
+async def root_event(client,event):
+      f = Filter().event(EventId.parse(event)).kinds([Kind(1),Kind(7),Kind(6)]).limit(100)
+      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+      z = [event.as_json() for event in events.to_vec() if event.verify()]
+      return z
+
 async def Selected_event(event_):
         
     client = Client(None)
@@ -46,7 +52,7 @@ async def Selected_event(event_):
     if isinstance(event_, list):
         test_kind = await get_event(client, event_)
     else:
-        print("errore")
+        test_kind = await root_event(client,event_)
     await asyncio.sleep(2.0)
     
     return test_kind
@@ -71,9 +77,8 @@ async def get_metadata(user):
     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
     await client.add_relay(relay_url_1)
     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
     await client.add_relay(relay_url_x)
-    await client.add_relay(relay_url_2)
+    
    
     await client.connect()
     if isinstance(user,list):
@@ -85,33 +90,61 @@ async def get_metadata(user):
     await asyncio.sleep(2.0)
     await client.disconnect()
     return z
-  
+
+Nostr_relay_list={"wss://nos.lol/":"","wss://nostr.mom/":""}
+
+async def check_relay():
+   
+   for relay_x in list(Nostr_relay_list.keys()):
+      if Nostr_relay_list[relay_x]!="bad":   
+         if get_nostr_relay_info(relay_x):
+           Nostr_relay_list[relay_x]="good"
+         else:
+            Nostr_relay_list[relay_x]="bad"
+
 async def feed_cluster(authors,type_of_event):
     # Init logger
-    init_logger(LogLevel.INFO)
-   
+    if type_of_event=="":
+     init_logger(LogLevel.INFO)
+     if messagebox.askyesno("check relays", "Do you want check the relays"):
+         await check_relay()
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
-
+    
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    await client.add_relay(relay_url_x)
-    await client.add_relay(relay_url_2)
-   
-   
+    
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+          await client.add_relay(RelayUrl.parse(relay_c))
     await client.connect()
-
     await asyncio.sleep(2.0)
-
     if isinstance(authors, list):
         combined_results = await get_note_cluster(client, authors, type_of_event)
     else:
         combined_results = await get_relay(client, authors)
-    
     return combined_results
+
+def get_nostr_relay_info(relay_url: str):
+    """
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status() 
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Error while requesting {relay_url}: {e}")
+        return None
 
 timeline_list_kind=[]
 timeline_people=[]
@@ -124,7 +157,7 @@ def tags_string(x,obj):
      for j in f:
       if j[0]==obj:
           z.append(j[1])
-     return z
+    return z
     
 def get_note(z):
     f=[]
@@ -150,7 +183,7 @@ def found_follow():
      follow_kind=get_note(asyncio.run(feed_cluster(convert_user(my_dict[str(combo_box.get())]),type_event))) 
      if follow_kind!=[]:
         people=tags_string(follow_kind[0],"p")
-        if people!=None:
+        if people!=[]:
          for people_x in people:
            if people_x not in timeline_people:
               timeline_people.append(people_x)
@@ -161,9 +194,6 @@ def timelines():
   if timeline_people!=[]:
    tm=get_note(asyncio.run(feed_cluster(user_convert(timeline_people),type_event)))
    new_note_time(tm)
-   #for tm_x in tm:
-   #   if tm_x not in timeline_list_kind:
-   #      timeline_list_kind.append(tm_x)
   else:
      found_follow()
       
@@ -179,16 +209,16 @@ from tkinter import ttk
 root = tk.Tk()
 root.geometry("1250x800")
 root.title("Trending See")
-
+label_display_name = tk.Label(root, text="",font=('Arial',12,'bold'))
 frame1=tk.Frame(root,height=100,width=200,background="grey")
-label = tk.Label(frame1, text="Selected Item: ",font=('Arial',12,'bold'))
+label = tk.Label(frame1, text="Profile Key: ",font=('Arial',12,'bold'))
 label.grid(pady=10, column=0, columnspan=2, row=1)
 
 my_list = list(my_dict.values())
 my_name = list(my_dict.keys())
 def on_select(event):
     selected_item = combo_box.get()
-    label.config(text="Selected Item: " + my_dict[selected_item][0:9])
+    label.config(text="Profile Key: " + my_dict[selected_item][0:9])
 
 combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","il_lost_"],font=('Arial',12,'bold'))
 combo_box.grid(pady=5,column=1, row=0,ipadx=1)
@@ -202,9 +232,9 @@ label1.grid(column=4, row=0,padx=5,pady=5,ipadx=1,ipady=1,rowspan=2, columnspan=
 frame4=tk.Frame(root,height=25,width= 100)
 Channel_frame = ttk.LabelFrame(root, text="Relay", labelanchor="n", padding=10)
 Channel_frame.place(relx=0.1,rely=0.21,relheight=0.15,relwidth=0.22)   
-button3=tk.Button(root,text="Some Kinds",command=timelines,font=('Arial',14))  #read_Timeline
+button3=tk.Button(root,text="Some Notes",command=timelines,font=('Arial',14))  #read_Timeline
 button3.place(relx=0.12,rely=0.26)   
-button_2=tk.Button(root,text="kind 3",command=found_follow,font=('Arial',14))  #timeline
+button_2=tk.Button(root,text="Contacts",command=found_follow,font=('Arial',14))  #timeline
 button_2.place(relx=0.24,rely=0.26)  
 label_count=tk.Label(frame4, text="Timeline People: "+str(len(timeline_people)), font=('Arial',12,'bold'),foreground="darkgrey")
 
@@ -224,7 +254,7 @@ def clear_follow_list():
 Channel_frame_three = ttk.LabelFrame(root, text="Count", labelanchor="n", padding=10)
 Channel_frame_three.place(relx=0.32,rely=0.21,relheight=0.15,relwidth=0.17) 
 label_count_2=tk.Label(root, text=str(len(timeline_people)), font=('Arial',12,'bold'),foreground="darkgrey")
-button_3=tk.Button(root,text="kind 3 len",command=count_follow_list,font=('Arial',14))  
+button_3=tk.Button(root,text="Contacts lenght",command=count_follow_list,font=('Arial',14))  
 button_3.place(relx=0.36,rely=0.24)  
 label2=tk.Label(frame4, text="", font=('Arial',12,'bold'),foreground="darkgrey")
 label_tm_1=tk.Label(root, text=str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
@@ -232,8 +262,6 @@ label_tm_1=tk.Label(root, text=str(len(timeline_list_kind)), font=('Arial',12,'b
 def count_note_list():
     label1=tk.Label(frame4, text="Number events: " +str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
     label1.grid(column=4, row=3,padx=5,pady=5,ipadx=1,ipady=1)
-    label_tm_1=tk.Label(root, text=str(len(timeline_list_kind)), font=('Arial',12,'bold'),foreground="darkgrey")
-    label_tm_1.place(relx=0.44,rely=0.31)
     event_number()
 
 def call_layoput_note():
@@ -299,7 +327,7 @@ def timeline_created(list_new):
             kind_db_list.append(list_x)
         return kind_db_list  
 
-button_4=tk.Button(root,text="kind TM len",command=count_note_list,font=('Arial',12))  
+button_4=tk.Button(root,text="Notes length",command=count_note_list,font=('Arial',14))  
 button_4.place(relx=0.36,rely=0.3)     
 kind_db_list=[]
 note_lile=[]
@@ -317,7 +345,7 @@ def choice_kind(x):
            if zeta_p not in kind_db_list and zeta_p["id"] not in block_id:
               if len(kind_db_list)<100:
                kind_db_list.append(zeta_p)
-        print(len(kind_db_list))
+       
      else:
        if x==1:
           kind_1=like_note_7()
@@ -343,8 +371,7 @@ def choice_kind(x):
                if zeta_a not in kind_db_list:
                  if len(kind_db_list)<100:
                   kind_db_list.append(zeta_a)
-             print(len(kind_db_list))     
-            
+                 
 Channel_frame = ttk.LabelFrame(root, text="Type of Note", labelanchor="n", padding=10)
 Channel_frame.place(relx=0.1,rely=0.4,relheight=0.15,relwidth=0.22)         
 button_4=tk.Button(root,text="Note",command=lambda val=1: choice_kind(val),font=('Arial',14))  
@@ -357,10 +384,10 @@ def clear_kind_scroll():
    for kind_x in kind_db_list:
       block_id.append(kind_x["id"])  
    kind_db_list.clear() 
-   label_count_id=Label(root,text="Block Id "+ str(len(block_id)),font=('Arial',14),fg="grey") 
+   label_count_id=Label(root,text="Locked notes "+ str(len(block_id)),font=('Arial',14),fg="grey") 
    label_count_id.place(relx=0.6,rely=0.02) 
 
-button_3_z=tk.Button(root,text="Scrolless",command=clear_kind_scroll,font=('Arial',14), background="grey") 
+button_3_z=tk.Button(root,text="Lock notes",command=clear_kind_scroll,font=('Arial',14), background="grey") 
 button_3_z.place(relx=0.75,rely=0.10, anchor="n") 
 wall=tk.Label(frame1, text="",background="lightgrey",height=4)
 wall.grid(column=3, row=0,padx=10,pady=5, rowspan=2)
@@ -409,10 +436,10 @@ button_5=tk.Button(frame4,text="close x",command=close_label,font=('Arial',14))
 Channel_frame_seven = ttk.LabelFrame(root, text="Like", labelanchor="n", padding=10)
 Channel_frame_seven.place(relx=0.32,rely=0.4,relheight=0.15,relwidth=0.17) 
 check_seven=IntVar()
-like_moed = Checkbutton(root, text = "Seven Like", variable = check_seven, onvalue = 1, 
+like_moed = Checkbutton(root, text = "Liked notes", variable = check_seven, onvalue = 1, 
                     offvalue = 0, height = 2, command="",font=('Arial',12,'bold'))
 like_moed.place(relx=0.35,rely=0.42)     
-button_4_c=tk.Button(root,text="Call layout",command=call_layoput_note,font=('Arial',12))  
+button_4_c=tk.Button(root,text="Find liked notes",command=call_layoput_note,font=('Arial',14))  
 button_4_c.place(relx=0.35,rely=0.48) 
 
 def search_3(note,x):
@@ -430,7 +457,7 @@ def four_tags(x,obj):
         if len(jtags)>2:
           if jtags not in tags_list:
              tags_list.append(jtags)
-      return tags_list 
+   return tags_list 
 
 def layout():
    if kind_db_list!=[]: 
@@ -480,7 +507,7 @@ def layout():
                context2=context2+str("#")+note_tags+" "
           if tags_string(note,"e")!=[]:
            
-           if four_tags(note,"e") and note["kind"]!=30023:
+           if four_tags(note,"e")!=[] and note["kind"]!=30023:
             for F_note in four_tags(note,"e"):
              if len(F_note)>3:
               context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -517,42 +544,7 @@ def layout():
         frame1.destroy()
         
     if list_note_lib==[]:
-     close_canvas()    
-    def print_tags(entry):
-        
-                list_one,list_two=tags_first(entry)
-                var_id_2=StringVar()
-                label_id_2= Message(scrollable_frame,textvariable=var_id_2, relief=RAISED,width=300,font=("Arial",12,"normal"))
-                s=3
-                
-                def val_tag(val):
-                    s=3
-                    list_z,par=tags_parameters(list_one,list_two,val)
-                    var_id_2.set(str(list_z))
-                    value=list_one.index(par)
-                    label_id_2.grid(pady=2,column=1,row=s+value, columnspan=3)  
-        
-                if list_one:
-         
-                 z=0
-         
-                 while z<len(list_one):
-          
-                    button_grid2=Button(scrollable_frame,text=str(list_one[z]), command=lambda val=list_one[z]: val_tag(val))
-                    button_grid2.grid(row=s,column=0,padx=5,pady=5)    
-                    z=z+1
-                    s=s+1 
-                 button=Button(scrollable_frame,text="stamp", command=lambda val=var_id_2: stamp_var(val))
-                 button.grid(column=0,row=s+1,padx=5,pady=5)
-          
-                if 'mention' in tags_str_long(entry,"e"):
-                    print("e "+tags_str_long(entry,"e"))
-                if 'mention' in tags_str_long(entry,"a"):   
-                     print("a "+tags_str_long(entry,"a"))
-    def stamp_var(entry):
-                if entry.get()!="":
-                 
-                 print(entry.get())         
+     close_canvas()                                                                 
     
     button_close=Button(scrollable_frame, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
     button_close.grid(column=1,row=0, padx=5,pady=5)  
@@ -590,12 +582,12 @@ def show_print_test_tag(note):
             context0="Pubkey "+note["pubkey"]
    context0=context0+"\n"+"id: "+note["id"]+"\n"
    if note['tags']!=[]:
-        context1="Content "+"\n"+note['content']+"\n"
-        context2="\n"+"[ - [ - [ Tags ] - ] - ]"+"\n"+"\n"
-        context2=context2+"tags number: "+str(len(note["tags"])) +"\n"
-   else: 
-        context1="content: "+"\n"+note['content']+"\n"
-        context2=""
+        
+      context2=" [  [ Tags ]  ] ]"+"\n"
+      context2=context2+"tags number: "+str(len(note["tags"])) +"\n"
+   else:
+        
+      context2=""
            
    var_id=StringVar()
    label_id = Message(scrollable_frame_2,textvariable=var_id, relief=RAISED,width=320,font=("Arial",12,"normal"))
@@ -612,7 +604,7 @@ def show_print_test_tag(note):
                context2=context2+str("#")+note_tags+" "
          if tags_string(note,"e")!=[]:
            
-           if four_tags(note,"e") and note["kind"]!=30023:
+           if four_tags(note,"e")!=[] and note["kind"]!=30023:
             for F_note in four_tags(note,"e"):
              if len(F_note)>3:
               context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -624,13 +616,12 @@ def show_print_test_tag(note):
    second_label_2.grid(padx=10, column=0, columnspan=3, row=s+2,rowspan=2)
 
    def print_var(entry):
-        print("test1")
-   button_grid_1=Button(scrollable_frame_2,text="Zap", command=lambda val=note: print_var(val), width=10, height=3)
-   button_grid_1.grid(row=s,column=5,padx=5,pady=5)    
+      print_content(entry)
+   
+   if tags_string(note,"q")!=[]:
+      button_grid_1=Button(scrollable_frame_2,text="Mention \n Event", command=lambda val=note: print_var(val), width=10, height=3)
+      button_grid_1.grid(row=s,column=5,padx=5,pady=5)    
                    
-   def print_content(entry):
-      print("test2 o 3")
-
    def print_media(entry):
       if len(more_spam(entry))<2: 
               photo_print(entry)
@@ -641,13 +632,15 @@ def show_print_test_tag(note):
                else:
                   if len(more_spam(entry))==2:
                     photo_list(more_spam(entry))
-
-   button_grid_2=Button(scrollable_frame_2,text="Read", command=lambda val=note: print_content(val),width=10, height=3)
-   button_grid_2.grid(row=s+1,column=5,padx=5,pady=5)    
+   
    button_grid_3=Button(scrollable_frame_2,text="Open Media", command=lambda val=note: print_media(val),width=10, height=3)
    button_grid_3.grid(row=s+2,column=5,padx=5,pady=5)
-   button_grid_4=Button(scrollable_frame_2,text="Reply", command=lambda val=note: print_content(val),width=10, height=3)
+   if tags_string(note,"e")==[]:
+      button_grid_4=Button(scrollable_frame_2,text="Read", command=lambda val=note: print_content(val),width=10, height=3)
+   else:
+      button_grid_4=Button(scrollable_frame_2,text="Reply", command=lambda val=note: print_content(val),width=10, height=3)
    button_grid_4.grid(row=s+3,column=5,padx=5,pady=5)        
+   
    def print_tags(entry):
         
                 list_one,list_two=tags_first(entry)
@@ -697,13 +690,13 @@ def show_print_test_tag(note):
                 if entry.get()!="":
                  print(entry.get())                                  
    s=4        
-   button=Button(scrollable_frame_2,text=f"Tags!", command=lambda val=note: print_tags(val))
+   button=Button(scrollable_frame_2,text=f"Tags ", command=lambda val=note: print_tags(val))
    button.grid(column=0,row=s,padx=5,pady=5)
 
    def print_content(entry):
        result=show_note_from_id(entry)
        if result!=None: 
-        z=3
+        z=5
         for jresult in result:
            if jresult["id"]!=entry["id"]:  
              var_id_r=StringVar()
@@ -715,32 +708,46 @@ def show_print_test_tag(note):
                 var_id_r.set(" Author: "+jresult["pubkey"])
                       
              scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
-             scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
+             
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
+              if four_tags(jresult,"e")!=[]:
                 for F_note in four_tags(note,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               else:
-                 if tags_string(jresult,"e"):
+                 if tags_string(jresult,"e")!=[]:
                     context22=context22+str(len(tags_string(jresult,"e")))+ "\n"
                  else:
                     context22="---> Root  <--- "     
              else:
                context22="---> Root  <--- "
+             time_result=float(int(time.time())-jresult["created_at"])    
+             if jresult["kind"]==7:
+               if jresult["pubkey"] in list(Pubkey_Metadata.keys()):
+                  var_id_r.set("Nickname: "+Pubkey_Metadata[jresult["pubkey"]]+"\n"+str(int(float(time_result/3600)))+" Hour  & " +str(int(time_result/60)-int(time_result/(3600))*60)+" Minutes "+"\n \n Like "+jresult["content"]+"\n")
+               else:
+                  var_id_r.set("Pubkey: "+jresult['pubkey'][0:9]+"\n"+str(int(float(time_result/3600)))+" Hour  & " +str(int(time_result/60)-int(time_result/(3600))*60)+" Minutes "+"\n \n Like "+jresult["content"]+"\n")
+   
+             if jresult["kind"]==6:
+               if jresult["pubkey"] in list(Pubkey_Metadata.keys()):
+                  var_id_r.set("Nickname: "+Pubkey_Metadata[jresult['pubkey']]+"\n" +str(int(float(time_result/3600)))+" Hour  & " +str(int(time_result/60)-int(time_result/(3600))*60)+" Minutes "+ "\n \n RT the note \n" )          
+               else:
+                  var_id_r.set("Pubkey: "+jresult['pubkey'][0:9]+"\n" +str(int(float(time_result/3600)))+" Hour & " +str(int(time_result/60)-int(time_result/(3600))*60)+" Minutes "+ "\n \n RT the note \n" )            
              second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
              scroll_bar_mini_r.config( command = second_label10_r.yview )
-             second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
+             if jresult["kind"]==1:
+               scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
+               second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
                            
       
    if tags_string(note,"e")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s,column=2,padx=5,pady=5)    
    else:
     if is_video(note)!=None:
-     button_grid3=Button(scrollable_frame_2,text=f"See video!")  #pass
+     button_grid3=Button(scrollable_frame_2,text=f"See video ")  #pass
      button_grid3.grid(row=s,column=2,padx=5,pady=5)        
 
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
@@ -754,16 +761,14 @@ def show_print_test_tag(note):
    frame3.place(relx=0.55,rely=0.20,relheight=0.53,relwidth=0.45) 
 
 def show_note_from_id(note):
-        result=note["id"]
-        #result1=ast.literal_eval(entry_note.get())
-        #print(result1)
-        replay=nota_reply_id(note)
-        replay.append(result)
-        if replay!=[]:
-           items=get_note(asyncio.run(Selected_event(replay)))
-        else:
-           items=get_note(asyncio.run(Selected_event(result)))
-        return items   
+      result=note["id"]
+      replay=nota_reply_id(note)
+      if replay!=[]:
+         items=get_note(asyncio.run(Selected_event(replay)))
+      else:
+         items=get_note(asyncio.run(Selected_event(result)))
+        
+      return items   
 
 def nota_reply_id(nota):
     e_id=[]
@@ -772,6 +777,10 @@ def nota_reply_id(nota):
             for event_id in tags_string(nota,'e'):
                   if event_id not in e_id:
                     e_id.append(event_id)   
+      if tags_string(nota,'q')!=[]:
+       for event_q in tags_string(nota,'q'):
+            if event_q not in e_id:
+              e_id.append(event_q)                 
     return e_id  
 
 def tags_str_long(x,obj):
@@ -896,7 +905,7 @@ def like_long_thread():
      if tags_string(x,'a')!=[]:
       name= tags_string(x,'a')[0]
       if name[0:6]=="30023:":
-          print("note like",x["kind"],"\n", name)
+          #print("note like",x["kind"],"\n", name)
           if tags_string(x,'a')[0] not in vore_id:
             share_naddr(x)   
             vore_id.append(tags_string(x,'a')[0])
@@ -906,9 +915,8 @@ def like_long_thread():
             note_lile.append(vore_x)
       long_article=[]
       for j in kind_long:
-       if tags_string(j,"d")!=None:
-            if tags_string(j,"d")!=[]:
-                if str("30023:")+str(j["pubkey"])+str(":")+str(tags_string(j,"d")[0]) in vore_id:
+         if tags_string(j,"d")!=[]:
+            if str("30023:")+str(j["pubkey"])+str(":")+str(tags_string(j,"d")[0]) in vore_id:
                   long_article.append(j)   
       if long_article!=[]:
          return long_article                 
@@ -990,7 +998,7 @@ def photo_list_2(note):
         button_close_photo.grid(column=1,row=s+1)
         s=s+2
    print_photo()     
-   frame_pic.place(relx=0.4,rely=0.6,relwidth=0.3) 
+   frame_pic.place(relx=0.45,rely=0.6,relwidth=0.3) 
   else:
      print("error", "none")        
  else:
@@ -1188,27 +1196,26 @@ def list_people_fun():
 Pubkey_Metadata={}
 
 def pubkey_id(test):
-   
-   metadata_note=search_kind(PublicKey.parse(test),0)
-   if metadata_note!=[]:
-       single=metadata_note[0]
-       single_1=json.loads(single["content"])
-       try:
+   label_display_name.place(relx=0.34,rely=0.59)
+   if test not in list(Pubkey_Metadata.keys()):
+      try:
+       metadata_note=search_kind(PublicKey.parse(test),0)
+       if metadata_note!=[]:
+        single=metadata_note[0]
+        single_1=json.loads(single["content"])
+       
         if single_1["name"]!="":
-           print("Pubkey", test,"\n","Npub ",PublicKey.parse(test).to_bech32())
-           
-           if test not in list(Pubkey_Metadata.keys()):
-              Pubkey_Metadata[test]=single_1["name"]
-              print(single_1["name"])
+            Pubkey_Metadata[test]=single_1["name"]
+            label_display_name.config(text="Nickname "+str(Pubkey_Metadata[test]))
         else:   
             if single_1["display_name"]!="":
                     
-                if test not in list(Pubkey_Metadata.keys()):
-                  Pubkey_Metadata[test]=single_1["display_name"]    
-                  print("Pubkey", test,"\n","Npub ",PublicKey.parse(test).to_bech32())
-                  print(single_1["display_name"])  
-       except KeyError as e:
-          print("KeyError ",e)     
+               Pubkey_Metadata[test]=single_1["display_name"]    
+               label_display_name.config(text="Nickname "+str(Pubkey_Metadata[test]))
+      except KeyError as e:
+          print("KeyError ",e) 
+   else:
+      label_display_name.config(text="Nickname "+str(Pubkey_Metadata[test]))
 
 def list_pubkey_id():
   people_list=list_people_fun()
@@ -1258,15 +1265,24 @@ def print_people():
     se=2
             
     while ra<len(test1):
-            
-                button_grid1=Button(scrollable_frame,text=f"{test1[ra][0:9]} ", command=lambda val=test1[ra]: pubkey_id(val))
+                
+                if test1[ra] in list(Pubkey_Metadata.keys()):      
+                 button_grid1=Button(scrollable_frame,text=f"{Pubkey_Metadata[test1[ra]][0:10]} ", command=lambda val=test1[ra]: pubkey_id(val))
+                else:
+                  button_grid1=Button(scrollable_frame,text=f"{test1[ra][0:10]} ", command=lambda val=test1[ra]: pubkey_id(val))
                 button_grid1.grid(row=s,column=1,padx=5,pady=5)
                 
                 if len(test1)>se:
-                 button_grid2=Button(scrollable_frame,text=f"{test1[ra+1][0:10]}", command= lambda val=test1[ra+1]: pubkey_id(val))
+                 if test1[ra+1] in list(Pubkey_Metadata.keys()):  
+                  button_grid2=Button(scrollable_frame,text=f"{Pubkey_Metadata[test1[ra+1]][0:10]}", command= lambda val=test1[ra+1]: pubkey_id(val))
+                 else:
+                    button_grid2=Button(scrollable_frame,text=f"{test1[ra+1][0:10]}", command= lambda val=test1[ra+1]: pubkey_id(val))
                  button_grid2.grid(row=s,column=2,padx=5,pady=5)
                 if len(test1)>se:
-                 button_grid2=Button(scrollable_frame,text=f"{test1[ra+2][0:10]}", command= lambda val=test1[ra+2]: pubkey_id(val))
+                 if test1[ra+2] in list(Pubkey_Metadata.keys()):  
+                  button_grid2=Button(scrollable_frame,text=f"{Pubkey_Metadata[test1[ra+2]][0:10]}", command= lambda val=test1[ra+2]: pubkey_id(val))
+                 else:
+                   button_grid2=Button(scrollable_frame,text=f"{test1[ra+2][0:10]}", command= lambda val=test1[ra+2]: pubkey_id(val))
                  button_grid2.grid(row=s,column=3,padx=5,pady=5) 
             
                 root.update()  
@@ -1281,6 +1297,7 @@ def print_people():
     frame3.place(relx=0.33,rely=0.65,relwidth=0.3, relheight=0.3)      
     def Close_print():
        frame3.destroy()  
+       label_display_name.place_forget()
        
     button_close_=tk.Button(frame3,text="🗙",command=Close_print, font=('Arial',12,'bold'),foreground="red")
     button_close_.pack(pady=5,padx=5)                 

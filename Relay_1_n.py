@@ -230,8 +230,9 @@ button_beau.place(relx=0.45,rely=0.1)
 
 def get_nostr_relay_info(relay_url: str):
     """
-    Ottiene le informazioni NIP-11 di un relay Nostr.\n
-    relay_url: es. 'https://relay.damus.io'
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
     """
     headers = {"Accept": "application/nostr+json"}
 
@@ -246,7 +247,7 @@ def get_nostr_relay_info(relay_url: str):
         info = response.json()
         return info
     except Exception as e:
-        print(f"Errore durante la richiesta a {relay_url}: {e}")
+        print(f"Error while requesting {relay_url}: {e}")
         return None
 
 
