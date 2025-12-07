@@ -585,6 +585,7 @@ async def Get_event_from(event_):
     await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
+        await Search_status(client=Client(None),list_relay_connect=relay_list)
         for xrelay in relay_list:
           if xrelay!="wss://yabu.me/":
             relay_url_list=RelayUrl.parse(xrelay)
@@ -745,5 +746,40 @@ def search_for_note(note_found:list):
             if note_x not in list_notes: 
                list_notes.append(note_x)
         return list_notes 
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()         

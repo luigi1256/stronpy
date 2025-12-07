@@ -59,7 +59,39 @@ async def Search_r_lay(relay_1):
        combined_results = await get_result_(client,relay_1)
        if combined_results:
         return combined_results
-     
+
+async def Search_status(client:Client,list_relay_connect:list):
+   try: 
+      if list_relay_connect!=[]:
+         for relay_y in list_relay_connect:
+            await client.add_relay(RelayUrl.parse(relay_y))
+         await client.connect()
+         relays = await client.relays()
+         await asyncio.sleep(1.0)   
+         for url, relay in relays.items():
+            i=0
+            while i<2:   
+            
+               print(f"Relay: {url}")
+               print(f"Connected: {relay.is_connected()}")
+               print(f"Status: {relay.status()}")
+               stats = relay.stats()
+               print("Stats:")
+               print(f"    Attempts: {stats.attempts()}")
+               print(f"    Success: {stats.success()}")
+               if i==1:
+                  if stats.attempts()==1 and relay.is_connected()==False:
+                     if str(url) in list_relay_connect:
+                        list_relay_connect.remove(str(url))
+                  #if stats.success()==1 and relay.is_connected()==True:
+               i=i+1 
+       
+
+   except IOError as e:
+          print(e) 
+   except ValueError as b:
+      print(b)       
+
 def call_r_lay():
   if combo_list_lay.get()!="Relay List":
    if __name__ == "__main__":
@@ -72,6 +104,7 @@ def call_r_lay():
          if relay_x[0:6]=="wss://" and relay_x[-1]=="/" and relay_x not in relay_list:
             if len(relay_list)<6:
                 relay_list.append(relay_x)
+     asyncio.run(Search_status(client=Client(None),list_relay_connect=relay_list))         
 
 def pubkey_id_ver(test):
    note_pubkey=[]
@@ -285,6 +318,7 @@ async def Get_event_from(event_):
        relay_list.append("wss://nostr.mom/")
        relay_list.append("wss://nos.lol/")
        combo_list_lay["values"]=relay_list
+       label_r_lay.config(text="Relay: "+ str(len(relay_list)))
      
     await client.connect()
     await asyncio.sleep(2.0)

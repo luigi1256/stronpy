@@ -79,12 +79,13 @@ def raw_label():
         stuff_frame.place(relx=0.03,rely=0.2,relheight=0.35,relwidth=0.23) 
         descr_tag.place(relx=0.04,rely=0.32)
         descr_summary.place(relx=0.04,rely=0.36,relwidth=0.15 )
-        d_tag.place(relx=0.04,rely=0.22 )
+        d_tag.place(relx=0.04,rely=0.23 )
         d_title.place(relx=0.04,rely=0.27)
         combo_lab.place(relx=0.04,rely=0.41,relwidth=0.1)
         button_send.place(relx=0.04,rely=0.46,relwidth=0.1)
         clear_button.place(relx=0.15,rely=0.46,relwidth=0.07)
         entry_tag.place(relx=0.15,rely=0.41,relwidth=0.07)
+        lab_button_close.place(relx=0.2,rely=0.22) 
         
    else:
       Check_raw.set(0)
@@ -97,10 +98,14 @@ def raw_label():
       d_title.place_forget()
       button_send.place_forget()
       entry_tag.place_forget()
+      lab_button_close.place_forget() 
       
 
 lab_button = tk.Button(root, text="Raw Link", font=("Arial",12,"bold"), command=raw_label)
 lab_button.place(relx=0.05,rely=0.15)      
+
+lab_button_close = tk.Button(root, text="Close", font=("Arial",12,"bold"), command=raw_label)
+     
 
 def add_tag(event):
    hashtag=list_hashtag_fun()
@@ -550,7 +555,7 @@ async def Get_notes():
     
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
+       
        for jrelay in relay_list:
         relay_url = RelayUrl.parse(jrelay)
         await client.add_relay(relay_url)
@@ -734,16 +739,18 @@ button_user=Button(root,text=f"Metadata Users", command=list_pubkey_id,font=("Ar
 button_user.place(relx=0.05,rely=0.1)
 
 def search_kind(x):
+   Zeta=[]
    if __name__ == "__main__":
     # Example usage with a single key
     
     single_results = asyncio.run(feed_cluster([Kind(x)]))
-   Z=[]
-   note=get_note(single_results)
-   for r in note:
-      if (r)['kind']==x:
-         Z.append(r)
-   return Z       
+    if single_results:
+      
+      note=get_note(single_results)
+      for r in note:
+         if (r)['kind']==x:
+            Zeta.append(r)
+   return Zeta       
 
 add_relay_list=[]
 
@@ -758,34 +765,64 @@ async def get_note_cluster(client, type_of_event):
 
 async def feed_cluster(type_of_event):
     # Init logger
-    init_logger(LogLevel.INFO)
+   init_logger(LogLevel.INFO)
    
-    client = Client(None)
+   client = Client(None)
     #uniffi_set_event_loop(asyncio.get_running_loop())
-    add_relay_list.clear()
-    if relay_list!=[]:
-       
-       for relay_j in relay_list:
-           if RelayUrl.parse(relay_j) not in add_relay_list:
-                add_relay_list.append(RelayUrl.parse(relay_j))
-                await client.add_relay(RelayUrl.parse(relay_j))
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    if relay_url_1 not in add_relay_list:
-       add_relay_list.append(relay_url_1)
-       await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    if relay_url_x not in add_relay_list:
-       add_relay_list.append(relay_url_x)
-       await client.add_relay(relay_url_x)
-    if relay_url_2 not in add_relay_list:
-       add_relay_list.append(relay_url_2)
-       await client.add_relay(relay_url_2)
-    await client.connect()
-    await asyncio.sleep(2.0)
+   add_relay_list.clear()
+   list_add_relay=["wss://nos.lol/","wss://nostr.mom/","wss://nostr-pub.wellorder.net/"]
+   await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+   if list_add_relay!=[]:
+      for x_relay in list_add_relay:
+         if x_relay not in relay_list:
+            relay_list.append(x_relay)
 
-    combined_results = await get_note_cluster(client, type_of_event)
-    return combined_results
+   if relay_list!=[]:
+      for relay_j in relay_list:
+         if RelayUrl.parse(relay_j) not in add_relay_list:
+            add_relay_list.append(RelayUrl.parse(relay_j))
+            await client.add_relay(RelayUrl.parse(relay_j))         
+    
+      await client.connect()
+      await asyncio.sleep(2.0)
+
+      combined_results = await get_note_cluster(client, type_of_event)
+      return combined_results
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 def pubkey_id(test):
    note_pubkey=[]

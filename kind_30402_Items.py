@@ -1,20 +1,11 @@
 #widget 1 
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, EventBuilder, Metadata,Kind
 from nostr_sdk import *
-from nostr_sdk import Keys,Filter,Client, Event,EventBuilder,Metadata,PublicKey,EventId,Nip19Event,Nip19,Nip19Profile,Nip21,Timestamp
 from datetime import timedelta 
-import textwrap
-import json
-import ast
-import time
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import datetime
-import calendar
-from asyncio import get_event_loop
 import requests
 import shutil
 from PIL import Image, ImageTk
@@ -361,7 +352,7 @@ def show_noted():
       try:
        context0=str("")
        context2=str("")
-       context0=context0+str("Author: ")+str(note['pubkey'])
+       context0=context0+str("Author: ")+str(note['pubkey'][0:9])
        if tags_string(note,"title")!=[]:
         for ynote in tags_string(note,"title"):
          context0=context0+"\n"+"Title "+str(ynote) 

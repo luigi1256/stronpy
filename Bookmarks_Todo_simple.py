@@ -5,6 +5,7 @@ import asyncio
 from nostr_sdk import *
 from datetime import timedelta
 import datetime
+import requests
 
 root = tk.Tk()
 root.title("Tags test")
@@ -70,7 +71,7 @@ def share_naddr(note):
     coord = Coordinate(Kind(note["kind"]),PublicKey.parse(note["pubkey"]),str(tags_string(note,"d")[0]))
     coordinate = Nip19Coordinate(coord, [])
     #print(f" Coordinate (encoded): {coordinate.to_bech32()}")
-    print(f"https://njump.me/{coordinate.to_bech32()}")
+    print(f"https://nwak.nostr.technology/#/{coordinate.to_bech32()}")
   
 List_combo_value={"To do":[],"Wish":[], "Done":[], "Possible":[]}
 
@@ -281,9 +282,7 @@ async def Get_event_id(e_id):
        
     if relay_list!=[]:
         for xrelay in relay_list:
-          if xrelay[0:6]=="wss://" and xrelay[-1]=="/":  
-            relay_url = RelayUrl.parse(xrelay)
-            await client.add_relay(relay_url)
+            await client.add_relay(xrelay)
     await client.connect()
     
     await asyncio.sleep(2.0)
@@ -385,9 +384,9 @@ async def Search_d_tag():
     # Add relays and connect
     if relay_list!=[]:
        client = Client(None)
-       for jrelay in relay_list:
-           relay_url = RelayUrl.parse(jrelay)
-           await client.add_relay(relay_url)
+       for xrelay in relay_list:
+        await client.add_relay(xrelay)
+              
        await client.connect()
        await asyncio.sleep(2.0)
        relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
@@ -421,8 +420,8 @@ async def search_box_relay():
     if relay_list!=[]:
        #print(relay_list)
        for jrelay in relay_list:
-          relay_url = RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url)
+          
+          await client.add_relay(jrelay)
     else:
        relay_url_1 = RelayUrl.parse("wss://nos.lol/")
        relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
@@ -430,6 +429,7 @@ async def search_box_relay():
        await client.add_relay(relay_url_2)
     await client.connect()
     relay_add=get_note(await get_outbox_relay(client))
+    
     if relay_add !=None and relay_add!=[]:
            print("found note " ,len(relay_add), "by ", relay_add[0]["pubkey"])
            i=0
@@ -438,8 +438,9 @@ async def search_box_relay():
              
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
                if xrelay not in relay_list:
-                relay_list.append(xrelay) 
-              
+                    await client.add_relay(RelayUrl.parse(xrelay))
+            await Search_connection(client)   
+               
             i=i+1             
 
 Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/","wss://relay.momostr.pink/"]
@@ -844,8 +845,8 @@ async def Get_event_from(event_):
     
     if relay_list!=[]:
         for xrelay in relay_list:
-          if xrelay!="wss://yabu.me/":
-            await client.add_relay(RelayUrl.parse(xrelay))
+          
+            await client.add_relay(xrelay)
     await client.connect()
     await asyncio.sleep(2.0)
     try:   
@@ -924,5 +925,32 @@ def return_data_int(value:int):
 month_list={"01":"January", "02":"February","03": "March","04":"April","05":"May","06":"June","07":"July","08":"August","09": "September","10":"October", "11":"November", "12": "December"}
 
 years_q={"Q1":["January", "February", "March"],"Q2":["April","May","June"],"Q3":["July", "August", "September"],"Q4":["October", "November",  "December"]}
+
+async def Search_connection(client:Client):
+      try: 
+                                                 
+       await client.connect()
+       relays = await client.relays()
+       i=0
+       while i<2:
+         for url, relay in relays.items():
+            
+            
+            print(f"Relay: {url}")
+            print(f"Connected: {relay.is_connected()}")
+            print(f"Status: {relay.status()}")
+            stats = relay.stats()
+            print("Stats:")
+            print(f"    Attempts: {stats.attempts()}")
+            print(f"    Success: {stats.success()}")
+            if stats.success()==1 and relay.is_connected()==True:
+               if url not in relay_list:
+                  relay_list.append(url)
+         await asyncio.sleep(1.0)        
+         i=i+1 
+       print(relay_list)       
+
+      except IOError as e:
+               print(e) 
 
 root.mainloop()

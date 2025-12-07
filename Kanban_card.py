@@ -1,12 +1,11 @@
 from nostr_sdk import *
 import asyncio
 from datetime import timedelta
-import time
 from datetime import datetime
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-import io
+import requests
 import json
 from cryptography.fernet import Fernet
 
@@ -38,6 +37,39 @@ def log_these_key():
 root = tk.Tk()
 root.title("Kanban note")
 root.geometry("1300x800")
+
+Nostr_relay_list={}
+
+def get_nostr_relay_info(relay_url: str):
+    """
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Error while requesting {relay_url}: {e}")
+        return None
+
+async def check_relay_dict(dict_relay:dict):
+   
+   for relay_x in list(dict_relay.keys()):
+      if dict_relay[relay_x]!="bad":   
+         if get_nostr_relay_info(relay_x):
+            dict_relay[relay_x]="good"
+         else:
+            dict_relay[relay_x]="bad"           
 
 def convert_user(x):
     try:
@@ -106,28 +138,30 @@ async def kanban_note(tag):
     signer=NostrSigner.keys(keys)
     client = Client(signer)
     if relay_list!=[]:
-       
         for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
-    
-
-        await client.connect()
+            if jrelay not in list(Nostr_relay_list.keys()):
+                Nostr_relay_list[jrelay]=""
+                relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+        if value!="bad": 
+            await client.add_relay(RelayUrl.parse(relay_c))    
      
-        builder = EventBuilder(Kind(2323),"").tags(tag)
+    await client.connect()
+     
+    builder = EventBuilder(Kind(2323),"").tags(tag)
    
-        test= await client.send_event_builder(builder)
+    test= await client.send_event_builder(builder)
     
-        print(test.id)
+    print(test.id)
 
-        print("Event sent:")
-        await asyncio.sleep(2.0)
-    
-        print("Getting events from relays...")
-        f = Filter().authors([keys.public_key()]).kind(Kind(2323))
-        events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-        for event in events.to_vec():
-            print(event.as_json())
+    print("Event sent:")
+    await asyncio.sleep(2.0)
+    print("Getting events from relays...")
+    f = Filter().authors([keys.public_key()]).kind(Kind(2323))
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    for event in events.to_vec():
+        print(event.as_json())
        
 def Gm_status():
    check_square()
@@ -417,18 +451,17 @@ async def Get_id(event_):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
-    else:
-     relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-     relay_url_2=RelayUrl.parse("wss://nos.lol/")
-     relay_url_3=RelayUrl.parse("wss://relay.primal.net/")
-     await client.add_relay(relay_url_1)
-     await client.add_relay(relay_url_2)
-     await client.add_relay(relay_url_3)
+        for jrelay in relay_list:
+            if jrelay not in list(Nostr_relay_list.keys()):
+                Nostr_relay_list[jrelay]=""
+                relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+            if value!="bad": 
+                await client.add_relay(RelayUrl.parse(relay_c))    
+
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -586,10 +619,18 @@ async def Get_event_from(event_):
     await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-          if xrelay!="wss://yabu.me/":
-            relay_url_list=RelayUrl.parse(xrelay)
-            await client.add_relay(relay_url_list)
+        for jrelay in relay_list:
+            if jrelay not in list(Nostr_relay_list.keys()):
+                Nostr_relay_list[jrelay]=""
+                relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+        if value!="bad": 
+            await client.add_relay(RelayUrl.parse(relay_c))    
+    
+    
+    
+    
     await client.connect()
     await asyncio.sleep(2.0)
     try:   
@@ -700,9 +741,9 @@ def show_noted():
                 list_e.append(entry["id"])
                 raw_label()         
                                                
-       button=Button(scrollable_frame_1,text=f"Print me!", command=lambda val=note: print_var(val))
+       button=Button(scrollable_frame_1,text=f"Print me ", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=3,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=3,column=s1+1,padx=5,pady=5)    
        if tags_string(note,"e")==[]:
         button_grid3=Button(scrollable_frame_1,text=f"Reply", command=lambda val=note: print_reply(val))

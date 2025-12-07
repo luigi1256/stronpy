@@ -2,18 +2,12 @@
 from nostr_sdk import *
 import asyncio
 from datetime import timedelta
-from nostr_sdk import PublicKey
-from nostr_sdk import Tag
-from nostr_sdk import EventId,Event
-import time
 from datetime import datetime
-import uuid
+import requests
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk, messagebox
 import json
-import io
-from tkinter.filedialog import askopenfilename
 from cryptography.fernet import Fernet
 
 root = tk.Tk()
@@ -150,27 +144,32 @@ async def get_result_w(client):
    except TypeError as e:
       print(e, " probably public list is empty")
 
+Nostr_relay_list={"wss://relay.lnfi.network/":"","wss://relay.braydon.com/":""}
+
 async def Search_d_tag():
-      
+    
+    client = Client(None)  
     # Add relays and connect
     if relay_list!=[]:
-       client = Client(None)
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
-       await client.connect()
-       await asyncio.sleep(2.0)
-       await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-       if public_list!=[]:
+      for jrelay in relay_list:
+        if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+            if value!="bad": 
+               await client.add_relay(RelayUrl.parse(relay_c))    
+    
+    if public_list!=[]:
         combined_results = await get_result_w(client)
         return combined_results
-    # Init logger
-    init_logger(LogLevel.INFO)
-    client = Client(None)
-     
-    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-    await client.connect()
-    await search_box_relay()
-    print("found ", len(relay_list), " relays")
+
+    else:
+      init_logger(LogLevel.INFO) 
+      await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
+      await client.connect()
+      await search_box_relay()
+      print("found ", len(relay_list), " relays")
 
 def call_text():
   if relay_list!=[]:
@@ -272,10 +271,14 @@ async def search_box_relay():
     client = Client(None)
     
     if relay_list!=[]:
-       #print(relay_list)
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
-             
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+      await check_relay_dict(Nostr_relay_list)
+      for relay_c,value in Nostr_relay_list.items():
+        if value!="bad": 
+           await client.add_relay(RelayUrl.parse(relay_c)) 
     else:
        await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
        await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
@@ -293,7 +296,7 @@ async def search_box_relay():
               
             i=i+1             
 
-Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/","wss://relay.nostr.band/","wss://relay.momostr.pink/","wss://relay.phoenix.social/","wss://nostr.fmt.wiz.biz/"]
+Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/","wss://relay.nostr.band/","wss://relay.momostr.pink/","wss://relay.phoenix.social/","wss://nostr.fmt.wiz.biz/","wss://relay.wellorder.net/"]
 scroll_bar_mini = tk.Scrollbar(frame1)
 scroll_bar_mini.grid( sticky = NS,column=4,row=0,rowspan=3)
 second_label10 = tk.Text(frame1, padx=10, height=5, width=25, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'))
@@ -562,34 +565,34 @@ def show_edit_test(note):
 
 def reply_re_action(note):
   
-   test = EventId.parse(note["id"])
-   public_key=convert_user(note["pubkey"])
+      
    if __name__ == '__main__':
     note_rea="+"
-    type_event=Kind(int(note["kind"]))
-    asyncio.run(reply_reaction(test,public_key,note_rea,type_event))    
-
-async def reply_reaction(event_id,public_key,str_reaction,type_event):
-  key_string=log_these_key()
-  if key_string!=None: 
-    keys = Keys.parse(key_string)
-    signer = NostrSigner.keys(keys)
     
-    client = Client(signer)
-    # Add relays and connect
-    if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
-    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-    await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
-    await client.connect()
+    asyncio.run(reply_reaction(note,note_rea))  
 
-    # Send an event using the Nostr Signer
-    builder = EventBuilder.reaction_extended(event_id,public_key,str_reaction,type_event)
-    test_note=await client.send_event_builder(builder)
-    print("this relay is going good", test_note.success, "\n", "this relay is bad",test_note.failed)
-
+async def reply_reaction(event_id,str_reaction):
+   
+   key_string=log_these_key()
+   if key_string!=None: 
+      keys = Keys.parse(key_string)
+      signer = NostrSigner.keys(keys)
+      client = Client(signer)
+      
+      # Add relays and connect
+      for relay_c,value in Nostr_relay_list.items():
+        if value!="bad": 
+            await client.add_relay(RelayUrl.parse(relay_c))
+      await client.connect()
+      f = Filter().id(EventId.parse(event_id["id"]))
+      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+      z = [event for event in events.to_vec() if event.verify()]
+    
+      # Send an event using the Nostr Signer
+      builder = EventBuilder.reaction(z[0],str_reaction)               
+      test_note=await client.send_event_builder(builder)
+      print("Send to this relays", test_note.success, "\n", "Failed to send to this relays",test_note.failed) 
+ 
 def show_print_test(note):
    frame3=tk.Frame(root,height=150,width=200)  
    canvas_2 = tk.Canvas(frame3)
@@ -765,13 +768,15 @@ async def edit_can_book(tag,pubkey,url_uid,other_tag):
     signer=NostrSigner.keys(keys)
     client = Client(signer)
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
-       
-    await client.add_relay(RelayUrl.parse("wss://relay.lnfi.network/"))
-    await client.add_relay(RelayUrl.parse("wss://relay.braydon.com/"))
-    #await client.add_relay("")
+      for jrelay in relay_list:
+         if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+       await client.add_relay(RelayUrl.parse(relay_c))
+    
     await client.connect()
     
     builder = EventBuilder.bookmarks_set(url_uid,tag).tags(other_tag)
@@ -783,7 +788,7 @@ async def edit_can_book(tag,pubkey,url_uid,other_tag):
     await asyncio.sleep(2.0)
     # Get events from relays
     print("Getting events from relays...")
-    f = Filter().authors([keys.public_key()])
+    f = Filter().authors([keys.public_key()]).kind(Kind(30003)).limit(20)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
      print(event.as_json())
@@ -1008,5 +1013,37 @@ def search_for_note(note_found:list):
             if note_x not in list_notes: 
                list_notes.append(note_x)
         return list_notes 
+     
+def get_nostr_relay_info(relay_url: str):
+    """
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Error while requesting {relay_url}: {e}")
+        return None
+
+async def check_relay_dict(dict_relay:dict):
+   
+   for relay_x in list(dict_relay.keys()):
+      if dict_relay[relay_x]!="bad":   
+         if get_nostr_relay_info(relay_x):
+            dict_relay[relay_x]="good"
+         else:
+            dict_relay[relay_x]="bad"           
+
      
 root.mainloop()

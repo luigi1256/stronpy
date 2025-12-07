@@ -103,18 +103,46 @@ async def get_outbox(client):
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
+async def Search_connection(client:Client):
+      try: 
+                                                 
+       await client.connect()
+       relays = await client.relays()
+       i=0
+       while i<2:
+         for url, relay in relays.items():
+            
+            
+            print(f"Relay: {url}")
+            print(f"Connected: {relay.is_connected()}")
+            print(f"Status: {relay.status()}")
+            stats = relay.stats()
+            print("Stats:")
+            print(f"    Attempts: {stats.attempts()}")
+            print(f"    Success: {stats.success()}")
+            if stats.success()==1 and relay.is_connected()==True:
+               if url not in relay_list:
+                  relay_list.append(url)
+         await asyncio.sleep(1.0)        
+         i=i+1 
+       
+
+      except IOError as e:
+               print(e) 
+
+
 async def outboxes():
     init_logger(LogLevel.INFO)
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+        for jrelay in relay_list:
+           await client.add_relay(jrelay)
     else:
        relay_url_3 = RelayUrl.parse("wss://nostr.mom/")
        relay_url_4 = RelayUrl.parse("wss://purplerelay.com/")
+       
        await client.add_relay(relay_url_3)
+       
        await client.add_relay(relay_url_4)
        
     await client.connect()
@@ -127,9 +155,11 @@ async def outboxes():
            while i<len(relay_add):
             for xrelay in tags_string(relay_add[i],'r'):
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
+                   if RelayUrl.parse(xrelay) not in relay_list:
+                    await client.add_relay(RelayUrl.parse(xrelay))
+            await Search_connection(client)   
                
-               if xrelay not in relay_list:
-                 relay_list.append(xrelay) 
+               
             i=i+1             
     await asyncio.sleep(2.0)
 
@@ -409,9 +439,10 @@ def get_note(z):
     return f
 
 def tags_string(x,obj):
-    f=x['tags']
+    f=x["tags"]
     z=[]
-    for j in f:
+    if f!=[]:
+     for j in f:
       if j[0]==obj:
           z.append(j[1])
     return z
@@ -448,8 +479,7 @@ async def Get_random_kind():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+            await client.add_relay(jrelay)
     else:
      relay_url_1 = RelayUrl.parse("wss://nos.lol/")
      await client.add_relay(relay_url_1)
@@ -491,7 +521,7 @@ title_s=StringVar()
 entry_title=tk.Entry(root, textvariable=title_s, width=20,font=('Arial',12,'normal'))
 entry_title.place(relx=0.6,rely=0.08,relwidth=0.18)
 
-def search_title_c(string):
+def search_title_c(string:str):
    if string!="":
     search_note= []
     title_string=string.split(" ")
@@ -575,10 +605,11 @@ def search_word_title():
                
                 if string_x not in note_words:
                   
-                  note_words.append(string_x)
+                    note_words.append(string_x)
+                    break
                 else:
-                
-                 note_words_2.append(string_x)
+                    note_words_2.append(string_x)
+                    break
       for note_l_word in note_words_2:
          
            list_words[note_l_word]=note_words_2.count(note_l_word)+1

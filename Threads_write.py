@@ -39,12 +39,12 @@ def open_threads():
     scroll_bar_mini.config( command = entry_t_4.yview )
 
     def add_hashtag():
-       if tag_note_1.get()!="":
-          if len(hash_tag_list)<2: #0 #1
+      if tag_note_1.get()!="" and str(tag_note_1.get()).islower():
+         if len(hash_tag_list)<2: #0 #1
             if tag_note_1.get() not in hash_tag_list:
                 hash_tag_list.append(tag_note_1.get())
                 print(hash_tag_list)
-          tag_1.set("")
+      tag_1.set("")
           
     button_topic['command']=add_hashtag
     button_topic.place(relx=0.21,rely=0.2,relwidth=0.05,relheight=0.03,anchor='n')
@@ -376,7 +376,7 @@ async def get_outbox(client):
 
   if my_list!=[]:
    if my_dict[combo_box.get()] in list(my_dict.values()): 
-    print("ok")
+    
     f = Filter().authors(user_convert([my_dict[combo_box.get()]])).kinds([Kind(10002),Kind(10012),Kind(1),Kind(0)])
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
@@ -471,8 +471,9 @@ def search_():
     for db_x in db_list:
        if tags_string(db_x,"t")!=[]:
           for tags_t in tags_string(db_x,"t"):
-             if tags_t not in combo_t_tag:
-              combo_t_tag.append(tags_t) 
+            if str(tags_t).islower():  
+               if tags_t not in combo_t_tag:
+                  combo_t_tag.append(tags_t) 
     if combo_t_tag!=[]:   
      list_value_tag()
      combo_tag.set("Number of topic "+ str(len(combo_t_tag)))      
@@ -607,9 +608,9 @@ Pubkey_Metadata={}
 
 def show_print_test():
  frame3=tk.Frame(root,height=150)  
- canvas_2 = tk.Canvas(frame3,width=410)
+ canvas_2 = tk.Canvas(frame3,width=420)
  scrollbar_2 = ttk.Scrollbar(frame3, orient="vertical", command=canvas_2.yview)
- scrollable_frame_2 = ttk.Frame(canvas_2,width=380)
+ scrollable_frame_2 = ttk.Frame(canvas_2,width=390)
 
  scrollable_frame_2.bind(
          "<Configure>",

@@ -135,9 +135,9 @@ def call_text():
        if jnote not in db_list_note:
           db_list_note.append(jnote)
        if len(jnote["content"])<800:
-          second_label10.insert(END,jnote["content"])
+          second_label10.insert(END,str(jnote["content"]))
        else:
-             second_label10.insert(END,jnote["tags"])
+             second_label10.insert(END,str(jnote["tags"]))
        second_label10.insert(END,"\n"+"____________________"+"\n")
        second_label10.insert(END,"\n"+"\n")
 
@@ -151,8 +151,8 @@ def call_text():
              button_close_search["text"]="Search 🔍"
 
 public_list=[]
-label_d_search=tk.Label(root, text='d Tag',font=('Arial',12,'bold'))    
-label_d_search.place(relx=0.45,rely=0.21 ) 
+label_d_search=tk.Label(root, text='Article d Tag',font=('Arial',12,'bold'))    
+label_d_search.place(relx=0.43,rely=0.21 ) 
 button_close_search=tk.Button(root, text='Search Relay',font=('Arial',12,'bold'), command=call_text)    
 button_close_search.place(relx=0.55,rely=0.24 ) 
 
@@ -197,7 +197,8 @@ async def search_box_relay():
                if xrelay not in relay_search_list:
                 relay_search_list.append(xrelay) 
               
-            i=i+1             
+            i=i+1      
+           await Search_status(client=Client(None),list_relay_connect=relay_search_list)        
     
 relay_search_list=[]
 Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/"]
@@ -266,7 +267,7 @@ def show_Teed():
       button.grid(column=0,row=s,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"Highlight it ", command=lambda val=note: print_fork(val))
       button_grid2.grid(row=s,column=2,padx=5,pady=5) 
-      button_grid3=Button(scrollable_frame_1,text=f"click to read ", command=lambda val=note: print_id(val))
+      button_grid3=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
       button_grid3.grid(row=s,column=1,padx=5,pady=5)      
    
       s=s+2  
@@ -669,24 +670,25 @@ async def stick_note(tag,high_note):
      client = Client(signer)
      signer=NostrSigner.keys(keys)
      client = Client(signer)
-    for rel_x in relay_search_list:
-       await client.add_relay(RelayUrl.parse(rel_x))
-    # Add relays and connect
-    await client.add_relay(RelayUrl.parse("wss://relayb.uid.ovh/"))
-    await client.add_relay(RelayUrl.parse("wss://relay.chatbett.de/"))
-    
-    await client.connect()
      
-    builder = EventBuilder(Kind(9802),high_note).tags(tag)
+     for rel_x in relay_search_list:
+       await client.add_relay(RelayUrl.parse(rel_x))
+            # Add relays and connect
+     await client.add_relay(RelayUrl.parse("wss://relayb.uid.ovh/"))
+     await client.add_relay(RelayUrl.parse("wss://relay.chatbett.de/"))
     
-    await client.send_event_builder(builder)
+     await client.connect()
+     
+     builder = EventBuilder(Kind(9802),high_note).tags(tag)
+    
+     await client.send_event_builder(builder)
         
-    await asyncio.sleep(2.0)
+     await asyncio.sleep(2.0)
 
-    f = Filter().authors([keys.public_key()]).kind(Kind(9802))
-    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    for event in events.to_vec():
-     print(event.as_json())
+     f = Filter().authors([keys.public_key()]).kind(Kind(9802))
+     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+     for event in events.to_vec():
+      print(event.as_json())
    except TypeError as e:
       print(e)  
         
@@ -1070,8 +1072,6 @@ async def get_one_Event(client, event_):
     z = [event.as_json() for event in events.to_vec()]
     return z
 
-relay_list=[]
-
 def Open_txt_note(name):
       if name:
           try:
@@ -1167,5 +1167,40 @@ label_var=StringVar()
 label_entry=ttk.Entry(root,justify='left',textvariable=label_var,font=("Arial",12))
 Check_lab_entry =IntVar(root,0,"raw_lab")
 List_note_write=[]
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

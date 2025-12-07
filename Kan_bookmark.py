@@ -2,19 +2,46 @@
 from nostr_sdk import *
 import asyncio
 from datetime import timedelta
-import time
 from datetime import datetime
 import uuid
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-import io
 import uuid
 import requests
-import shutil
-from PIL import Image, ImageTk
 from cryptography.fernet import Fernet
 import json
+
+def get_nostr_relay_info(relay_url: str):
+    """
+    Gets the NIP-11 information for a Nostr relay. \n
+    relay_url: e.g., 'https://relay.damus.io/'
+    
+    """
+    headers = {"Accept": "application/nostr+json"}
+
+    if relay_url.startswith("ws://"):
+        relay_url = relay_url.replace("ws://", "http://")
+    elif relay_url.startswith("wss://"):
+        relay_url = relay_url.replace("wss://", "https://")
+    
+    try:
+        response = requests.get(relay_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        info = response.json()
+        return info
+    except Exception as e:
+        print(f"Error while requesting {relay_url}: {e}")
+        return None
+
+async def check_relay_dict(dict_relay:dict):
+   
+   for relay_x in list(dict_relay.keys()):
+      if dict_relay[relay_x]!="bad":   
+         if get_nostr_relay_info(relay_x):
+            dict_relay[relay_x]="good"
+         else:
+            dict_relay[relay_x]="bad"           
 
 def tags_string(x,obj):
     f=x['tags']
@@ -54,6 +81,7 @@ def log_these_key():
    except FileNotFoundError as e:
        print(e)
 
+Nostr_relay_list={"wss://relay.lnfi.network/":"","wss://relay.braydon.com/":""}
 
 async def Can_book(tag,title_str):
     # Init logger
@@ -67,15 +95,15 @@ async def Can_book(tag,title_str):
     client = Client(signer)
     # Add relays and connect
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
-
-    # Add relays and connect
-    await client.add_relay(RelayUrl.parse("wss://relay.lnfi.network/"))
-    await client.add_relay(RelayUrl.parse("wss://relay.braydon.com/"))
-    #await client.add_relay("")
-
+        for jrelay in relay_list:
+            if jrelay not in list(Nostr_relay_list.keys()):
+                Nostr_relay_list[jrelay]=""
+                relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+        if value!="bad": 
+            await client.add_relay(RelayUrl.parse(relay_c))        
+    
     await client.connect()
      
     myUUID = uuid.uuid4()
@@ -521,9 +549,15 @@ async def Get_event_from(event_):
     await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-          if xrelay!="wss://yabu.me/":
-            await client.add_relay(RelayUrl.parse(xrelay))
+     for jrelay in relay_list:
+        if jrelay not in list(Nostr_relay_list.keys()):
+            Nostr_relay_list[jrelay]=""
+            relay_list.remove(jrelay)
+    await check_relay_dict(Nostr_relay_list)
+    for relay_c,value in Nostr_relay_list.items():
+      if value!="bad": 
+        await client.add_relay(RelayUrl.parse(relay_c))     
+    
     await client.connect()
     await asyncio.sleep(2.0)
     try:   

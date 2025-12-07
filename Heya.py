@@ -342,9 +342,8 @@ async def main_long_tk(authors):
     await client.add_relay(relay_url_x)
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+      for jrelay in relay_list:
+        await client.add_relay(jrelay)
     await client.connect()     
     await asyncio.sleep(2.0)
     if WoT_check.get()==1:
@@ -722,9 +721,8 @@ async def outboxes():
     
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+      for jrelay in relay_list:
+        await client.add_relay(jrelay)
              
     else:
      relay_url_x = RelayUrl.parse("wss://nostr.mom/")
@@ -744,9 +742,10 @@ async def outboxes():
             if relay_add[i]["kind"]==10002:
              for xrelay in tags_string(relay_add[i],'r'):
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
-               
-               if xrelay not in relay_list:
-                 relay_list.append(xrelay)
+                if RelayUrl.parse(xrelay) not in relay_list:
+                  await client.add_relay(RelayUrl.parse(xrelay))
+             await Search_connection(client)   
+             
             else:
                 db_note.append(relay_add[i])      
             i=i+1             
@@ -780,9 +779,8 @@ async def feed(authors):
     
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+      for jrelay in relay_list:
+        await client.add_relay(jrelay)
 
     await client.connect()
 
@@ -1538,8 +1536,7 @@ async def main_note(note,tags):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+        await client.add_relay(jrelay)
        await client.connect()
     # Send an event using the Nostr Signer
   
@@ -1684,5 +1681,31 @@ def nota_reply_id(nota):
                     e_id.append(event_id)   
     return e_id    
 
+async def Search_connection(client:Client):
+      try: 
+                                                 
+       await client.connect()
+       relays = await client.relays()
+       i=0
+       while i<2:
+         for url, relay in relays.items():
+            
+            
+            print(f"Relay: {url}")
+            print(f"Connected: {relay.is_connected()}")
+            print(f"Status: {relay.status()}")
+            stats = relay.stats()
+            print("Stats:")
+            print(f"    Attempts: {stats.attempts()}")
+            print(f"    Success: {stats.success()}")
+            if stats.success()==1 and relay.is_connected()==True:
+               if url not in relay_list:
+                  relay_list.append(url)
+         await asyncio.sleep(1.0)        
+         i=i+1 
+       
+
+      except IOError as e:
+               print(e) 
 
 root.mainloop()

@@ -113,12 +113,22 @@ def get_note(z):
     return f   
 
 def tags_string(x,obj):
-    f=x['tags']
+    f=x["tags"]
     z=[]
-    for j in f:
+    if f!=[]:
+     for j in f:
       if j[0]==obj:
           z.append(j[1])
     return z
+
+def tags_present(x,obj):
+    f=x["tags"]
+    zeta=[]
+    if f!=[]:
+     for j in f:
+      if j[0]==obj:
+         zeta.append(j[0])
+    return zeta
 
 def evnt_id(id):
     try: 
@@ -242,9 +252,8 @@ async def outboxes():
     
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+         await client.add_relay(jrelay)
              
     else:
         relay_url_1=RelayUrl.parse("wss://nostr.mom/")
@@ -264,9 +273,10 @@ async def outboxes():
             if relay_add[i]["kind"]==10002:
              for xrelay in tags_string(relay_add[i],'r'):
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
-               
-               if xrelay not in relay_list:
-                 relay_list.append(xrelay)
+                  if RelayUrl.parse(xrelay) not in relay_list:
+                     await client.add_relay(RelayUrl.parse(xrelay))
+             await Search_connection(client)   
+                 
             if relay_add[i]["kind"]==10012:
                for xrelay in tags_string(relay_add[i],'relay'):
                 if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
@@ -355,9 +365,8 @@ async def feed(authors):
     
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+         await client.add_relay(jrelay)
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -444,6 +453,7 @@ def layout():
          def close_image():
             label_image.place_forget()         
             button_photo_close.place_forget()
+         
          button_photo_close=Button(root, text="X", command=close_image,font=('Arial',12,'normal'))
          Message_npub= Message(scrollable_frame, textvariable=var_npub, width=300,font=('Arial',12,'bold'),foreground="grey") 
          Message_npub.grid(row=s+2,column=0, columnspan=3, padx=30, pady=2, sticky="w") 
@@ -491,7 +501,7 @@ def layout():
         close_canvas()    
 
     button_close_s=Button(root, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
-    button_close_s.place(relx=0.86,rely=0.1)    
+    button_close_s.place(relx=0.95,rely=0.15)    
 
 button_open=Button(root, command=layout, text="Users on the server",highlightcolor='WHITE',background="grey",font=('Arial',12,'bold'))
 button_open.place(relx=0.85,rely=0.02, anchor="n")            
@@ -563,7 +573,7 @@ def show_print_test():
          context0= "RT "+" By "+note["pubkey"][0:9]
      else: 
       if note["pubkey"] in list(Pubkey_Metadata.keys()):
-        context0="Nickname " +str(Pubkey_Metadata[note["pubkey"]])
+        context0="Nickname " +str(Pubkey_Metadata[note["pubkey"]][0:9])
       else: 
          context0="Pubkey: "+note['pubkey'][0:9]
    
@@ -611,21 +621,21 @@ def show_print_test():
       if len(tags_string(note,"t"))==2:
         if combo_tag.get() in tags_string(note,"t"):
           if tags_string(note,"t").index(combo_tag.get())==0: 
-            button_6 = tk.Button(scrollable_frame_2, text="Subtopic \n"+ str(tags_string(note,"t")[1][0:20]), command=lambda val=tags_string(note,"t")[1]: val_topic_two(val),font=("Arial",12,"bold"),fg="blue")
+            button_6 = tk.Button(scrollable_frame_2, text="Subtopic \n"+ str(tags_string(note,"t")[1][0:15]), command=lambda val=tags_string(note,"t")[1]: val_topic_two(val),font=("Arial",12,"bold"),fg="blue")
             button_6.grid(column=0,row=s,padx=1,pady=5)
             context1=""
             context2=""
           else:
-            button_6=Button(scrollable_frame_2,text="Topic \n"+ str(tags_string(note,"t")[0]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"),fg="green")   
+            button_6=Button(scrollable_frame_2,text="Topic \n"+ str(tags_string(note,"t")[0][0:15]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"),fg="green")   
             button_6.grid(column=0,row=s,padx=1,pady=5)
         else:
-           button_6=Button(scrollable_frame_2,text="Topic \n"+ str(tags_string(note,"t")[0]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"),fg="green")   
+           button_6=Button(scrollable_frame_2,text="Topic \n"+ str(tags_string(note,"t")[0][0:15]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"),fg="green")   
            button_6.grid(column=0,row=s,padx=1,pady=5)
         
         
                     
       else:
-         button_6=Button(scrollable_frame_2,text=str(tags_string(note,"t")[0]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"))
+         button_6=Button(scrollable_frame_2,text=str(tags_string(note,"t")[0][0:15]), command=lambda val=note: Tag_topic(val),font=("Arial",12,"bold"))
          button_6.grid(column=0,row=s,padx=1,pady=5)
     if context1!="":     
      scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
@@ -660,15 +670,16 @@ def show_print_test():
 
    def Tag_topic(entry):
       if tags_string(entry,"t")!=[]:
-         combo_tag.set(tags_string(entry,"t")[0])
-         if Checkbutton_e.get()==0:
-            Checkbutton_e.set(1)   
-         topic=type_topic()
-         if isinstance(topic,str):
-            pass
-         else:
-            frame3.destroy()
-            show_print_test() 
+         
+            combo_tag.set(tags_string(entry,"t")[0])
+            if Checkbutton_e.get()==0:
+               Checkbutton_e.set(1)   
+            topic=type_topic()
+            if isinstance(topic,str):
+               pass
+            else:
+               frame3.destroy()
+               show_print_test() 
          
    if context0!="" and context1!="":      
     button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val),background="#b0aba6")
@@ -1303,8 +1314,11 @@ def search_():
     for db_x in db_list:
        if tags_string(db_x,"t")!=[]:
           for tags_t in tags_string(db_x,"t"):
-             if tags_t not in combo_t_tag:
-              combo_t_tag.append(tags_t) 
+            if str(tags_t).islower(): 
+               if tags_t not in combo_t_tag:
+                 combo_t_tag.append(tags_t) 
+            else:
+               print(db_x)     
     if combo_t_tag!=[]:   
      list_value_tag()
      combo_tag.set("Number of topic "+ str(len(combo_t_tag)))      
@@ -1368,7 +1382,7 @@ def Block_space():
      create_note(nblock, s)
      s += 3   
     
-    frame1.place(relx=0.7,rely=0.6, relheight=0.25,relwidth=0.21)  
+    frame1.place(relx=0.7,rely=0.7, relheight=0.15,relwidth=0.21)  
     
     def close_canvas():
         scrollable_frame.forget()
@@ -1440,9 +1454,9 @@ def show_print_test_tag(note):
    label_id_3.grid(pady=1,padx=8,row=s,column=0, columnspan=3)
    str_time=note_time(note)
    if note["pubkey"] in list(Pubkey_Metadata.keys()):
-    var_id_3.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]])+"\n" +"Time: "+str(str_time))
+    var_id_3.set("Nickname " +str(Pubkey_Metadata[note["pubkey"]][0:9])+"\n" +"Time: "+str(str_time))
    else:
-    var_id_3.set("Author: "+note["pubkey"]+"\n" +"Time: "+str(str_time))
+    var_id_3.set("Author: "+note["pubkey"][0:9]+"\n" +"Time: "+str(str_time))
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
    second_label_10 = tk.Text(scrollable_frame_2, padx=5, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
@@ -1503,9 +1517,9 @@ def show_print_test_tag(note):
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
              str_time_1=note_time_reply(entry,jresult)
              if jresult["pubkey"] in list(Pubkey_Metadata.keys()):
-              var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]])+"\n" +"Time: "+str(str_time_1))
+              var_id_r.set("Nickname " +str(Pubkey_Metadata[jresult["pubkey"]][0:9])+"\n" +"Time: "+str(str_time_1))
              else:
-              var_id_r.set(" Author: "+jresult["pubkey"]+"\n" +"Time: "+str(str_time_1))
+              var_id_r.set(" Author: "+jresult["pubkey"][0:9]+"\n" +"Time: "+str(str_time_1))
          
              scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
              scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
@@ -1515,16 +1529,16 @@ def show_print_test_tag(note):
               if four_tags(jresult,"E")!=None:
                 for f_note in four_tags(jresult,"E"):
                   context22=context22+str(" < "+ f_note[0]+" > ")+f_note[1][0:9]+ "\n"
-                  if f_note[2]!="" and f_note not in relay_list:
-                          relay_list.append(f_note[2])
+                  if f_note[2]!="" and RelayUrl.parse(f_note[2]) not in relay_list:
+                          relay_list.append(RelayUrl(f_note[2]))
              else:
                 context22=" < E > Probably some errors \n"              
              if tags_string(jresult,"e")!=[]:
               if four_tags(jresult,"e")!=None:
                 for F_note in four_tags(jresult,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[1][0:9]+ "\n"
-                     if F_note[2]!="" and F_note not in relay_list:
-                        relay_list.append(F_note[2])
+                     if F_note[2]!="" and RelayUrl.parse(F_note[2]) not in relay_list:
+                        relay_list.append(RelayUrl.parse(F_note[2]))
              if tags_string(jresult,"P")!=[]:
                 
                 for pr in tags_string(jresult,"P"):
@@ -1559,11 +1573,11 @@ def show_print_test_tag(note):
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid2=Button(scrollable_frame_2,text=f"Print", command=lambda val=note: print(val))
    button_grid2.grid(row=s+2,column=1,padx=5,pady=5)
-   if tags_string(note,"e")!=None:
+   if tags_string(note,"e")!=[] and tags_present(note,"-")==[]:
     button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    else:
-    if tags_string(note,"imeta")!=None:
+    if tags_string(note,"imeta")!=[]:
      button_grid3=Button(scrollable_frame_2,text=f"See video ", command="")
      button_grid3.grid(row=s+2,column=2,padx=5,pady=5)
     
@@ -1616,9 +1630,8 @@ async def Get_event_id(e_id):
     if relay_list!=[]:
       try: 
        for jrelay in relay_list:
-         print(jrelay)
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+         
+         await client.add_relay(jrelay)
       except NostrSdkError as e:
          print(e)   
     else:
@@ -1878,9 +1891,8 @@ async def Get_event_from(event_):
     await client.add_relay(relay_url_2)
     
     if relay_list!=[]:
-        for xrelay in relay_list:
-            relay_url_list=RelayUrl.parse(xrelay)
-            await client.add_relay(relay_url_list)
+      for xrelay in relay_list:
+         await client.add_relay(xrelay)
     await client.connect()
     await asyncio.sleep(2.0)
      
@@ -1920,29 +1932,67 @@ def reply_re_action(note,behaviuour):
         type_event=Kind(int(note["kind"]))
         asyncio.run(reply_reaction(test,public_key,note_rea,type_event))    
 
-async def reply_reaction(event_id,public_key,str_reaction,type_event):
-  key_string=log_these_key()
-  if key_string!=None: 
-    keys = Keys.parse(key_string)
-    signer = NostrSigner.keys(keys)
-    
-    client = Client(signer)
-    # Add relays and connect
-    if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
-    await client.add_relay(RelayUrl.parse(combo_relay.get()))      
-    relay_url_1 =RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 =RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
-    await client.connect()
+def reply_re_action(note,behaviuour):
+  
+      
+   if __name__ == '__main__':
+      if behaviuour=="good":
+         note_rea="⬆️"
+      else:
+         note_rea="⬇️"     
+      asyncio.run(reply_reaction(note,note_rea))    
 
-    # Send an event using the Nostr Signer
-    builder = EventBuilder.reaction_extended(event_id,public_key,str_reaction,type_event)
-    test_note=await client.send_event_builder(builder)
-    print("this relay is going good", test_note.success, "\n", "this relay is bad",test_note.failed)
+async def reply_reaction(event_id,str_reaction):
+   
+   key_string=log_these_key()
+   if key_string!=None: 
+      keys = Keys.parse(key_string)
+      signer = NostrSigner.keys(keys)
+      client = Client(signer)
+   
+   
+    
+      client = Client(signer)
+      # Add relays and connect
+      for relay_c in relay_list:
+        await client.add_relay(relay_c)
+      await client.connect()
+      
+      f = Filter().id(EventId.parse(event_id["id"]))
+      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+      z = [event for event in events.to_vec() if event.verify()]
+    
+      # Send an event using the Nostr Signer
+      if len(z)>0:
+         builder = EventBuilder.reaction(z[0],str_reaction)               
+         test_note=await client.send_event_builder(builder)
+         print("Send to this relays", test_note.success, "\n", "Failed to send to this relays",test_note.failed)
+
+async def Search_connection(client:Client):
+      try: 
+                                                 
+       await client.connect()
+       relays = await client.relays()
+       i=0
+       while i<2:
+         for url, relay in relays.items():
+            
+            
+            print(f"Relay: {url}")
+            print(f"Connected: {relay.is_connected()}")
+            print(f"Status: {relay.status()}")
+            stats = relay.stats()
+            print("Stats:")
+            print(f"    Attempts: {stats.attempts()}")
+            print(f"    Success: {stats.success()}")
+            if stats.success()==1 and relay.is_connected()==True:
+               if url not in relay_list:
+                  relay_list.append(url)
+         await asyncio.sleep(1.0)        
+         i=i+1 
+       
+
+      except IOError as e:
+               print(e) 
 
 root.mainloop()

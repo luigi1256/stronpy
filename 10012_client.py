@@ -58,19 +58,50 @@ entry_id_note=StringVar()
 entry_note_note=StringVar()
 label_entry_id=tk.Label(root, text="Pubkey",font=("Arial",12,"normal"))
 label_entry_id.place(relx=0.07,rely=0.11)
-value=float(1*3600/86400)
+value=float(2*3600/86400)
+value_start=float(1*3600/86400)
 
 def on_time(event):
    select_time=int(combo_value.get())
    global value
    value=float(select_time*3600/86400)
+   select_time_s=int(combo_start.get())
+   global value_start
+   value_start=float(select_time_s*3600/86400)
+   Total_note,no_reply=Pre_load()
+   if Total_note!=None:
+     label_entry_N.config(text= "Numbers "+ str(len(Total_note)))
+   if no_reply!=None:  
+    label_entry_NR.config(text= "Numbers "+str(len(no_reply)))
+                       
+def on_start(event):
+   select_time_v=int(combo_value.get())
+   global value
+   value=float(select_time_v*3600/86400)
+   select_time=int(combo_start.get())
+   global value_start
+   value_start=float(select_time*3600/86400)
+   Total_note,no_reply=Pre_load()
+   if Total_note!=None:
+    label_entry_N.config(text= "Numbers "+ str(len(Total_note)))
+   if no_reply!=None: 
+    label_entry_NR.config(text= "Numbers "+str(len(no_reply)))   
 
-combo_value = ttk.Combobox(root, values=[1,2,3,4,5,6,7,8],font=('Arial',12,'normal'),width=5)
-combo_value.place(relx=0.04,rely=0.28)
+combo_value = ttk.Combobox(root, values=[1,2,3,4,5,6,7,8],font=('Arial',12,'normal'),width=3)
+combo_value.place(relx=0.02,rely=0.28)
 combo_value.set(int(1))
 combo_value.bind("<<ComboboxSelected>>", on_time)
-label_entry_h=tk.Label(root, text="Hour",font=("Arial",12,"normal"))
-label_entry_h.place(relx=0.12,rely=0.28)
+label_entry_h=tk.Label(root, text="Hour Since Until",font=("Arial",12,"normal"))
+label_entry_N=tk.Label(root, text="",font=("Arial",12,"normal"))
+label_entry_NR=tk.Label(root, text="",font=("Arial",12,"normal"))
+label_entry_h.place(relx=0.06,rely=0.28)
+label_entry_N.place(relx=0.25,rely=0.02)
+label_entry_NR.place(relx=0.35,rely=0.02)
+
+combo_start = ttk.Combobox(root, values=[0,1,2,3,4,5,6,7],font=('Arial',12,'normal'),width=3)
+combo_start.place(relx=0.16,rely=0.28)
+combo_start.set(int(0))
+combo_start.bind("<<ComboboxSelected>>", on_start)
 
 def search_people():
    if db_list!=[]:
@@ -129,7 +160,7 @@ def tags_str(x,obj):
           z.append(j)
     return z       
 
-def timeline_created(db_list,list_new):
+def timeline_created(db_list:list,list_new:list):
   new_note=[] 
   if db_list!=[]:
    for new_x in list_new:
@@ -229,25 +260,26 @@ async def outboxes():
     if note_result!=None:
      relay_add=get_note(note_result)
      if relay_add!=[]:
-           i=0
+        i=0
            
-           while i<len(relay_add):
+        while i<len(relay_add):
             if relay_add[i]["kind"]==10002:
-             for xrelay in tags_string(relay_add[i],'r'):
-              if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
-               
-               if xrelay not in relay_list:
-                 relay_list.append(xrelay)
-            if relay_add[i]["kind"]==10012:
-               for xrelay in tags_string(relay_add[i],'relay'):
-                if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
-                    if xrelay not in relay_list_extra:
-                        relay_list_extra.append(xrelay)
-               combo_relay['values']=relay_list_extra            
-               
+                for xrelay in tags_string(relay_add[i],'r'):
+                    if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
+                        if xrelay not in relay_list:
+                            relay_list.append(xrelay)
+                
+            elif relay_add[i]["kind"]==10012:
+                for xrelay in tags_string(relay_add[i],'relay'):
+                    if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay[6:9]!="127":
+                        if xrelay not in relay_list_extra:
+                            relay_list_extra.append(xrelay)
+                        
             else:
                 db_note.append(relay_add[i])      
             i=i+1             
+        await Search_status(client=Client(None),list_relay_connect=relay_list_extra)
+        combo_relay['values']=relay_list_extra             
     await asyncio.sleep(2.0)
 
 Pubkey_Metadata={}
@@ -319,16 +351,17 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
-    await client.add_relay(relay_url_1)
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_2)
-    
+                
     if relay_list!=[]:
-       
+       await Search_status(client=Client(None),list_relay_connect=relay_list) 
        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
+
+    else:
+       await client.add_relay(RelayUrl.parse("wss://relay.damus.io/"))
+       await client.add_relay(RelayUrl.parse("wss://nos.lol/"))      
+    
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -484,6 +517,34 @@ def layout():
 button_open=Button(root, command=layout, text="Scroll User",highlightcolor='WHITE',background="grey",font=('Arial',12,'bold'))
 button_open.place(relx=0.85,rely=0.02, anchor="n")            
 
+def Pre_load():
+    if db_list!=[]:
+        clean_note=[]
+        reply_note=[]
+        feed_note=[]
+
+        for note in db_list:
+            time_value=float(int(time.time())-note["created_at"])/(86400)
+            if time_value<value and time_value>value_start:
+                
+                if tags_string(note,"e")==[]:
+                    if note not in clean_note:
+                        clean_note.append(note)
+                        feed_note.append(note)
+
+                if tags_string(note,"e")!=[]:
+                    if note not in reply_note:
+                        reply_note.append(note)
+                        feed_note.append(note)
+             
+
+          
+        return feed_note,clean_note  
+    else:
+       return None,None                  
+
+note_add=[]
+
 def show_print_test():
  frame3=tk.Frame(root,height=150,width=200)  
  canvas_2 = tk.Canvas(frame3)
@@ -497,9 +558,24 @@ def show_print_test():
  canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
  canvas_2.configure(yscrollcommand=scrollbar_2.set)
  s=1
- for note in db_list:
-    
-  if float(int(time.time())-note["created_at"])/(86400)<value: 
+ note_add_list=[]
+ Total_note,no_reply=Pre_load()
+ if Checkbutton_e.get()==1 and no_reply:
+    for note_x in no_reply:
+            if note_x["id"] not in note_add and len(note_add_list)<100:
+                note_add.append(note_x["id"])
+                note_add_list.append(note_x)
+ if Checkbutton_e.get()==0 and Total_note:
+   for note_y in Total_note:
+           if note_y["id"] not in note_add and len(note_add_list)<100:
+               note_add.append(note_y["id"])
+               note_add_list.append(note_y)
+
+ for note in note_add_list:
+  
+  time_value=float(int(time.time())-note["created_at"])/(86400)
+  if time_value<value and time_value>value_start:
+  
    if note["kind"]==6:       
     context0= "RT "+" By "+note["pubkey"][0:9]
    else: 
@@ -512,10 +588,20 @@ def show_print_test():
     if note['tags']!=[]:
         if note["kind"]==6:
            try: 
-            context1= str(json.loads(note["content"])["content"]+"\n")
-            context2= str(json.loads(note["content"])["tags"])
-           except json.decoder as e:
-              print(e)
+            
+            if note["content"]=="":
+                context1= str(note["content"]+"\n")
+                context2= str(note["content"]["tags"])   
+            else:
+                context1= str(json.loads(note["content"])["content"]+"\n")
+                context2= str(json.loads(note["content"])["tags"])
+           #except json.decoder as e:
+
+           #   print(e)
+           except TypeError as b:
+                print(b,"\n",note["content"], [note["content"]])   
+           except json.JSONDecodeError as c:
+                print(c)     
         else:
            if Checkbutton_e.get()==1 and tags_string(note,"e")==[]:
             context1=note['content']+"\n"
@@ -539,7 +625,10 @@ def show_print_test():
      
     else: 
         if note["kind"]==6:
-         context1= str(json.loads(note["content"])["content"])+"\n"
+         if note["content"]=="":
+            context1= str(note["content"]+"\n")
+         else:
+            context1= str(json.loads(note["content"])["content"])+"\n"
          context2=""
         else:
            context1=note['content']+"\n"
@@ -582,12 +671,23 @@ def show_print_test():
    frame3.place(relx=0.22,rely=0.12,relwidth=0.4,relheight=0.5 ) 
   root.update_idletasks() 
 
-button_id=tk.Button(root,command=show_print_test,text="Feed", background="grey",font=("Arial",12,"bold"))
-button_id.place(relx=0.25,rely=0.05)
+def c0_checkbutton(event=None):
+    Checkbutton_e.set(0)
+    show_print_test()
 
 Checkbutton_e = IntVar()
-Type_feed = Checkbutton(root, variable = Checkbutton_e, onvalue = 1, offvalue = 0,text="No reply",background="grey",font=("Arial",12,"bold"),command=show_print_test)
+button_id=tk.Button(root,text="Feed", background="grey",font=("Arial",12,"bold"))
+button_id.place(relx=0.25,rely=0.05)
+button_id.bind("<Button-1>", c0_checkbutton)
+
+def call_checkbutton(event=None):
+    Checkbutton_e.set(1)
+    show_print_test()
+
+Type_feed = tk.Button(root, text="No reply",background="grey",font=("Arial",12,"bold"))
 Type_feed.place(relx=0.35,rely=0.05)
+Type_feed.bind("<Button-1>", call_checkbutton)
+
 def test_relay(): 
  if combo_relay.get()!="":
    tm=note_list_r()
@@ -688,7 +788,7 @@ button_tm=tk.Button(root,command= search_,text="View note", font=("Arial",12,"no
 button_tm.place(relx=0.03,rely=0.21)
 
 async def get_note_relays(client):
-    f = Filter().kinds(list_event).limit(500)
+    f = Filter().kinds(list_event).limit(1000)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -854,8 +954,9 @@ async def Get_event_id(e_id):
     client = Client(None)
     if relay_list!=[]:
       try: 
+       #await Search_status(client=Client(None),list_relay_connect=relay_list)
        for jrelay in relay_list:
-         print(jrelay)
+          
          relay_url = RelayUrl.parse(jrelay)
          await client.add_relay(relay_url)
       except NostrSdkError as e:
@@ -965,5 +1066,40 @@ def codifica_link(x):
    
    else:
        return "spam"  
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()
