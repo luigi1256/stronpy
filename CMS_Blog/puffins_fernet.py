@@ -141,12 +141,14 @@ async def reply(note,tag):
     signer = NostrSigner.keys(keys)
     client = Client(signer)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
+      for jrelay in relay_list:
           await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol"))
+     set_relay=["wss://nostr.mom/","wss://no.lol/"]
+     await Search_status(client=Client(None),list_relay_connect=set_relay)
+     for relay_x in set_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
+     
     await client.connect()
     event_to_comment:dict=tag
     if event_to_comment!=NONE:
@@ -349,12 +351,14 @@ async def the_second_reply(note,tag, root):
     signer = NostrSigner.keys(keys)
     client = Client(signer)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
+      for jrelay in relay_list:
           await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol"))
+      set_relay=["wss://nostr.mom/","wss://no.lol/"]
+      await Search_status(client=Client(None),list_relay_connect=set_relay)
+      for relay_x in set_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
+     
     await client.connect()
     event_to_comment:dict=tag
     event_to_start:dict=root
@@ -408,15 +412,16 @@ async def Get_id(event_):
     
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
+      
        for jrelay in relay_list:
           await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
-     await client.add_relay(RelayUrl.parse("wss://relay.primal.net/"))
+      set_relay=["wss://nostr.mom/","wss://no.lol/","wss://relay.primal.net/"]
+      await Search_status(client=Client(None),list_relay_connect=set_relay)
+      for relay_x in set_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
+    
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(event_, list):
@@ -787,13 +792,14 @@ async def Get_id(event_):
     
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
+       
        for jrelay in relay_list:
           await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
-     await client.add_relay(RelayUrl.parse("wss://relay.primal.net/"))
+      set_relay=["wss://nostr.mom/","wss://no.lol/","wss://relay.primal.net/"]
+      await Search_status(client=Client(None),list_relay_connect=set_relay)
+      for relay_x in set_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -1056,5 +1062,40 @@ menu_slider1.place(relx=0.13,rely=0.57)
 button_slider1=Button(root,command=slide_r1, text="check",font=('Arial',12,'bold'))
 button_slider1.place(relx=0.18,rely=0.65,relheight=0.035)
 
-root.mainloop()
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
 
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
+
+root.mainloop()

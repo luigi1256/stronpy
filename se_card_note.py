@@ -1,5 +1,4 @@
 import asyncio
-from nostr_sdk import Client, Filter, Keys, NostrSigner, init_logger, LogLevel, PublicKey,Kind, uniffi_set_event_loop
 from datetime import timedelta
 from asyncio import get_event_loop
 from nostr_sdk import *
@@ -104,9 +103,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 def new_note_time(list_new:list):
    if timeline_list_kind!=[]:
@@ -227,17 +229,15 @@ async def get_metadata(user):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    await client.add_relay(relay_url_2)
-    
+    set_relay={"wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"}
+    for relay_x in set_relay:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+         
+    await Search_status(client=Client(None),list_relay_connect=relay_list)
     if relay_list!=[]:
-        for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+         for jrelay in relay_list:
+            await client.add_relay(RelayUrl.parse(jrelay))
 
     await client.connect()
     if isinstance(user,list):
@@ -257,17 +257,14 @@ async def feed_cluster(authors,type_of_event):
     client = Client(None)
     uniffi_set_event_loop(asyncio.get_running_loop())
 
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    await client.add_relay(relay_url_2)
-    
+    set_relay={"wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"}
+    for relay_x in set_relay:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list)
     if relay_list!=[]:
-        for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+      for jrelay in relay_list:
+         await client.add_relay(RelayUrl.parse(jrelay))
 
     await client.connect()
     await asyncio.sleep(2.0)
@@ -309,7 +306,7 @@ my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae580
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              " Hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
-             "me": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
+             "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 import tkinter as tk
 from tkinter import *
@@ -329,7 +326,7 @@ def on_select(event):
     label.config(text="Selected Item: " + my_dict[selected_item][0:9])
     combo_list.place_forget()
 
-combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","me"],font=('Arial',12,'bold'))
+combo_box = ttk.Combobox(frame1, values=["Pablo","jb55","Vitor"," Hodlbod","il_lost_"],font=('Arial',12,'bold'))
 combo_box.grid(pady=5,column=1, row=0,ipadx=1)
 combo_box.set("Name")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -720,7 +717,7 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
+              if four_tags(jresult,"e")!=[]:
                 for F_note in four_tags(note,"e"):
                      if len(F_note)>3:
                       context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -1088,8 +1085,8 @@ def list_pubkey_id():
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
        for single in metadata_note:
-        single_1=json.loads(single["content"])
-        try:
+        try:    
+         single_1=json.loads(single["content"])
          if "name" in list(single_1.keys()):
           if single_1["name"]!="":
            
@@ -1107,6 +1104,9 @@ def list_pubkey_id():
                   
         except KeyError as e:
           print("KeyError ",e)             
+        except json.JSONDecodeError as b:
+            print(b)   
+        
    
 button_people_2=Button(root,text=f"Metadata Users ", command=list_pubkey_id,font=('Arial',12,'bold'))
 button_people_2.place(relx=0.1,rely=0.4) 
@@ -1365,7 +1365,7 @@ def show_print_test(note):
     kind_9734=tag_description(note)
     if kind_9734:
          if tags_string(kind_9734,"e")!=[]:
-            if four_tags(kind_9734,"e"):
+            if four_tags(kind_9734,"e")!=[]:
                for F_note in four_tags(kind_9734,"e"):
                   if len(F_note)>3:
                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -1486,5 +1486,41 @@ def bolt11_amount(invoice: str):
     sats = int(round(btc * 100_000_000))
     
     return sats             
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

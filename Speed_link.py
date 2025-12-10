@@ -4,21 +4,15 @@ from nostr_sdk import *
 import asyncio
 from datetime import timedelta
 import time
-from datetime import datetime
-import uuid
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-import io
 from tkinter import messagebox 
 import json
-import requests
-import shutil
-from PIL import Image, ImageTk
 
 root = tk.Tk()
 root.title("Speed Link")
-root.geometry("1250x800")
+root.geometry("1280x800")
 
 def Open_txt_note(name):
       if name:
@@ -83,12 +77,12 @@ def url_bookmark():
     
 def codifica_spam():
    f=url_bookmark()
-   list=['mov','mp4']
+   list_video=['mov','mp4']
    img=['png','jpg','gif']
    img1=['jepg','webp'] 
    if f==None:
                  return "no spam"
-   if f[-3:] in list:
+   if f[-3:] in list_video:
         return "video"
    if f[-3:] in img:
            return "pic" 
@@ -159,9 +153,9 @@ def nevent_example(note):
          print(f" Event (decoded): {decode_nevent.event_id().to_hex()}")
          print(f" Event (decoded): {decode_nevent.relays()}")
          for xrelay in decode_nevent.relays():
-           if xrelay[0:6]=="wss://" and xrelay[-1]=="/":
-            if xrelay not in relay_list:
-               relay_list.append(xrelay)
+           if str(xrelay)[0:6]=="wss://" and str(xrelay)[-1]=="/":
+            if str(xrelay) not in relay_list:
+               relay_list.append(str(xrelay))
          return decode_nevent.event_id().to_hex()
 
 def Open_sticky_note(name):
@@ -188,8 +182,8 @@ async def link_it(tag,description):
     if relay_list!=[]:
        
      for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+        
+        await client.add_relay(RelayUrl.parse(jrelay))
      await client.connect()
     
      builder = EventBuilder(Kind(39701),description).tags(tag)
@@ -242,7 +236,7 @@ def link_share():
          lists_id.append(Tag.title(list_title[0]))
          
          if combo_lab.get()!="Type of Hashtag":        
-            lists_id.append(Tag.hashtag(combo_lab.get()))
+            lists_id.append(Tag.hashtag(str(combo_lab.get()).lower()))
          else:
             pass   
 
@@ -273,7 +267,7 @@ def update_list():
      
     if Check_lab_entry.get()==0:
       
-      label_entry.place(relx=0.44,rely=0.18)
+      label_entry.place(relx=0.32,rely=0.15)
       Check_lab_entry.set(1)
             
       def entry_list():
@@ -290,7 +284,7 @@ def update_list():
             label_entry.place_forget()
             Check_lab_entry.set(0)
       button_enter_lab['command']=entry_list 
-      button_enter_lab.place(relx=0.45,rely=0.23)   
+      button_enter_lab.place(relx=0.4,rely=0.19)   
     else:
        Check_lab_entry.set(0)
        label_entry.place_forget()
@@ -321,24 +315,25 @@ def upload_label_list(name):
         new_lab = json.loads(new_lab.replace("'", '"'))
         
         for label_x in new_lab:
-         if label_x!="":
-            if label_x not in Lab_list:
+            if label_x!="" and label_x not in Lab_list:
                 Lab_list.append(label_x)
                 
         combo_lab["values"]=Lab_list        
 
-frame1=tk.Frame(root,height=100,width=200, background="darkgrey")
+frame1=tk.Frame(root,height=100,width=400, background="darkgrey")
 button_add_lab=tk.Button(frame1,text="add hashtag",command=update_list, font=("Arial",12,"bold"))  
-button_add_lab.place(relx=0.2,rely=0.1)  
-button_add_lab=tk.Button(root,text="Upload hashtag",command=lambda val="label_test":upload_label_list(val), font=("Arial",12,"bold"))  
-button_add_lab.place(relx=0.32,rely=0.115)  
-Lab_list=["energy","nostr","bitcoin","money","ai"]
+button_add_lab.grid(column=8,row=0, padx=10,pady=5) 
+button_add_lab1=tk.Button(frame1,text="Upload Tag",command=lambda val="label_test":upload_label_list(val), font=("Arial",12,"bold"))  
+button_add_lab1.grid(column=8,row=2)  
+Lab_list=["energy","blog","open","ai","web"]
 
 def on_tags_event(event):
     selected_item=combo_lab.get()
+    if selected_item!="Type of Hashtag":
+       button_rep.grid(column=10,row=2)
 
-combo_lab = ttk.Combobox(root, values=Lab_list,font=('Arial',14,'bold'))
-combo_lab.place(relx=0.44,rely=0.12,relwidth=0.15)
+combo_lab = ttk.Combobox(frame1, values=Lab_list,font=('Arial',14,'bold'))
+combo_lab.grid(column=10,row=0,columnspan=2)
 combo_lab.set("Type of Hashtag")
 combo_lab.bind("<<ComboboxSelected>>", on_tags_event)
 list_h=[]
@@ -367,9 +362,9 @@ button_send.place(relx=0.45,rely=0.65,relwidth=0.2,relheight=0.1,anchor='n' )
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
 button_entry1.place(relx=0.57,rely=0.65,relwidth=0.05, relheight=0.1,anchor="n" )
 error_label = tk.Label(frame1, text="Problem:",font=("Arial",12))
-error_label.grid(column=3, rowspan=2, row=0, pady=5,padx=5)
+error_label.grid(column=19,row=0,columnspan=2,padx=10 )
 print_label = ttk.Label(frame1, text="Wait for Tag",font=("Arial",12))
-print_label.grid(column=3, columnspan=2, row=2, pady=5,padx=10)
+print_label.grid(column=19,row=2,pady=5,columnspan=2,padx=10)
 Check_open =IntVar()
 
 def Look_profile():
@@ -378,7 +373,7 @@ def Look_profile():
     name_label.grid(column=8,row=1,padx=10)
     label_about=Label(frame_pic, text="About ",font=('Arial',10,'bold'))
     label_about.grid(column=8,row=2,pady=2,padx=10)
-    button_b_0.place(relx=0.9,rely=0.02)   
+    button_b_0.grid(column=2,row=2,padx=5,pady=5)  
     second_name= tk.Label(frame_pic,text="Name ",font=('Arial',10,'bold'))
     second_name.grid(column=8,row=4,pady=2,padx=10)
     label_picture=tk.Label(frame_pic,text="Picture ",font=('Arial',10,'bold'))
@@ -495,7 +490,7 @@ def Look_profile():
     
     def Close_profile(event):
        frame_pic.destroy()
-       button_b_0.place_forget() 
+       button_b_0.grid_forget()
        Check_open.set(0)
        counter_dict.place_forget() 
 
@@ -504,15 +499,15 @@ def Look_profile():
     button_close.grid(column=13, row=0, padx=5, columnspan=1) 
     frame3.place(relx=0.02,rely=0.12,relwidth=0.3,relheight=0.3)
 
-button_beau_a=tk.Button(frame1, highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',text='Account',font=('Arial',16,'bold'),command=Look_profile)
-button_beau_a.place(relx=0.7,rely=0.1,relwidth=0.15)
-frame1.pack(side=TOP,fill=X)
+button_beau_a=tk.Button(frame1, highlightcolor='WHITE',text='Account',font=('Arial',14,'bold'),command=Look_profile)
+button_beau_a.grid(column=4, row=0, padx=5,pady=5, columnspan=2)
+frame1.grid(row=0, column=0, rowspan=3,columnspan=20)
 Check_raw =IntVar()
 
 def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
-        stuff_frame.place(relx=0.65,rely=0.12,relheight=0.75,relwidth=0.3)  
+        stuff_frame.place(relx=0.65,rely=0.15,relheight=0.75,relwidth=0.3)  
         r_tag.place(relx=0.7,rely=0.43,relwidth=0.1 )
         r_summary.place(relx=0.7,rely=0.47,relwidth=0.2 )
         r_button.place(relx=0.7,rely=0.52,relwidth=0.1)
@@ -526,7 +521,7 @@ def raw_label():
         d_button.place(relx=0.83,rely=0.59,relwidth=0.07)  
         d_tag.place(relx=0.75,rely=0.6 )
         d_title.place(relx=0.75,rely=0.65)
-
+        lab_button_x.place(relx=0.9,rely=0.2)
         d_view.place(relx=0.7,rely=0.7) 
    else:
       Check_raw.set(0)
@@ -544,16 +539,17 @@ def raw_label():
       d_button.place_forget()
       d_tag.place_forget()
       d_title.place_forget()
-
+      lab_button_x.place_forget()
       d_view.place_forget()
 
-lab_button = tk.Button(root, text="Raw Link", font=("Arial",12,"bold"), command=raw_label)
-lab_button.place(relx=0.5,rely=0.01)
+lab_button = tk.Button(frame1, text="Open Tag", font=("Arial",12,"bold"), command=raw_label)
+lab_button.grid(column=17,row=0,columnspan=2,rowspan=2,padx=5)
 stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)
 d_tag = tk.Label(root, text="d-Tag",font=("Arial",12,"bold"))
 d_title=ttk.Entry(root,justify='left',font=("Arial",12))
 d_view = tk.Label(root, text="d-view ", font=("helvetica",13,"bold"),justify="center")
 d_identifier=""
+lab_button_x = tk.Button(root, foreground='red', text='❌', font=("Arial",12,"bold"), command=raw_label)
 
 def d_tag_show():
     title=d_title.get()
@@ -627,11 +623,11 @@ descr_summary=ttk.Entry(root,justify='left',font=("Arial",12))
 descr_button = tk.Button(root, text="Preview ", font=("Arial",12,"bold"), command=show_descr)
 descr_view = ttk.Label(root, text="Title: ", font=("helvetica",12,"bold"),justify='left')
 entry_Home_title=ttk.Label(frame1,text="Speed Link", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
-entry_Home_title.place(relx=0.35,rely=0.1,relwidth=0.2)
+entry_Home_title.grid(column=6,row=0, rowspan=2,columnspan=2)
 #Parse id in note
 str_test=StringVar()
-entry_note=ttk.Entry(root,justify='left', textvariable=str_test)
-entry_note.place(relx=0.18,rely=0.6,relwidth=0.1, anchor="n")
+entry_note=ttk.Entry(frame1,justify='left', textvariable=str_test)
+entry_note.grid(column=15,row=0,padx=5,columnspan=2)
 List_note_write=[]
 relay_list=[]
 
@@ -665,6 +661,42 @@ def reply_event():
   except NostrSdkError as e:
     print(e)     
 
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
+
+
 async def get_list_Event(client, event_):
     tag_event=[]
     if event_!=[]:
@@ -686,19 +718,17 @@ async def Get_id(event_):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
-    if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
-     relay_url_2 = RelayUrl.parse("wss://relay.primal.net")
-     await client.add_relay(relay_url_2)
+    
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/","wss://relay.primal.net"}
+    for relay_x in list_relay_set:
+     if relay_x not in relay_list:
+        relay_list.append(relay_x)
 
+    if relay_list!=[]:     
+        await Search_status(client=Client(None),list_relay_connect=relay_list) 
+        for jrelay in relay_list:
+            await client.add_relay(RelayUrl.parse(jrelay))
+       
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -709,8 +739,8 @@ async def Get_id(event_):
         test_kind = await get_one_Event(client, event_)
     return test_kind
 
-event_idone=Button(root,text="Search event one", font=('Arial',12,'normal'),command=reply_event ) 
-event_idone.place(relx=0.18,rely=0.65,anchor='n' )
+event_idone=Button(frame1,text="Search event", font=('Arial',12,'normal'),command=reply_event ) 
+event_idone.grid(column=15,row=2,padx=5,pady=5)
                
 def rep_event_():
    if combo_lab.get()!= "Type of Hashtag":
@@ -743,14 +773,13 @@ def rep_event_():
     else:
       messagebox.showerror("Fail", "Error, not line")
       
-button_rep=tk.Button(root,text="Search Note", background="darkgrey", command=rep_event_, font=('Arial',12,'normal'))
-button_rep.place(relx=0.13,rely=0.45)
+button_rep=tk.Button(frame1,text="Search Tag File", command=rep_event_, font=('Arial',12,'normal'))   #combo hashtag appear on event
 
 def re_view_note():
       
-        frame1=Frame(root)
-        canvas = tk.Canvas(frame1,width=330)
-        scrollbar = ttk.Scrollbar(frame1, orient="vertical", command=canvas.yview)
+        frame_1=Frame(root)
+        canvas = tk.Canvas(frame_1,width=330)
+        scrollbar = ttk.Scrollbar(frame_1, orient="vertical", command=canvas.yview)
         scrollable_frame = ttk.Frame(canvas,border=2)
 
         scrollable_frame.bind(
@@ -804,12 +833,12 @@ def re_view_note():
            print("the list is empty")    
         canvas.pack(side="left", fill="y", expand=True)
         scrollbar.pack(side="right", fill="y")  
-        frame1.place(relx=0.3,rely=0.3, relheight=0.3,relwidth=0.35)  
+        frame_1.place(relx=0.3,rely=0.3, relheight=0.3,relwidth=0.35)  
         
         def close_canvas():
             scrollable_frame.forget()
             canvas.destroy()
-            frame1.destroy()
+            frame_1.destroy()
             button_next.place_forget()
             button_back.place_forget()
             lbel_var.place_forget()
@@ -876,7 +905,7 @@ def open_relay():
            
             if entry_relay.get() not in relay_list:
                 relay_list.append(entry_relay.get())
-                #print(relay_list)  
+                 
             counter_relay['text']=str(len(relay_list)) 
             counter_relay.grid(column=12,row=1)
             entry_relay.delete(0, END)
@@ -916,7 +945,7 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list              
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)

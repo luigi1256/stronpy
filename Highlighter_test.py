@@ -95,6 +95,9 @@ entry_var=Entry(root, textvariable=entry_variable,font=("Arial",12,"bold"),width
 entry_var.place(relx=0.42,rely=0.25)
 
 async def get_result_w(client):
+   try: 
+    if entry_var.get().startswith("naddr1") and len(entry_var.get())>71:
+       entry_variable.set(Coordinate.parse(entry_var.get()).identifier())
     if Checkbutton5.get() == 1:
           f = Filter().identifier(entry_var.get()).kind(Kind(30023)).since(timestamp=Timestamp.from_secs(since_day(int(since_entry.get())))).until(timestamp=Timestamp.from_secs(since_day(int(until_entry.get())))).limit(10)
     else:
@@ -103,12 +106,14 @@ async def get_result_w(client):
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
+   except NostrSdkError as e:
+    print(e) 
 
 db_list_note=[]
 relay_search_list=[]
 
 async def Search_d_tag():
-    # Init logger
+    
     init_logger(LogLevel.INFO)
     client = Client(None)
     # Add relays and connect

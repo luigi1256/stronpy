@@ -308,15 +308,16 @@ async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/"]
+    await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+    if list_add_relay!=[]:
+      for relay_x in list_add_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
+    
     if relay_list!=[]:
        
-       for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+      for jrelay in relay_list:
+        await client.add_relay(RelayUrl.parse(jrelay))
     await client.connect()     
     await asyncio.sleep(2.0)
     if WoT_check.get()==1:
@@ -694,11 +695,12 @@ async def outboxes():
             await client.add_relay(relay_url)
              
     else:
-       relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-       await client.add_relay(relay_url_x)
-       relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
-       await client.add_relay(relay_url_2)
-       
+      list_add_relay=["wss://purplerelay.com/","wss://nostr.mom/"]
+      await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+      if list_add_relay!=[]:
+        for relay_x in list_add_relay:
+          await client.add_relay(RelayUrl.parse(relay_x))
+                                   
     await client.connect()
     db_note.clear()
     note_result= await get_outbox(client)
@@ -716,7 +718,9 @@ async def outboxes():
                  relay_list.append(xrelay)
             else:
                 db_note.append(relay_add[i])      
-            i=i+1             
+            i=i+1      
+          
+           await Search_status(client=Client(None),list_relay_connect=relay_list)        
     await asyncio.sleep(2.0)
 
 def search_relay():
@@ -1120,5 +1124,40 @@ filemenu = Menu(menu)
 menu.add_cascade(label="File", menu=filemenu)
 filemenu.add_command(label="New User", command=open_new_user)
 frame_menu.grid()
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

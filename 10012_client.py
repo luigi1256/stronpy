@@ -292,35 +292,39 @@ def list_pubkey_id():
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
               if single_1["picture"]!="":
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
+       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))
                         
-        except KeyError as e:
+      except KeyError as e:
           print("KeyError ",e) 
-       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
+      except json.JSONDecodeError as b:
+        print(b)           
+          
 
 def search_kind(user,x):
     if __name__ == "__main__":

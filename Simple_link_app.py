@@ -4,7 +4,6 @@ from nostr_sdk import *
 import json
 import requests
 import time
-from asyncio import get_event_loop
 import requests
 import shutil
 import tkinter as tk
@@ -122,6 +121,7 @@ def show_noted():
            
       db_note_max=db_note_list   
    if len(list_note_save)==12:
+    
     db_note_max=list_note_save    
    i=0   
    for note in db_note_max:   
@@ -190,10 +190,13 @@ def show_noted():
           if entry not in list_note_save:
              if len(list_note_save)<12:
               number=list_note_out.index(entry)
-              #list_note_out.pop(number)
               list_note_save.append(entry)
+              if (len(list_note_save))==12: 
+               button_open.config(text="Save link")
               text_var_1.set(len(list_note_save))
               labeL_n.place(relx=0.45,rely=0.03 ) 
+            
+                
            
          except ValueError as e:
             print(e)     
@@ -203,6 +206,8 @@ def show_noted():
           if entry in list_note_save:
               number_1=list_note_save.index(entry)
               list_note_save.pop(number_1)
+              if (len(list_note_save))!=12: 
+               button_open.config(text="Next Note")
               text_var_1.set(len(list_note_save))
               labeL_n.place(relx=0.45,rely=0.03 ) 
            
@@ -223,7 +228,7 @@ def show_noted():
 
        button=Button(scrollable_frame_1,text=f"Print Note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=se+2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=se+2,column=s1+1,padx=5,pady=5)    
                                  
        s=s+2  
@@ -333,7 +338,7 @@ def relay_class():
             entry_relay.delete(0, END)
             add_relay_str.set("wss:// ") 
 
-relay_button = tk.Button(root, text="Add Relay!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+relay_button = tk.Button(root, text="Add Relay ", font=("Arial",12,"normal"),background="grey", command=relay_class)
 counter_relay=Label(root,text="",background="darkgrey",font=('Arial',12,'normal'))
 add_relay_str=StringVar()
 entry_relay=ttk.Entry(root,justify='left',font=("Arial",12,"bold"),width=12,textvariable=add_relay_str)
@@ -346,17 +351,16 @@ async def Get_notes():
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list)      
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
        
+       for jrelay in relay_list:
+          await client.add_relay(RelayUrl.parse(jrelay))
+                      
     await client.connect()
     await asyncio.sleep(2.0)
    
@@ -378,11 +382,12 @@ def show_read():
 
 def clear_list_save():
    list_note_save.clear()   
+   button_open.config(text="Next Note")
    text_var_1.set(len(list_note_save))
 
 button_RE=Button(root,command=second_one_filter, text="Relay Note", font=('Arial',12,'normal'))
 button_RE.place(relx=0.2,rely=0.1,anchor='n' )  
-button_open=Button(root,command=show_read, text="Read Note", font=('Arial',12,'normal'))
+button_open=Button(root,command=show_read, text="Next Note", font=('Arial',12,'normal'))
 button_close_save=Button(root,command=clear_list_save, text="x", font=('Arial',12,'normal'))
 
 def show_print_test_tag(note):
@@ -433,9 +438,9 @@ def show_print_test_tag(note):
          if hashtag_list:
            show_lst_ntd(hashtag_list)
 
-        #for word in test1:
-        #if word in block_hashtag_word:
-        #test1.remove(word)
+        
+        
+        
         test1.sort()
         
         while ra<len(test1):
@@ -458,7 +463,7 @@ def show_print_test_tag(note):
          
                    
    if tags_string(note,"d")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read Tag!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read Tag ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
 
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
@@ -566,7 +571,7 @@ def show_lst_ntd(list_note_p):
                                       
        button=Button(scrollable_frame_1,text=f"Print note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=2,column=s1+1,padx=5,pady=5)    
        s=s+2  
        s1=s1+4
@@ -594,9 +599,12 @@ def list_hashtag_fun():
     if db_note_list!=[]:
         for note_x in db_note_list:
             if tags_string(note_x,"t")!=[]:
-                for hash_y in tags_string(note_x,"t"):
-                    if hash_y not in hashtag_list:
-                        hashtag_list.append(hash_y)
+               for hash_y in tags_string(note_x,"t"):
+                  if str(hash_y).islower(): 
+                        if hash_y not in hashtag_list:
+                           hashtag_list.append(hash_y)
+                  
+                              
         return hashtag_list       
     else:
        return hashtag_list       
@@ -610,7 +618,7 @@ def search_for_channel(note_hash):
      if Notes:
         hash_list_notes.clear()
         for note_x in Notes:
-            if note_hash in tags_string(note_x,"t"): 
+            if str(note_hash).lower() in tags_string(note_x,"t"): 
                hash_list_notes.append(note_x)
         return hash_list_notes      
 
@@ -658,9 +666,6 @@ def print_list_tag():
                 
         ra=0
         se=1
-        #for word in test1:
-           #if word in block_hashtag_word:
-              #test1.remove(word)
         test1.sort()
         
         while ra<len(test1):
@@ -846,18 +851,17 @@ async def Search_text():
     client = Client(None)
     
     if relay_search_list!=[]:
-       for jrelay in relay_search_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-       await client.connect()
-       await asyncio.sleep(2.0)
-
-       combined_results = await get_result_(client)
-       if combined_results:
+      
+      
+      for jrelay in relay_search_list:
+         await client.add_relay(RelayUrl.parse(jrelay))
+      await client.connect()
+      combined_results = await get_result_(client)
+      if combined_results:
         return combined_results
      
     await search_box_relay()
-    print("found ", len(relay_search_list), " relays")
+    
 
 public_list=[]
 
@@ -874,29 +878,27 @@ async def search_box_relay():
         
     client = Client(None)
     
+    list_relay_set={"wss://nostr.mom/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
-             
-    else:
-       relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-       await client.add_relay(relay_url_x)
-       
-    await client.connect()
-    relay_add=get_note(await get_search_relay(client))
-    if relay_add !=None and relay_add!=[]:
+      
+      for jrelay in relay_list:
+         await client.add_relay(RelayUrl.parse(jrelay))
+      
+      await client.connect()
+      relay_add=get_note(await get_search_relay(client))
+      if relay_add !=None and relay_add!=[]:
            i=0
            while i<len(relay_add):
             for xrelay in tags_string(relay_add[i],'relay'):
-              if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
+              if xrelay[0:6]=="wss://":
                if xrelay not in relay_search_list:
                 relay_search_list.append(xrelay) 
               
             i=i+1             
-
-Bad_relay_connection=["wss://r.kojira.io/","wss://relay.noswhere.com/","wss://relay.nostrils.band/", "wss://relay.roli.social/","wss://relay.siamdev.cc/","wss://relay.damus.io/", "wss://relay.notoshi.win/","wss://relay.mostr.pub/","wss://yabu.me/","wss://relay-jp.nostr.wirednet.jp/","wss://grownostr/","wss://relay.onlynostr.club/","wss://00bb97abe00326e97091a24c7b16a412053cd8394a5c2be997798ed53f4bbe67/","wss://0.0.0.3/"]
+           await Search_status(client=Client(None),list_relay_connect=relay_search_list)
 
 Check_raw =IntVar()
 
@@ -904,6 +906,7 @@ def raw_label():
    if Check_raw.get()==0:
         Check_raw.set(1)
         stuff_frame.place(relx=0.65,rely=0.12,relheight=0.75,relwidth=0.3) 
+        lab_button_x.place(relx=0.92,rely=0.15)     
         button_up_relay.place(relx=0.88,rely=0.78 )
         r_tag.place(relx=0.7,rely=0.43,relwidth=0.1 )
         r_summary.place(relx=0.7,rely=0.47,relwidth=0.2 )
@@ -924,6 +927,7 @@ def raw_label():
         button_entry1.place(relx=0.82,rely=0.78,relwidth=0.05, relheight=0.05,anchor="n" )
    else:
       Check_raw.set(0)
+      lab_button_x.place_forget()
       stuff_frame.place_forget() 
       r_tag.place_forget()
       r_summary.place_forget()
@@ -1023,7 +1027,8 @@ def show_descr():
         descr_view.config(text=str(len(list_title)))
         descr_summary.delete(0, END)                     
 
-stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)         
+stuff_frame = ttk.LabelFrame(root, text="Stuff", labelanchor="n", padding=10)   
+lab_button_x = tk.Button(root, foreground="red",text="X", font=("Arial",12,"bold"), command=raw_label)
 r_tag = tk.Label(root, text="Content-Tag",font=("Arial",12,"bold"))
 r_summary=ttk.Entry(root,justify='left',font=("Arial",12))
 r_button = tk.Button(root, text="Content tag", font=("Arial",12,"bold"), command=r_show)
@@ -1041,7 +1046,7 @@ entry_Home_title.place(relx=0.1,rely=0.1)
 str_test=StringVar()
 List_note_write=[]
 relay_list=[]
-lab_button = tk.Button(root, text="Raw Link", font=("Arial",12,"bold"), command=raw_label)
+lab_button = tk.Button(root, text="Share Link", font=("Arial",12,"bold"), command=raw_label)
 lab_button.place(relx=0.88,rely=0.03)
 d_tag = tk.Label(root, text="d-Tag",font=("Arial",12,"bold"))
 d_title=ttk.Entry(root,justify='left',font=("Arial",12))
@@ -1065,7 +1070,7 @@ def link_share():
          lists_id.append(Tag.title(list_title[0]))
          
          if combo_lab.get()!="Type of Hashtag":        
-            lists_id.append(Tag.hashtag(combo_lab.get()))
+            lists_id.append(Tag.hashtag(str(combo_lab.get()).lower()))
          else:
             pass   
 
@@ -1107,13 +1112,17 @@ def check_square():
 
 button_send=tk.Button(root,text="Speed Link",command=link_share, background="darkgrey",font=("Arial",12,"bold"))
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2)
+
 def add_tag(event):
-   hashtag=list_hashtag_fun()
-   if hashtag!=[]:
-      for hash_one in hashtag:
-         if hash_one not in Lab_list:
-            Lab_list.append(hash_one)
-      combo_lab['values']=Lab_list    
+   if len(Lab_list)==5:
+      hashtag=list_hashtag_fun()
+      if hashtag!=[]:
+         combo_lab.set("Type of Hashtag")
+         for hash_one in hashtag:
+            if hash_one not in Lab_list:
+               Lab_list.append(hash_one)
+         Lab_list.sort()       
+         combo_lab['values']=Lab_list    
         
 Lab_list=["energy","nostr","bitcoin","money","ai"]
 combo_lab = ttk.Combobox(root, values=Lab_list,font=('Arial',14,'bold'))
@@ -1140,7 +1149,7 @@ async def link_it(tag,description):
      builder = EventBuilder(Kind(39701),description).tags(tag)
      test_result_post= await client.send_event_builder(builder)
     
-     f = Filter().authors([keys.public_key()]).limit(3)
+     f = Filter().authors([keys.public_key()]).kind(Kind(39701)).limit(3)
      events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
      for event in events.to_vec():
        if event.verify():
@@ -1186,4 +1195,77 @@ def upload_relay():
     print(str(relay_s))
 
 button_up_relay=tk.Button(root,text="Relay",command=upload_relay, background="darkgrey",font=("Arial",14,"bold"))
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
+
+async def Search_one_status(client:Client,relay_str:str):
+    try: 
+         if relay_str.startswith("wss://"):
+            await client.add_relay(RelayUrl.parse(relay_str))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           return stats.bytes_received()
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                           return stats.success() 
+                            
+                        
+                    i=i+1 
+         else:
+            return 0           
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
+
 root.mainloop()

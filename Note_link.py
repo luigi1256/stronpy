@@ -527,7 +527,7 @@ def show_note_link(note):
       def print_var(entry):
                 print(entry["content"])
                               
-      button=Button(scrollable_frame_1,text=f"Content!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Content", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"number note", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
@@ -707,7 +707,7 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list        
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)

@@ -869,6 +869,8 @@ def metadata_p_0(pubkey,list_note):
         return test
   except KeyError as e:
       print(e)
+  except json.JSONDecodeError as b:
+   print(b)                        
 
 Check_open_2 = IntVar() 
 Check_open_2.set(1)

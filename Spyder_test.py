@@ -183,19 +183,19 @@ def show_noted():
          
          context0="Nickname " +Pubkey_Metadata[note["pubkey"]]
        else: 
-         context0="Author: "+note['pubkey']
+         context0="Author: "+note['pubkey'][0:9]
        context1=note['content']+"\n"
        context2=" "
        if note['tags']!=[]: 
         context2="---> tags: <--- "+"\n"   
         if tags_string(note,"e")!=[]:
-              if four_tags(note,"e"):
+              if four_tags(note,"e")!=[]:
                 for F_note in four_tags(note,"e"):
-                  if len(F_note)==4:   
-                     context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
-                  else:
-                     context2=context2+str(" < "+ F_note[0]+" > ")+"no NIP-10"+ "\n"
-                     
+                  if len(F_note)>3:
+                    context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+              else:
+                  context2=context2+"- Number of e Tag "+str(len(tags_string(note,"e"))) +"\n"      
+                  
         else:
                context2="---> Root  <--- "+"\n"
         for xnote in tags_string(note,"alt"):
@@ -240,16 +240,18 @@ def show_noted():
             print(e)
 
        def keep_safe(entry):
-         try:
+        try:
           if entry not in list_note_save:
-             if len(list_note_save)<12:
+            if len(list_note_save)<12:
               number=list_note_out.index(entry)
-              #list_note_out.pop(number)
               list_note_save.append(entry)
               text_var_1.set(len(list_note_save))
               labeL_n.place(relx=0.45,rely=0.03 ) 
+            if (len(list_note_save))==12: 
+                button_open.config(text="Save link")
+                button_search_n.place(relx=0.05,rely=0.83)  
            
-         except ValueError as e:
+        except ValueError as e:
             print(e)     
 
        def un_save(entry):
@@ -258,6 +260,9 @@ def show_noted():
               number_1=list_note_save.index(entry)
               list_note_save.pop(number_1)
               text_var_1.set(len(list_note_save))
+              if (len(list_note_save))!=12: 
+                button_open.config(text="Read Note")
+                button_search_n.place_forget()
               labeL_n.place(relx=0.45,rely=0.03 ) 
            
          except ValueError as e:
@@ -288,7 +293,7 @@ def show_noted():
                
        button=Button(scrollable_frame_1,text=f"Print Note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=se+2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=se+2,column=s1+1,padx=5,pady=5)    
        if note["tags"]!=[]:
         if tags_string(note,"image")!=[] or tags_string(note,"imeta")!=[]:
@@ -327,9 +332,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 def url_spam(x):
  z=x['content']
@@ -551,7 +559,7 @@ def relay_class():
                print(entry_relay.get())    
             entry_relay.delete(0, END)
 
-relay_button = tk.Button(root, text="Add Relay!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+relay_button = tk.Button(root, text="Add Relay ", font=("Arial",12,"normal"),background="grey", command=relay_class)
 counter_relay=Label(root,text="",background="darkgrey",font=('Arial',12,'normal'))
 entry_relay=ttk.Entry(root,justify='left',font=("Arial",12,"bold"),width=12)
 entry_relay.place(relx=0.05,rely=0.05)
@@ -597,6 +605,8 @@ def show_read():
 
 def clear_list_save():
    list_note_save.clear()   
+   button_open.config(text="Read Note")
+   button_search_n.place_forget()
    text_var_1.set(len(list_note_save))
 
 button_RE=Button(root,command=second_one_filter, text="Relay Note", font=('Arial',12,'normal'))
@@ -677,7 +687,7 @@ def show_print_test_tag(note):
          
          var_id_3.set("Nickname " +Pubkey_Metadata[note["pubkey"]])
    else: 
-         var_id_3.set("Author: "+note['pubkey'])
+         var_id_3.set("Author: "+note['pubkey'][0:9])
 
    scroll_bar_mini = tk.Scrollbar(scrollable_frame_2)
    scroll_bar_mini.grid( sticky = NS,column=4,row=s+1)
@@ -689,11 +699,15 @@ def show_print_test_tag(note):
    else:
            context2=""  
    if tags_string(note,"e")!=[]:
-        if four_tags(note,"e"):
+        if four_tags(note,"e")!=[]:
             for F_note in four_tags(note,"e"):
-                context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+                if len(F_note)>3:   
+                  context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+        else:
+          context2=context2+"- Number of e Tag "+str(len(tags_string(note,"e"))) +"\n"          
+                
    else:
-         pass            
+        context2=context2 + "\n Root"    
    second_label_10.insert(END,note["content"]+"\n"+str(context2))
    scroll_bar_mini.config( command = second_label_10.yview )
    second_label_10.grid(padx=10, column=0, columnspan=3, row=s+1) 
@@ -722,7 +736,7 @@ def show_print_test_tag(note):
          
                var_id_r.set("Nickname " +Pubkey_Metadata[jresult["pubkey"]])
              else: 
-               var_id_r.set("Author: "+jresult['pubkey'])
+               var_id_r.set("Author: "+jresult['pubkey'][0:9])
         
          
              scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
@@ -730,7 +744,7 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
+              if four_tags(jresult,"e")!=[]:
                 for F_note in four_tags(note,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
@@ -741,11 +755,11 @@ def show_print_test_tag(note):
              second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
            z=z+2
                    
-   button=Button(scrollable_frame_2,text=f"Photo!", command=lambda val=note: print_var(val))
+   button=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
      
    if tags_string(note,"e")!=[]:
-    button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+    button_grid3=Button(scrollable_frame_2,text=f"Read reply ", command=lambda val=note: print_content(val))
     button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
 
    scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
@@ -949,16 +963,18 @@ def show_lst_ntd(list_note_p):
          
          context0="Nickname " +Pubkey_Metadata[note["pubkey"]]
        else: 
-         context0="Author: "+note['pubkey']
+         context0="Author: "+note['pubkey'][0:9]
        context1=note['content']+"\n"
        context2=" "
        if note['tags']!=[]: 
         context2="---> tags: <--- "+"\n"   
         if tags_string(note,"e")!=[]:
-              if four_tags(note,"e"):
+              if four_tags(note,"e")!=[]:
                 for F_note in four_tags(note,"e"):
-                   if len(F_note)>3:  
+                  if len(F_note)>3:  
                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+              else:
+                   context2=context2+"- Number of e Tag "+str(len(tags_string(note,"e"))) +"\n"     
               
         else:
                context2="---> Root  <--- "+"\n"
@@ -1011,7 +1027,7 @@ def show_lst_ntd(list_note_p):
                                       
        button=Button(scrollable_frame_1,text=f"Print note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=2,column=s1+1,padx=5,pady=5)    
        if note["tags"]!=[]:
         if tags_string(note,"image")!=[] or tags_string(note,"imeta")!=[]:
@@ -1065,8 +1081,7 @@ def search_note():
     layout()                
 
 button_search_n=Button(root,command=search_note,text="Note",font=("Arial",12,"normal"))
-button_search_n.place(relx=0.05,rely=0.83)      
-
+    
 def tag_npub(l):
     z=[]
     pub_key=[]
@@ -1120,7 +1135,7 @@ def layout():
          
           context0="Nickname " +Pubkey_Metadata[note["pubkey"]]
          else: 
-          context0="Author: "+note['pubkey'][0:44]
+          context0="Author: "+note['pubkey'][0:9]
          if lenght>1:
                          
                  
@@ -1159,7 +1174,7 @@ def layout():
         
          second_label10.grid(padx=10, column=0, columnspan=3, row=s+2) 
                
-         button=Button(scrollable_frame,text=f"Print me!", command=lambda val=note: print_var(val))
+         button=Button(scrollable_frame,text=f"Print me ", command=lambda val=note: print_var(val))
          button.grid(column=0,row=s+3,padx=5,pady=5)
          button_grid2=Button(scrollable_frame,text=f"read tags", command=lambda val=note: print_id(val))
          button_grid2.grid(row=s+3,column=1,padx=5,pady=5)    
@@ -1223,7 +1238,6 @@ def pubkey_timeline():
       if note["pubkey"] not in timeline_people:
          timeline_people.append(note["pubkey"])
 
-
 def list_pubkey_id():
   
   pubkey_timeline()
@@ -1261,8 +1275,8 @@ def list_pubkey_id():
         except KeyError as e:
           print("KeyError ",e) 
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
-     except json.decoder.JSONDecodeError as e:
-        print(e,single)  
+     except json.JSONDecodeError as b:
+           print(b)       
 
 button_people_2=Button(root,text=f"Metadata User ", command=list_pubkey_id,font=('Arial',12,'bold'))
 

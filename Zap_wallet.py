@@ -723,11 +723,13 @@ def metadata_list(List,y):
 def metadata_0(nota,y):
    import json
    try:
-    test=json.loads(nota["content"])
-    if y in list(test.keys()):
-     return str(test[y])
+        test=json.loads(nota["content"])
+        if y in list(test.keys()):
+            return str(test[y])
    except KeyError as e:
       print(e)
+   except json.JSONDecodeError as b:
+      print(b)   
 
 def metadata_p_0(pubkey,list_note):
   import json
@@ -739,6 +741,8 @@ def metadata_p_0(pubkey,list_note):
         return test
   except KeyError as e:
       print(e)
+  except json.JSONDecodeError as b:
+   print(b)       
 
 Check_open_2 = IntVar() 
 Check_open_2.set(1)

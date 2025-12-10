@@ -217,8 +217,7 @@ async def feed_cluster(authors,type_of_event):
     init_logger(LogLevel.INFO)
    
     client = Client(None)
-    #uniffi_set_event_loop(asyncio.get_running_loop())
-
+    
     # Add relays and connect
     relay_url_1=RelayUrl.parse("wss://nostr.mom/")
     relay_url_2=RelayUrl.parse("wss://nos.lol/")
@@ -255,20 +254,15 @@ async def get_outbox(client):
 async def outboxes():
     init_logger(LogLevel.INFO)
     client = Client(None)
-    
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/","wss://nostr-pub.wellorder.net/"]
+    await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+    for relay_n in list_add_relay:
+       if relay_n not in relay_list:
+          relay_list.append(relay_n)
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+      for jrelay in relay_list:
+        await client.add_relay(RelayUrl.parse(jrelay))
              
-    else:
-        relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-        relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-        await client.add_relay(relay_url_1)
-        await client.add_relay(relay_url_2)
-     
-       
     await client.connect()
     db_note.clear()
     note_result= await get_outbox(client)
@@ -299,35 +293,38 @@ def list_pubkey_id():
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
               if single_1["picture"]!="":
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
-                        
-        except KeyError as e:
-          print("KeyError ",e) 
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
+                        
+      except KeyError as e:
+          print("KeyError ",e) 
+      except json.JSONDecodeError as b:
+        print(b)               
 
 def search_kind(user,x):
     if __name__ == "__main__":
@@ -358,11 +355,11 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://relay.damus.io/")
-    await client.add_relay(relay_url_1)
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_2)
-    
+    list_add_relay=["wss://nos.lol/","wss://relay.damus.io/"]
+    await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+    for relay_n in list_add_relay:
+        if relay_n not in relay_list:
+           relay_list.append(relay_n)
     if relay_list!=[]:
        
        for jrelay in relay_list:
@@ -547,8 +544,14 @@ def show_print_test():
     if note['tags']!=[]:
         if note["kind"]==6:
            try: 
-            context1= str(json.loads(note["content"])["content"]+"\n")
-            context2= str(json.loads(note["content"])["tags"])
+             if note["content"]=="":
+                context1= str(note["content"]+"\n")
+                context2= str(note["content"]["tags"])   
+             else:
+                context1= str(json.loads(note["content"])["content"]+"\n")
+                context2= str(json.loads(note["content"])["tags"])
+           except TypeError as b:
+              print(b,"\n",note["content"], [note["content"]])     
            except json.decoder as e:
               print(e)
         else:
@@ -574,11 +577,16 @@ def show_print_test():
      
     else: 
         if note["kind"]==6:
-         context1= str(json.loads(note["content"])["content"])+"\n"
-         context2=""
+        
+          if note["content"]=="":
+            context1= str(note["content"]+"\n")
+          else:
+            context1= str(json.loads(note["content"])["content"])+"\n"
+          context2=""
         else:
-           context1=note['content']+"\n"
-           context2=""
+          context1=note['content']+"\n"
+          context2=""                
+        
    except TypeError as e:
       print(e)        
    var_id=StringVar()
@@ -622,6 +630,7 @@ button_id.place(relx=0.28,rely=0.05)
 Checkbutton_e = IntVar()
 Type_feed = Checkbutton(root, variable = Checkbutton_e, onvalue = 1, offvalue = 0,text="No reply",background="grey",font=("Arial",12,"bold"),command=show_print_test)
 Type_feed.place(relx=0.38,rely=0.05)
+
 def test_relay(): 
  if combo_box.get()!="Cluster":
    User=user_convert(timeline_people)
@@ -640,8 +649,6 @@ def search_():
    result=test_relay()
    if result !=None:
     timeline_created(db_list,result)
-
-
 
 def Block_space():
    if list_event!=[]: 
@@ -744,10 +751,6 @@ async def main_feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
     if relay_list!=[]:
        s=0
        for relay_x in relay_list:
@@ -905,22 +908,18 @@ async def Get_event_id(e_id):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"]
+    await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+    for relay_n in list_add_relay:
+      if relay_n not in relay_list:
+        relay_list.append(relay_n)
     if relay_list!=[]:
        
        for jrelay in relay_list:
          relay_url = RelayUrl.parse(jrelay)
          await client.add_relay(relay_url)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
-     relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
-     await client.add_relay(relay_url_2)
-
-    
+                                 
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(e_id, list):
@@ -1277,7 +1276,7 @@ def notes_value():
          decode_nevent1 = EventId.parse(decode_nevent.event_id().to_hex())
          relays=decode_nevent.relays()
          for relay_x in relays:
-          relay_hint.append(relay_x)
+          relay_hint.append(str(relay_x))
              
          
          if __name__ == "__main__":    
@@ -1361,19 +1360,23 @@ async def whats_note(event_id):
     client = Client(None)
     
     # Add relays and connect
-    await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-    await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
-    if relay_hint!=[]:
-      for relay in relay_hint:
-        await client.add_relay(relay)
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/","wss://nostr-pub.wellorder.net/"]
+    await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+    if list_add_relay!=[]:
+      for x_relay in list_add_relay:
+        if x_relay not in relay_list:
+          relay_list.append(x_relay)
+    if relay_hint!=[]:  #is for one hit
+      for relay_n in relay_hint:
+        if relay_n not in relay_list:
+          await client.add_relay(RelayUrl.parse(relay_n))
    
     if relay_list!=[]:
      for xrelay in relay_list:
         if xrelay!=None and xrelay!="":
-         print(xrelay)
-         await client.add_relay(RelayUrl.parse(xrelay))
-        else:
-           print("errore") 
+          await client.add_relay(RelayUrl.parse(xrelay))
+        
+        
      await client.connect()
     else:
         await client.connect()   
@@ -1383,5 +1386,40 @@ async def whats_note(event_id):
     combined_results = await get_quote_note(client, event_id)
     
     return combined_results
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

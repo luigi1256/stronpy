@@ -1,9 +1,6 @@
 from nostr_sdk import *
 import asyncio
 from datetime import timedelta
-from nostr_sdk import PublicKey
-from nostr_sdk import Tag
-from nostr_sdk import EventId,Event
 import time
 from datetime import datetime
 import uuid
@@ -68,8 +65,7 @@ async def Article_new(note,tag):
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+            await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
     try:   
         # Send an event using the Nostr Signer

@@ -192,6 +192,10 @@ def find_japanese(text):
     japanese_pattern = re.compile(r'[\u3040-\u30FF\u4E00-\u9FFF]')
     return japanese_pattern.findall(text)    
 
+def find_arabic(text):
+  arbaic_pattern = re.compile(r'[\u0600-\u06ff\u0750-\u077f\ufb50-\ufbc1\ufbd3-\ufd3f\ufd50-\ufd8f\ufd92-\ufdc7\ufe70-\ufefc\uFDF0-\uFDFD]')
+  return arbaic_pattern.findall(text)
+
 def test_relay():
    if __name__ == "__main__":
      
@@ -214,17 +218,16 @@ async def Get():
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/"}
+    for relay_x in list_relay_set:
+         if relay_x not in relay_list:
+            relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
-    else:
-      relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-      await client.add_relay(relay_url_1)
-      relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-      await client.add_relay(relay_url_x)
        
+       for jrelay in relay_list:
+         await client.add_relay(RelayUrl.parse(jrelay))
+    
     await client.connect()
     await asyncio.sleep(2.0)
    
@@ -249,9 +252,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 type_words=["no context","pic","tme"]
 
@@ -259,7 +265,7 @@ def filter_test(List_note):
  List_note_out=[]
  for jnote in List_note:
     if jnote['pubkey'] not in block_npub:
-     if block_word(jnote)==None and  find_japanese(jnote['content'])==[]:  
+     if block_word(jnote)==None and  find_japanese(jnote['content'])==[] and find_arabic(jnote['content'])==[]:  
         if (jnote['tags']!=[] or jnote['tags']==[]) and tags_string(jnote,"a")==[]and tags_string(jnote,"q")==[] and "mention" not in search_o_tags(jnote):
                       
            if Checkbutton8.get()==1:
@@ -289,7 +295,7 @@ def filter_light_test(List_note):
  List_note_out=[]
  for jnote in List_note:
     if jnote['pubkey'] not in block_npub:
-     if block_word(jnote)==None and  find_japanese(jnote['content'])==[]:  
+     if block_word(jnote)==None and  find_japanese(jnote['content'])==[] and find_arabic(jnote['content'])==[]:  
         if (jnote['tags']!=[] or jnote['tags']==[]) and tags_string(jnote,"a")==[]and tags_string(jnote,"q")==[] and "mention" not in search_o_tags(jnote):
           if label_light!=[]:
             type_content=block_url_spam(jnote)
@@ -564,35 +570,37 @@ def list_pubkey_id():
    pubkey_timeline()
    metadata_note=search_kind(0)
    if metadata_note!=[]:
+      try:
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
               if single_1["picture"]!="":
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
-                        
-        except KeyError as e:
-          print("KeyError ",e) 
        print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile)) 
+      except KeyError as e:
+        print("KeyError ",e)
+      except json.JSONDecodeError as b:
+        print(b)            
 
 def layout():
    if db_list!=[]: 
@@ -691,8 +699,7 @@ def layout():
               print(note_x, "\n")
               note_invidious(note_x)
 
-
-button_open=Button(root, command=layout, text="scroll",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
+button_open=Button(root, command=layout, text="Scroll",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
 button_open.place(relx=0.2,rely=0.2, anchor="n")
 frame_1=tk.Frame(root,height=100,width=200)
 note_tag = tk.Label(root, text="Note",font=('Arial',12,'normal'))
@@ -863,19 +870,17 @@ async def Get_id(event_):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/","wss://relay.primal.net/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+        relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
-          await client.add_relay(jrelay)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
-     relay_url_4 = RelayUrl.parse("wss://relay.primal.net/")
-     await client.add_relay(relay_url_4)   
+          await client.add_relay(RelayUrl.parse(jrelay))
+    
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(event_, list):
@@ -890,20 +895,17 @@ async def reply(note,tag,test):
     keys = Keys.generate()
     signer = NostrSigner.keys(keys)
     client = Client(signer)
+    client = Client(None)
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/","wss://relay.primal.net/","wss://nostr.stakey.net/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
        print(relay_list)
        for jrelay in relay_list:
           await client.add_relay(jrelay)
-    else:
-     pass
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
-    relay_url_2 = RelayUrl.parse("wss://nostr.oxtr.dev/")
-    relay_url_3 = RelayUrl.parse("wss://nostr.stakey.net/")
-    await client.add_relay(relay_url_2)
-    await client.add_relay(relay_url_3)
+    
     await client.connect()
     try:
      builder = EventBuilder.text_note_reply(note,test,test,relay_list[0])  #.tags(tag) 
@@ -1068,22 +1070,17 @@ async def Get_event_id(e_id):
     init_logger(LogLevel.INFO)
     
     client = Client(None)
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
-       print(relay_list)
+      
        for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
-     relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
-     await client.add_relay(relay_url_2)
-
-    
+         await client.add_relay(RelayUrl.parse(jrelay))
+                          
     await client.connect()
-
     await asyncio.sleep(2.0)
 
     if isinstance(e_id, list):
@@ -1161,9 +1158,10 @@ def show_print_test_tag(note):
    else:
            context2=""  
    if tags_string(note,"e")!=[]:
-        if four_tags(note,"e"):
+        if four_tags(note,"e")!=[]:
             for F_note in four_tags(note,"e"):
-                context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+               if len(F_note)>3: 
+                  context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
    else:
          pass            
    second_label_10.insert(END,note["content"]+"\n"+str(context2))
@@ -1184,7 +1182,7 @@ def show_print_test_tag(note):
    def print_content(entry):
        result=show_note_from_id(entry)
        if result!=None: 
-        z=3
+        z=5
         for jresult in result:
            if jresult["id"]!=entry["id"]:  
              var_id_r=StringVar()
@@ -1200,9 +1198,10 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
-                for F_note in four_tags(jresult,"e"):
-                     context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+               if four_tags(jresult,"e")!=[]:
+                  for F_note in four_tags(jresult,"e"):
+                     if len(F_note)>3:     
+                        context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
              else:
                context22="---> Root  <--- "  
@@ -1347,37 +1346,60 @@ async def get_note_cluster(client, type_of_event):
     z = [event.as_json() for event in events.to_vec()]
     return z
 
-add_relay_list=[]
-
 async def feed_cluster(type_of_event):
     # Init logger
     init_logger(LogLevel.INFO)
    
     client = Client(None)
-    #uniffi_set_event_loop(asyncio.get_running_loop())
-    add_relay_list.clear()
+    list_relay_set={"wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"}
+    for relay_x in list_relay_set:
+      if relay_x not in relay_list:
+         relay_list.append(relay_x)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
-       
-       for relay_j in relay_list:
-           if RelayUrl.parse(relay_j) not in add_relay_list:
-                add_relay_list.append(RelayUrl.parse(relay_j))
-                await client.add_relay(RelayUrl.parse(relay_j))
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    if relay_url_1 not in add_relay_list:
-       add_relay_list.append(relay_url_1)
-       await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    if relay_url_x not in add_relay_list:
-       add_relay_list.append(relay_url_x)
-       await client.add_relay(relay_url_x)
-    if relay_url_2 not in add_relay_list:
-       add_relay_list.append(relay_url_2)
-       await client.add_relay(relay_url_2)
+      for relay_j in relay_list:
+         await client.add_relay(RelayUrl.parse(relay_j))  
+    
     await client.connect()
     await asyncio.sleep(2.0)
 
     combined_results = await get_note_cluster(client, type_of_event)
     return combined_results
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

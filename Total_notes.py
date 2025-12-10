@@ -1,15 +1,10 @@
 import asyncio
 from datetime import timedelta
-from nostr_sdk import Keys, Client, NostrSigner
-from nostr_sdk import PublicKey,ZapRequestData,Metadata,SecretKey
-from nostr_sdk import Tag, init_logger, LogLevel,ClientBuilder,SingleLetterTag,TagStandard
-from nostr_sdk import EventId,EventBuilder, Filter, Metadata,Kind,NostrConnectUri,NostrConnect, NostrSdkError,uniffi_set_event_loop
+from nostr_sdk import *
 import json
 import requests
 import time
 from asyncio import get_event_loop
-from nostr_sdk import Kind,Nip19Event,Nip19Enum,SubscribeOutput,SubscribeOptions,FilterRecord,Alphabet,Nip21,Coordinate,RelayUrl
-from nostr_sdk import TagKind
 import requests
 import shutil
 from PIL import Image, ImageTk
@@ -61,7 +56,7 @@ def tags_string(x,obj):
      for j in f:
       if j[0]==obj:
           z.append(j[1])
-     return z     
+    return z     
 
 def codifica_link(x):
    f=url_spam(x)
@@ -182,9 +177,10 @@ def show_noted():
        if note['tags']!=[]: 
         context2="---> tags: <--- "+"\n"   
         if tags_string(note,"e")!=[]:
-              if four_tags(note,"e"):
+              if four_tags(note,"e")!=[]:
                 for F_note in four_tags(note,"e"):
-                     context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+                    if len(F_note)>3: 
+                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
         else:
                context2="---> Root  <--- "+"\n"
@@ -279,9 +275,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 def url_spam(x):
  z=x['content']
@@ -504,15 +503,14 @@ async def Get_notes():
     
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-         relay_url = RelayUrl.parse(jrelay)
-         await client.add_relay(relay_url)
+      for jrelay in relay_list:
+        await client.add_relay(RelayUrl.parse(jrelay))
     else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     await client.add_relay(relay_url_1)
-     relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-     await client.add_relay(relay_url_x)
+     list_add_relay=["wss://nos.lol/","wss://nostr.mom/"]
+     await Search_status(client=Client(None),list_relay_connect=list_add_relay)
+     if list_add_relay!=[]:
+      for relay_x in list_add_relay:
+        await client.add_relay(RelayUrl.parse(relay_x))
     await client.connect()
     await asyncio.sleep(2.0)
    
@@ -612,8 +610,9 @@ def show_print_test_tag(note):
    else:
            context2=""  
    if tags_string(note,"e")!=[]:
-        if four_tags(note,"e"):
+        if four_tags(note,"e")!=[]:
             for F_note in four_tags(note,"e"):
+              if len(F_note)>3:  
                 context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
    else:
          pass            
@@ -648,9 +647,10 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
+              if four_tags(jresult,"e")!=[]:
                 for F_note in four_tags(note,"e"):
-                     context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
+                    if len(F_note)>3: 
+                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
              else:
                context22="---> Root  <--- "  
@@ -796,7 +796,7 @@ def show_lst_ntd(list_note_p):
        if note['tags']!=[]: 
         context2="---> tags: <--- "+"\n"   
         if tags_string(note,"e")!=[]:
-              if four_tags(note,"e"):
+              if four_tags(note,"e")!=[]:
                 for F_note in four_tags(note,"e"):
                    if len(F_note)>3:  
                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -875,5 +875,41 @@ def show_lst_ntd(list_note_p):
     
   button_frame=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
   button_frame.place(relx=0.74,rely=0.83,relwidth=0.1)      
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

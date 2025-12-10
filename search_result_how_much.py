@@ -2,7 +2,6 @@
 import asyncio
 from nostr_sdk import *
 from datetime import timedelta 
-import textwrap
 import json
 import ast
 import time
@@ -77,8 +76,8 @@ relay_list=[]
 db_list_note=[]
 db_note_1=[]
 relay_search_list=[]
-Bad_relay_connection=["wss://relay.nostr.band/","wss://r.kojira.io/","wss://relay.noswhere.com/","wss://relay.nostrils.band/", "wss://relay.roli.social/","wss://relay.siamdev.cc/","wss://relay.damus.io/", "wss://relay.notoshi.win/","wss://relay.mostr.pub/","wss://yabu.me/","wss://relay-jp.nostr.wirednet.jp/","wss://grownostr/","wss://relay.onlynostr.club/","wss://00bb97abe00326e97091a24c7b16a412053cd8394a5c2be997798ed53f4bbe67/","wss://0.0.0.3/"]
-Block_words=["blockchain","Blockchain","plebchain","Plebchain","zapathon", "Zapathon","NostrZap", "NostrBTC","bitcoin","Bitcoin","BITCOIN","payjoin","crypto","stocks","monero","plebs","$MSTR","block","Moon","Mars","sexy","zap","zaps","Zap","Zaps","SOL","USD","XMR","BTC","ETH","LTC","btc","CME","₿"]
+Bad_relay_connection=["wss://search.nos.today/","wss://r.kojira.io/","wss://relay.noswhere.com/","wss://relay.nostrils.band/", "wss://relay.roli.social/","wss://relay.siamdev.cc/","wss://relay.damus.io/", "wss://relay.notoshi.win/","wss://relay.mostr.pub/","wss://yabu.me/","wss://relay-jp.nostr.wirednet.jp/","wss://grownostr/","wss://relay.onlynostr.club/","wss://00bb97abe00326e97091a24c7b16a412053cd8394a5c2be997798ed53f4bbe67/","wss://0.0.0.3/"]
+Block_words=["blockchain","plebchain","zapathon", "bitcoin","payjoin","crypto","stocks","monero","plebs","block","sexy","zap","zaps","btc","₿"]
 hash_list_notes=[]
 
 def search_for_channel(note_hash):
@@ -121,7 +120,7 @@ def open_profile():
       entry_pubblished0.delete(0, END)
       
        
-    go_button = tk.Button(frame_account, text="Go!", font=("Arial",12,"normal"),background="grey", command=npub_class)
+    go_button = tk.Button(frame_account, text="Go ", font=("Arial",12,"normal"),background="grey", command=npub_class)
     go_button.grid(column=10, row=2, padx=10,pady=5)
     structure_relay = tk.Label(frame_account, text="Insert a relay",font=("Arial",12,"bold"))
     entry_relay=ttk.Entry(frame_account,justify='left',font=("Arial",12,"bold"))
@@ -140,7 +139,7 @@ def open_profile():
 
             return relay_list  
     
-    relay_button = tk.Button(frame_account, text="Go!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Go ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     counter_npub=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=5,pady=5)
@@ -184,7 +183,6 @@ scroll_bar_mini.config( command = second_label10.yview )
 second_label10.grid(padx=10, column=1, columnspan=3, row=0, rowspan=3) 
 frame_upfront=Frame(root)
 db_frame = ttk.LabelFrame(root, text="DB", labelanchor="n", padding=10)
-
 
 def url_speed(string):
  z=string
@@ -346,18 +344,19 @@ async def get_search_relay(client):
 #async function 
     
 async def outboxes():
-    init_logger(LogLevel.INFO)
+    
     
     client = Client(None)
     if relay_list!=[]:
+       await Search_status(client=Client(None),list_relay_connect=relay_list) 
        for jrelay in relay_list:
-          relay_url = RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url)
+         await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()   
        note= await get_public_pin(client) 
        
        return note     
     else:
+       
        relay_url_1 = RelayUrl.parse("wss://nostr.mom/")
        relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
        relay_url_3 = RelayUrl.parse("wss://nostr.wine/")
@@ -387,12 +386,10 @@ async def search_box_relay():
     if relay_list!=[]:
        
        for jrelay in relay_list:
-          relay_url = RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url)
+         await client.add_relay(RelayUrl.parse(jrelay))
              
     else:
-       relay_url = RelayUrl.parse("wss://nostr.mom/")
-       await client.add_relay(relay_url)
+        await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
        
     await client.connect()
     relay_add=get_note(await get_search_relay(client))
@@ -403,16 +400,18 @@ async def search_box_relay():
             for xrelay in tags_string(relay_add[i],'relay'):
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
                if xrelay not in relay_search_list:
-                if len(relay_search_list)<3:
+                if len(relay_search_list)<6:
                     relay_search_list.append(xrelay) 
               
-            i=i+1             
+            i=i+1   
+    
+               
     
 async def Search_text():
-    init_logger(LogLevel.INFO)
-    client = Client(None)
-    
     if relay_search_list!=[]:
+       await Search_status(client=Client(None),list_relay_connect=relay_search_list)  
+       await asyncio.sleep(2.0)    
+       client = Client(None)
        for jrelay in relay_search_list:
           relay_url = RelayUrl.parse(jrelay)
 
@@ -424,11 +423,12 @@ async def Search_text():
        
        if combined_results:
         return combined_results
-     
+    init_logger(LogLevel.INFO)
+    client = Client(None) 
     await search_box_relay()
-    
-    print("found ", len(relay_search_list), " relays")
-
+    if relay_search_list!=[]:        
+       await Search_status(client=Client(None),list_relay_connect=relay_search_list)  
+   
 #call function
 
 def call_text():
@@ -653,9 +653,9 @@ def print_text():
             def print_var(test):
                 print(test)
                     
-            button=Button(scrollable_frame,text=f"Print note!", command=lambda val=note: print_var(val))
+            button=Button(scrollable_frame,text=f"Print note ", command=lambda val=note: print_var(val))
             button.grid(column=0,row=s,padx=10,pady=5)
-            button_grid2=Button(scrollable_frame,text=f"Hashtag info!", command=lambda val=note: print_id(val))
+            button_grid2=Button(scrollable_frame,text=f"Hashtag info ", command=lambda val=note: print_id(val))
             button_grid2.grid(row=s,column=2,padx=10,pady=5)
             root.update_idletasks()
             s=s+2
@@ -732,7 +732,7 @@ def show_Teed():
               except TypeError as e:
                  print(e)
           
-      button=Button(scrollable_frame_1,text=f"Click me for info!", command=lambda val=note: print_var_2(val))
+      button=Button(scrollable_frame_1,text=f"Click me for info ", command=lambda val=note: print_var_2(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
       button_grid2=Button(scrollable_frame_1,text=f"Number note", command=lambda val=note: print_id_2(val))
       button_grid2.grid(row=s+2,column=1,padx=5,pady=5)    
@@ -843,9 +843,9 @@ def show_noted():
               except TypeError as e:
                  print(e)
                               
-      button=Button(scrollable_frame_1,text=f"Click me for info!", command=lambda val=note: print_var(val))
+      button=Button(scrollable_frame_1,text=f"Click me for info", command=lambda val=note: print_var(val))
       button.grid(column=0,row=s+2,padx=5,pady=5)
-      button_grid2=Button(scrollable_frame_1,text=f"Number note!", command=lambda val=note: print_id(val))
+      button_grid2=Button(scrollable_frame_1,text=f"Number note", command=lambda val=note: print_id(val))
       button_grid2.grid(row=s+2,column=1,padx=5,pady=5)      
       button_grid3=Button(scrollable_frame_1,text=f"Pubkey", command=lambda val=note["pubkey"]: pubkey_id(val))
       button_grid3.grid(row=s+2,column=2,padx=5,pady=5)     
@@ -869,22 +869,19 @@ def list_hashtag_fun():
     hashtag_list=[]
     one_hashtag=[]
     if db_note_1!=[]:
-        for note_x in db_note_1:
-            if tags_string(note_x,"t")!=[] and tags_string(note_x,"t")!=None:
-                
-                for hash_y in tags_string(note_x,"t"):
-                    if hash_y not in one_hashtag:
+      for note_x in db_note_1:
+         if tags_string(note_x,"t")!=[] and tags_string(note_x,"t")!=None:
+            for hash_y in tags_string(note_x,"t"):
+               if str(hash_y).islower():  
+                  if hash_y not in one_hashtag:
                        one_hashtag.append(hash_y)
                        
-                    else:   
-                        if hash_y not in hashtag_list:
-                           if tags_string(note_x,"t").count(hash_y)==1:
+                  else:   
+                     if hash_y not in hashtag_list:
+                        if tags_string(note_x,"t").count(hash_y)==1:
                             hashtag_list.append(hash_y)
-                      
-                      
-                      
-                      
-        return hashtag_list       
+                     
+      return hashtag_list       
     else:
        return hashtag_list       
 
@@ -999,7 +996,11 @@ def print_list_tag():
                 Channel_frame = ttk.LabelFrame(root, text="Associated tag", labelanchor="n", padding=10)
                 Channel_frame.place(relx=0.51,rely=0.005,relheight=0.21,relwidth=0.4) 
                 button_open=Button(root, command=show_noted, text="Open Tag",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
-                button_search=tk.Button(root, text="Relay",font=('Arial',12,'bold'), command=call_text)    
+                if relay_search_list!=[]:
+                    button_search=tk.Button(root, text=str(len(relay_search_list))+" Relays",font=('Arial',12,'bold'), command=call_text)    
+                else:
+                    button_search=tk.Button(root, text=" Search Relay",font=('Arial',12,'bold'), command=call_text)    
+                
                 entry_channel.set(test)
                 search_for_channel(test)
                 entry_space=tk.Entry(root, textvariable=entry_channel, width=15,font=("Arial",12,"bold"))
@@ -1011,7 +1012,7 @@ def print_list_tag():
                 button_go=Button(root,text="Update", command=call_hashtag,font=('Arial',12,'normal'),foreground="blue")
                 button_go.place(relx=0.72,rely=0.06)
                 button_open.place(relx=0.8,rely=0.05)
-                button_search.place(relx=0.83,rely=0.12)
+                button_search.place(relx=0.8,rely=0.12)
 
                 def close_button():
                    button_go.place_forget()
@@ -1083,8 +1084,11 @@ def print_list_tag():
       button_go.place(relx=0.72,rely=0.06)
       button_open=Button(root, command=show_noted, text="Open Tag",highlightcolor='WHITE',width=10,height=1,border=2, cursor='hand1',font=('Arial',14,'bold'))
       button_open.place(relx=0.8,rely=0.05)
-      button_search=tk.Button(root, text="Relay",font=('Arial',12,'bold'), command=call_text) 
-      button_search.place(relx=0.83,rely=0.12)
+      if relay_search_list!=[]:
+        button_search=tk.Button(root, text=str(len(relay_search_list))+" Relays",font=('Arial',12,'bold'), command=call_text)    
+      else:
+        button_search=tk.Button(root, text=" Search Relay",font=('Arial',12,'bold'), command=call_text)     
+      button_search.place(relx=0.8,rely=0.12)
 
       def close_button():
            button_go.place_forget()
@@ -1106,9 +1110,9 @@ async def get_kind(client, event_):
     hashtag_list=list_hashtag_fun()
     if hashtag_list==[]:
      
-     print(entry_channel.get())
+     
      if entry_channel.get() not in hashtag_list:
-       hashtag_list.append(str(entry_channel.get()))
+       hashtag_list.append(str(entry_channel.get()).lower())
     f = Filter().kind(Kind(event_)).hashtags(hashtag_list).remove_hashtags(Block_words)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
@@ -1129,8 +1133,8 @@ async def Get_kind_number(event_):
     # Add relays and connect
     if relay_search_list!=[]:
        for jrelay in relay_search_list:
-          relay_url = RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url)
+          
+         await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
     
     if isinstance(event_, list):
@@ -1217,22 +1221,16 @@ async def Get_event_id(e_id):
     if relay_url_list!=[]:
        for frelay in relay_url_list:
          client.add_relay(frelay)
-
+    set_relay={"wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"}
+    for relay_x in set_relay:
+        if relay_x not in relay_list:
+           relay_list.append(relay_x)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
-          relay_url = RelayUrl.parse(jrelay)
-
-          await client.add_relay(relay_url)
-    else:
-     relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-     relay_url_2 = RelayUrl.parse("wss://nostr.mom/")
-     relay_url_3 = RelayUrl.parse("wss://purplerelay.com/")
-
-     await client.add_relay(relay_url_1)
-     await client.add_relay(relay_url_2)
-     await client.add_relay(relay_url_3)
-    
+       
+      for jrelay in relay_list:
+         if RelayUrl.parse(jrelay) not in relay_url_list:
+            await client.add_relay(RelayUrl.parse(jrelay))
+                
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -1294,5 +1292,42 @@ def timeline_created(list_new):
         for list_x in list_new:
             db_note_1.append(list_x)
         return db_note_1   
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            print(len(list_relay_connect))
+                            
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                                print(len(list_relay_connect))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

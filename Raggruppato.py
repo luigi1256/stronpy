@@ -24,6 +24,11 @@ Pubkey_Metadata={}
 
 root = tk.Tk()
 root.geometry('1300x800') 
+value_max=21
+value_min=1
+
+value_max_int=IntVar(root,21)
+value_min_int=IntVar(root,1)
 
 def tags_string(x,obj):
     f=x["tags"]
@@ -115,12 +120,12 @@ def search_for_channel(note_hash:str):
 def print_list_tag(): 
    if db_note_list!=[]:  
       s=1     
-      combo_Htag = ttk.Combobox(root, values=[],font=('Arial',12,'normal'),width=15)
+      combo_Htag = ttk.Combobox(root, values=[],font=('Arial',12,'normal'),width=10)
       combo_Htag.set("Some Tags")
       test1=list_hashtag_fun()
       test1_value=sorted(test1,key=lambda x: len(x))
       combo_Htag["values"]=test1_value
-      combo_Htag.place(relx=0.25,rely=0.01)
+      combo_Htag.place(relx=0.2,rely=0.09)
       
       def on_select(event):
          value_tag=combo_Htag.get()
@@ -204,20 +209,21 @@ def list_pubkey_id():
       for single in metadata_note:
          if single not in db_list_note_follow:
             db_list_note_follow.append(single)
-        
-            single_1:dict=json.loads(single["content"])
-            if "name" in list(single_1.keys()):
+            note_text=single["content"].replace("\n", "\\n")  #some errors
+            if isinstance(note_text,str):
+             single_1=json.loads(note_text)
+             if "name" in list(single_1.keys()):
                if single_1["name"]!="":
                   if single["pubkey"] not in list(Pubkey_Metadata.keys()):
                      Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-            else:   
+             else:   
                if "display_name" in list(single_1.keys()):
                   if single_1["display_name"]!="":
                      if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                         Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-            if "picture" in list(single_1.keys()):
+             if "picture" in list(single_1.keys()):
                if single_1["picture"]!="":
                   if single["pubkey"] not in list(photo_profile.keys()):
                      if single_1["picture"]!="":
@@ -227,11 +233,29 @@ def list_pubkey_id():
 
      except KeyError as e:
           print("KeyError ",e) 
-     except json.JSONDecodeError as e:
-         print(e, single["content"])  
+     except json.JSONDecodeError as b:
+         print(b, single["content"])
+     except NostrSdkError as c:
+      print(c)     
+
            
-      
+def update_button():
+   global value_max
+   global value_min
+   if int(entry_min.get())!=value_min:
+      if int(entry_min.get())>=value_min and int(entry_min.get())<=value_max-1:
+         value_min=int(entry_min.get())
+   if  int(entry_max.get())!=value_max:
+      if int(entry_max.get())>=value_max:
+         value_max=int(entry_max.get())  
+
+
 button_people_2=Button(root,text=f"Metadata user ", command=list_pubkey_id,font=('Arial',12,'bold'))
+button_min=tk.Label(root,text=f"Min ",font=('Arial',12,'bold'),width=4)
+button_max=tk.Label(root,text=f"Max ",font=('Arial',12,'bold'),width=4)
+entry_min=tk.Entry(root,textvariable =value_min_int,font=('Arial',12,'bold'),width=5)
+entry_max=tk.Entry(root,textvariable =value_max_int,font=('Arial',12,'bold'),width=5)
+button_update=Button(root,text=f"Update", command=update_button,font=('Arial',12,'bold'))
 
 def search_note():
    event=[]
@@ -297,9 +321,6 @@ def pubkey_id(test):
              note_pubkey.append(note_x)
    return len(note_pubkey),note_pubkey   
 
-value_max=21
-value_min=1
-
 def print_people(): 
    if db_note_list!=[]:  
     if messagebox.askokcancel("Metadata user ","Yes/No") == True:
@@ -318,7 +339,11 @@ def print_people():
      
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
-    
+    button_min.place(relx=0.02,rely=0.2)
+    button_max.place(relx=0.02,rely=0.24)
+    entry_min.place(relx=0.06,rely=0.2)
+    entry_max.place(relx=0.06,rely=0.24)
+    button_update.place(relx=0.05,rely=0.15)
     s=1     
     
     test1=list_people_fun()
@@ -355,8 +380,8 @@ def print_people():
     
     labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+f"Number of poster more than {value_min} note \n and less then {value_max}, "+ str(sz))
     canvas.pack(side="left", fill="y", expand=True)
-    button_people_2.place(relx=0.1,rely=0.2)
-    button_people_3.place(relx=0.2,rely=0.2) 
+    button_people_2.place(relx=0.12,rely=0.16)
+    button_people_3.place(relx=0.13,rely=0.21) 
     if len(test1)>5:
      scrollbar.pack(side="right", fill="y")  
     
@@ -613,7 +638,7 @@ async def get_note_cluster(client, type_of_event):
     else:
        f = Filter().kinds(type_of_event).limit(1000)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
 
 async def feed_cluster(type_of_event):
@@ -621,9 +646,9 @@ async def feed_cluster(type_of_event):
     init_logger(LogLevel.INFO)
    
     client = Client(None)
-    #uniffi_set_event_loop(asyncio.get_running_loop())
+   
     add_relay_list.clear()
-    list_add_relay=["wss://nos.lol/","wss://nostr.mom/","wss://nostr-pub.wellorder.net/"]
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/"]
     await Search_status(client=Client(None),list_relay_connect=list_add_relay)
     if list_add_relay!=[]:
       for x_relay in list_add_relay:
@@ -1055,8 +1080,8 @@ counter_relay=Label(root,text="",background="darkgrey",font=('Arial',12,'normal'
 add_relay_str=StringVar()
 entry_relay=ttk.Entry(root,justify='left',font=("Arial",12,"bold"),width=12,textvariable=add_relay_str)
 add_relay_str.set("wss:// ")
-entry_relay.place(relx=0.02,rely=0.11)
-relay_button.place(relx=0.12,rely=0.1)   
+entry_relay.place(relx=0.02,rely=0.09)
+relay_button.place(relx=0.12,rely=0.08)   
 
 async def Search_status(client:Client,list_relay_connect:list):
     try: 
@@ -1135,8 +1160,7 @@ def user_not_in_list():
     
    labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+f"Number of posters with more notes than {value_max}, "+ str(sz)) 
    canvas.pack(side="left", fill="y", expand=True)
-   button_people_2.place(relx=0.1,rely=0.2) 
-   button_people_3.place(relx=0.2,rely=0.2)
+ 
    if sz>2:
      scrollbar.pack(side="right", fill="y")  
     

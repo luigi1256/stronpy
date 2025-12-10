@@ -705,36 +705,38 @@ def list_pubkey_id():
       
    metadata_note=search_kind(0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
               if single_1["picture"]!="":
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
-                        
-        except KeyError as e:
-          print("KeyError ",e) 
-       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile)) 
-
+       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))                 
+      except KeyError as e:
+         print("KeyError ",e) 
+      except json.JSONDecodeError as b:
+         print(b)                    
+        
 button_user=Button(root,text=f"Metadata Users", command=list_pubkey_id,font=("Arial",12,"normal"))
 button_user.place(relx=0.05,rely=0.1)
 

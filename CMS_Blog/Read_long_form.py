@@ -354,8 +354,8 @@ async def outboxes():
     client = Client(None)
     
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
+       
+        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
              
@@ -397,8 +397,8 @@ async def metadata_object():
     
     # Add relays and connect
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
+       
+        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
              
@@ -867,8 +867,8 @@ async def Get_A_tag(event_):
       
     client = Client(None)
     if relay_list!=[]:
-       print(relay_list)
-       for jrelay in relay_list:
+      
+        for jrelay in relay_list:
           relay_url_list = RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
     else:

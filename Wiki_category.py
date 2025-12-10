@@ -24,6 +24,7 @@ Pubkey_Metadata={}
 root = tk.Tk()
 root.geometry('1300x800') 
 
+#no canonical
 def tags_string(x,obj):
    
     f=x["tags"]
@@ -122,24 +123,16 @@ async def feed_cluster(type_of_event):
     client = Client(None)
     #uniffi_set_event_loop(asyncio.get_running_loop())
     add_relay_list.clear()
+    list_add_relay=["wss://nos.lol/","wss://nostr.mom/"]
+    for x_relay in list_add_relay:
+      if x_relay not in relay_list:
+         relay_list.append(x_relay)
+    await Search_status(client=Client(None),list_relay_connect=relay_list)     
     if relay_list!=[]:
        
        for relay_j in relay_list:
-           if RelayUrl.parse(relay_j) not in add_relay_list:
-                add_relay_list.append(RelayUrl.parse(relay_j))
-                await client.add_relay(RelayUrl.parse(relay_j))
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    if relay_url_1 not in add_relay_list:
-       add_relay_list.append(relay_url_1)
-       await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 = RelayUrl.parse("wss://nostr-pub.wellorder.net/")
-    if relay_url_x not in add_relay_list:
-       add_relay_list.append(relay_url_x)
-       await client.add_relay(relay_url_x)
-    if relay_url_2 not in add_relay_list:
-       add_relay_list.append(relay_url_2)
-       await client.add_relay(relay_url_2)
+            await client.add_relay(RelayUrl.parse(relay_j))
+    
     await client.connect()
     await asyncio.sleep(2.0)
 
@@ -157,35 +150,38 @@ def list_pubkey_id():
       
    metadata_note=search_kind(0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
               if single_1["picture"]!="":
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
-                        
-        except KeyError as e:
-          print("KeyError ",e) 
-       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
+       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))                 
+      except KeyError as e:
+         print("KeyError ",e) 
+      except json.JSONDecodeError as b:
+         print(b)                   
+          
 
 number_category=[10,20,30,40]
 value=int(10)
@@ -195,9 +191,9 @@ def on_server(event):
   value=int(combo_bo_r.get())
     
 combo_bo_r = ttk.Combobox(root, font=('Arial',12,'normal'),values=number_category,width=10)
-combo_bo_r.grid(column=2,row=5,pady=5,padx=2)
+combo_bo_r.grid(column=3,row=5,pady=5,padx=2)
 combo_label = ttk.Label(root, font=('Arial',12,'normal'),text="Category")
-combo_label.grid(column=2, row=4,pady=5,padx=2)
+combo_label.grid(column=3, row=4,pady=5,padx=2)
 combo_bo_r.set("Number")
 combo_bo_r.bind("<<ComboboxSelected>>", on_server)
 
@@ -320,11 +316,11 @@ def show_noted():
     
     if len(db_note_max)>0:
      button_grid_c=Button(root,text="Close ❌",font=("Arial",12,"normal"), command=close_center)
-     button_grid_c.place(relx=0.35,rely=0.15)          
+     button_grid_c.place(relx=0.42,rely=0.15)          
    scrollbar_1.pack(side="bottom", fill="x",padx=20)
    scrollbar_2.pack(side=LEFT, fill="y",pady=5,padx=2)
    canvas_1.pack( fill="both", expand=True)
-   frame2.place(relx=0.02,rely=0.15,relwidth=0.85,relheight=0.65)
+   frame2.place(relx=0.01,rely=0.18,relwidth=0.85,relheight=0.65)
 
    def close_frame():
         frame2.destroy()    
@@ -333,7 +329,7 @@ def show_noted():
         scroll_bar_text.place_forget()
         
    button_frame_1=Button(root,command=close_frame,text="Close ❌",font=("Arial",12,"normal"))
-   button_frame_1.place(relx=0.5,rely=0.8,relwidth=0.1)      
+   button_frame_1.place(relx=0.5,rely=0.82,relwidth=0.1)      
 
    def show_print_test_tag(note):
     frame3=tk.Frame(frame2,height=150,width=160)  
@@ -428,16 +424,16 @@ def show_noted():
              second_label10_r.grid(padx=1, column=0, columnspan=3, row=z+1) 
              button_grid3=Button(scrollable_frame_2,text=f"Read Content", command=lambda val= j_result["content"]: print(val))
              button_grid3.grid(row=z+2,column=0,padx=5,pady=5)                          
-             button_grid4=Button(scrollable_frame_2,text=f"Read tags!", command=lambda val= j_result["tags"]: print(val))
+             button_grid4=Button(scrollable_frame_2,text=f"Read tags", command=lambda val= j_result["tags"]: print(val))
              button_grid4.grid(row=z+2,column=1,padx=5,pady=5)           
            z=z+3
 
     button_grid2=Button(scrollable_frame_2,text=f"Read Content", command=lambda val=note["content"]: print(val))
     button_grid2.grid(row=s+2,column=0,padx=5,pady=5)                          
-    button_grid2=Button(scrollable_frame_2,text=f"Read tags!", command=lambda val=note["tags"]: print(val))
+    button_grid2=Button(scrollable_frame_2,text=f"Read tags", command=lambda val=note["tags"]: print(val))
     button_grid2.grid(row=s+2,column=1,padx=5,pady=5)           
     if tags_string(note,"e")!=[]:
-     button_grid3=Button(scrollable_frame_2,text=f"Read reply!", command=lambda val=note: print_content(val))
+     button_grid3=Button(scrollable_frame_2,text=f"Read reply", command=lambda val=note: print_content(val))
      button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
 
     scrollbar_2.pack(side="right", fill="y",padx=5,pady=10) 
@@ -479,10 +475,9 @@ async def Get_id(event_):
        
        for jrelay in relay_search_list:
           await client.add_relay(RelayUrl.parse(jrelay))
-    else:
-     await client.add_relay(RelayUrl.parse("wss://nostr.mom/"))
-     await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
-     await client.add_relay(RelayUrl.parse("wss://pyramid.fiatjaf.com/"))
+    await client.add_relay(RelayUrl.parse("wss://relay.damus.io/"))
+    await client.add_relay(RelayUrl.parse("wss://nos.lol/"))
+    await client.add_relay(RelayUrl.parse("wss://relay.nostr.band/"))
     await client.connect()
 
     await asyncio.sleep(2.0)
@@ -504,17 +499,16 @@ async def get_search_relay(client):
 async def search_box_relay():
     init_logger(LogLevel.INFO)
     client = Client(None)
-    
+    list_add_relay=["wss://nos.lol/","wss://pyramid.fiatjaf.com/"]
+    for x_relay in list_add_relay:
+      if x_relay not in relay_list:
+         relay_list.append(x_relay)
+    await Search_status(client=Client(None),list_relay_connect=relay_list) 
     if relay_list!=[]:
        
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+         await client.add_relay(RelayUrl.parse(jrelay))
              
-    else:
-       relay_url_x = RelayUrl.parse("wss://nos.lol/")
-       await client.add_relay(relay_url_x)
-       await client.add_relay(RelayUrl.parse("wss://pyramid.fiatjaf.com/"))
     await client.connect()
     relay_add=get_note(await get_search_relay(client))
     if relay_add !=None and relay_add!=[]:
@@ -533,7 +527,7 @@ def Search_Relay():
     asyncio.run(search_box_relay())
 
 button_close_search=tk.Button(root, text='Search Relay',font=('Arial',12,'bold'), command=Search_Relay)  
-button_close_search.grid(column=1,row=4)
+button_close_search.grid(column=1,row=4, padx=10,pady=5)
 
 def search_note():
    event=[]
@@ -548,9 +542,9 @@ def search_note():
     print(len(test_list))      
 
 button_close_search=tk.Button(root, text='Search Note',font=('Arial',12,'bold'), command=search_note)  
-button_close_search.grid(column=1,row=5,pady=2)
+button_close_search.grid(column=1,row=5,pady=5,padx=10)
 button_search=tk.Button(root, text='Show Note',font=('Arial',12,'bold'), command=show_noted)
-button_search.grid(column=1,row=6,pady=2)
+button_search.grid(column=1,row=6,pady=5,padx=10)
 search_cat=StringVar()
 
 def search_category_note():
@@ -640,10 +634,10 @@ def print_list_tag():
       print("error")
       
 button_tag=tk.Button(root,text="Category",command=print_list_tag, font=('Arial',12,'bold'))
-button_tag.grid(row=5,column=3)
+button_tag.grid(row=5,column=2,padx=10)
 
 entry_tag=tk.Label(root,text="",font=('Arial',12,'bold'))
-entry_tag.grid(row=4,column=3)
+entry_tag.grid(row=4,column=2)
 button_people_2=Button(root,text=f"Metadata User ", command=list_pubkey_id,font=('Arial',12,'bold'))
 
 def list_people_fun():
@@ -712,7 +706,7 @@ def print_people():
                 s=s+2
             
                 ra=ra+1   
-    labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+"Number of poster more than one note "+ str(sz))
+    labeL_button.config(text="Number of pubkey "+str(len(test1))+"  "+"\n"+"Number of poster one note "+ str(sz))
     canvas.pack(side="left", fill="y", expand=True)
     button_people_2.place(relx=0.05,rely=0.6) 
     if len(test1)>5:
@@ -810,7 +804,7 @@ def show_lst_ntd(list_note_p):
                                                                                                   
        button=Button(scrollable_frame_1,text=f"Print note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read", command=lambda val=note: print_id(val))
        button_grid2.grid(row=2,column=s1+1,padx=5,pady=5)    
        s=s+2  
        s1=s1+4
@@ -858,5 +852,42 @@ def print_photo_url(url):
     button_photo_close=Button(root, text="X", command=close_image,font=('Arial',12,'normal'))
     button_photo_close.place(relx=0.15,rely=0.65)
     label_image.place(relx=0.1,rely=0.7)       
-    
+
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
+
 root.mainloop()

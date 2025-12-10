@@ -387,10 +387,10 @@ async def Get_id(event_):
     client = Client(None)
     
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    relay_url_2 = RelayUrl.parse("wss://relay.damus.io/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
+    set_relay=["wss://nos.lol/","wss://relay.damus.io/"]
+    await Search_status(client=Client(None),list_relay_connect=set_relay)
+    for relay_x in set_relay:
+      await client.add_relay(RelayUrl.parse(relay_x))
     await client.connect()
    
     await asyncio.sleep(2.0)
@@ -431,16 +431,13 @@ async def feed(authors):
     client = Client(None)
     
     # Add relays and connect
-    
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
-    relay_url_2 = RelayUrl.parse("wss://purplerelay.com/")
-    await client.add_discovery_relay(relay_url_2)
-
+    set_relay=["wss://nos.lol/","wss://nostr.mom/","wss://purplerelay.com/"]
+    await Search_status(client=Client(None),list_relay_connect=set_relay)
+    for relay_x in set_relay:
+      await client.add_relay(RelayUrl.parse(relay_x))
     await client.connect()
-
+                        
+    await client.connect()
     await asyncio.sleep(2.0)
 
     if isinstance(authors, list):
@@ -520,13 +517,12 @@ async def Get(event_):
     client = Client(None)
 
     # Add relays and connect
-    relay_url_1 = RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    relay_url_x = RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_x)
-    relay_url_2 = RelayUrl.parse("wss://nostr.land/")
-    await client.add_relay(relay_url_2)
+    set_relay=["wss://nos.lol/","wss://nostr.mom/","wss://nostr.land/"]
+    await Search_status(client=Client(None),list_relay_connect=set_relay)
+    for relay_x in set_relay:
+      await client.add_relay(RelayUrl.parse(relay_x))
     await client.connect()
+    
     await asyncio.sleep(2.0)
 
     if isinstance(event_, list):
@@ -537,6 +533,42 @@ async def Get(event_):
     return test_kind
 
 frame1.pack()
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 def show_noted():
   """Widget function \n
@@ -738,8 +770,10 @@ def photo_print(note):
         frame_pic.place(relx=0.01,rely=0.4,relwidth=0.23,relheight=0.25,anchor="n")
       except TypeError as e: 
         print(e)  
-      except requests.exceptions.RequestException as e:
-        print(f"Error exceptions: {e}")    
+      except requests.exceptions.RequestException as c:
+        print(f"Error exceptions: {c}")    
+      except Image.UnidentifiedImageError as b:
+         print(b)  
 
 def more_link(f):
    

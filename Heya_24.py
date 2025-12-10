@@ -842,22 +842,26 @@ def metadata_list(List,y):
 def metadata_0(nota,y):
    import json
    try:
-    test=json.loads(nota["content"])
-    if y in list(test.keys()):
-     return str(test[y])
+        test=json.loads(nota["content"])
+        if y in list(test.keys()):
+            return str(test[y])
    except KeyError as e:
       print(e)
+   except json.JSONDecodeError as b:
+      print(b)   
 
 def metadata_p_0(pubkey,list_note):
   import json
   try:
    for n0ta in list_note:
     if n0ta["kind"]==0 and n0ta["pubkey"]==pubkey:
-     test:dict=json.loads(n0ta["content"])
-     if test!={}:
+      test:dict=json.loads(n0ta["content"])
+      if test!={}:
         return test
   except KeyError as e:
       print(e)
+  except json.JSONDecodeError as b:
+   print(b)       
 
 def url_spam(x):
  z=x['content']
@@ -1234,7 +1238,9 @@ def list_pubkey_id():
                        
                         
       except KeyError as e:
-       print("KeyError ",e) 
+       print("KeyError ",e)
+      except json.JSONDecodeError as b:
+         print(b)         
          
 
 button_people_2=Button(root,text=f"Find People ", command=list_pubkey_id,font=('Arial',12,'bold'))

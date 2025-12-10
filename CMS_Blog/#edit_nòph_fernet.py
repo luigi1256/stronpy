@@ -127,26 +127,32 @@ async def get_result_w(client):
 
 async def Search_d_tag():
       
-    # Add relays and connect
+    set_relay=["wss://nostr.mom/","wss://relay.nostr.band/"]
+    await Search_status(client=Client(None),list_relay_connect=set_relay)
     if relay_list!=[]:
        client = Client(None)
        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
+       if set_relay!=[]:
+          for relay_x in set_relay:
+             if relay_x not in relay_list:
+                await client.add_relay(RelayUrl.parse(relay_x))   
        await client.connect()
        await asyncio.sleep(2.0)
-       relay_url_1=RelayUrl.parse("wss://relay.nostr.band/")
-       await client.add_relay(relay_url_1)
+       
+       
        combined_results = await get_result_w(client)
        return combined_results
     # Init logger
     init_logger(LogLevel.INFO)
     client = Client(None)
-    relay_url_2=RelayUrl.parse("wss://nostr.mom/")
-    await client.add_relay(relay_url_2)
-    await client.connect()
-    await search_box_relay()
-    print("found ", len(relay_list), " relays")
+    if set_relay!=[]:
+        for relay_x in set_relay:
+            await client.add_relay(RelayUrl.parse(relay_x))   
+        await client.connect()
+        await search_box_relay()
+        print("found ", len(relay_list), " relays")
 
 def call_text():
   if relay_list!=[]:
@@ -239,32 +245,32 @@ async def get_outbox_relay(client):
 async def search_box_relay():
         
     client = Client(None)
+    set_relay=["wss://nost.lol/","wss://purplerelay.com/"]
     
     if relay_list!=[]:
-       #print(relay_list)
-       for jrelay in relay_list:
+        await Search_status(client=Client(None),list_relay_connect=relay_list)
+        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
              
     else:
-       relay_url_1=RelayUrl.parse("wss://nos.lol/")
-       relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-       await client.add_relay(relay_url_1)
-       await client.add_relay(relay_url_2)
-    await client.connect()
-    relay_add=get_note(await get_outbox_relay(client))
-    if relay_add !=None and relay_add!=[]:
-           i=0
-           while i<len(relay_add):
-            for xrelay in tags_string(relay_add[i],'r'):
+        await Search_status(client=Client(None),list_relay_connect=set_relay)
+        if set_relay!=[]:
+            for relay_x in set_relay:
+               await client.add_relay(RelayUrl.parse(relay_x)) 
+            await client.connect()
+            relay_add=get_note(await get_outbox_relay(client))
+            if relay_add !=None and relay_add!=[]:
+                i=0
+                while i<len(relay_add):
+                    for xrelay in tags_string(relay_add[i],'r'):
              
-              if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
-               if xrelay not in relay_list:
-                relay_list.append(xrelay) 
-              
-            i=i+1             
+                        if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
+                            if xrelay not in relay_list:
+                                relay_list.append(xrelay) 
+                    i=i+1             
 
-Bad_relay_connection=["wss://relay.noswhere.com/","wss://relay.purplestr.com/"]
+Bad_relay_connection=["wss://relay.purplestr.com/"]
 scroll_bar_mini = tk.Scrollbar(frame1)
 scroll_bar_mini.grid( sticky = NS,column=4,row=0,rowspan=3)
 second_label10 = tk.Text(frame1, padx=10, height=5, width=25, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'))
@@ -476,37 +482,31 @@ def user_convert(x):
 
 def reply_re_action(note):
   
-   test = EventId.parse(note["id"])
-   public_key=convert_user(note["pubkey"])
-   if public_key:
-    if __name__ == '__main__':
-        note_rea="+"
-        type_event=Kind(int(note["kind"]))
-        asyncio.run(reply_reaction(test,public_key,note_rea,type_event))    
+      
+   if __name__ == '__main__':
+    note_rea="+"
+    
+    asyncio.run(reply_reaction(note,note_rea))    
 
-async def reply_reaction(event_id,public_key,str_reaction,type_event):
-  key_string=log_these_key()
-  if key_string!=None: 
-    keys = Keys.parse(key_string)
+async def reply_reaction(event_id,str_reaction):
+   
+    keys = Keys.generate()
+    
     signer = NostrSigner.keys(keys)
     
     client = Client(signer)
     # Add relays and connect
-    if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list=RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
-    relay_url_1 =RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2 =RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
+    for relay_c in relay_list:
+        await client.add_relay(RelayUrl.parse(relay_c))
     await client.connect()
-
+    f = Filter().id(EventId.parse(event_id["id"]))
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event for event in events.to_vec() if event.verify()]
+    
     # Send an event using the Nostr Signer
-    builder = EventBuilder.reaction_extended(event_id,public_key,str_reaction,type_event)
+    builder = EventBuilder.reaction(z[0],str_reaction)               
     test_note=await client.send_event_builder(builder)
-    print("this relay is going good", test_note.success, "\n", "this relay is bad",test_note.failed)
+    print("Send to this relays", test_note.success, "\n", "Failed to send to this relays",test_note.failed)
 
 def show_print_test(note):
    frame3=tk.Frame(root,height=150,width=200)  
@@ -814,14 +814,15 @@ async def long_form(tag,description,pubkey):
    if pubkey==keys.public_key().to_hex():  
     signer=NostrSigner.keys(keys)
     client = Client(signer)
+    if "wss://relay.lnfi.network/" not in relay_list:
+       relay_list.append("wss://relay.lnfi.network/")
+    await Search_status(client=Client(None),list_relay_connect=relay_list)
     if relay_list!=[]:
        
        for jrelay in relay_list:
           relay_url_list=RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
-    relay_url_1=RelayUrl.parse("wss://relay.lnfi.network/")   
-    await client.add_relay(relay_url_1)
-    
+            
     await client.connect()
     builder = EventBuilder.long_form_text_note(description).tags(tag)
     test_result_post= await client.send_event_builder(builder)
@@ -894,5 +895,41 @@ def log_these_key():
     return decMessage
    except FileNotFoundError as e:
        print(e)
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

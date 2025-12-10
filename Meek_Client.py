@@ -193,8 +193,9 @@ def test_open():
     
         def create_note(note_text, s):
          # Message 
+            tag_entry= "Tag \n" "-h  "+str(list_h)+"\n"+"- pow  "+str(list_pow)+"\n"+"- content warning  "+ str(list_content)
             if len(note_text)<200:
-             message = Message(scrollable_frame, text=note_text, width=300, font=('Arial',12,'normal'))
+             message = Message(scrollable_frame, text=note_text+"\n"+str(tag_entry), width=300, font=('Arial',12,'normal'))
              message.grid(row=s, column=0, columnspan=3, padx=5)
             else:
                note_text2=str(note_text)
@@ -202,7 +203,8 @@ def test_open():
                scroll_bar_mini = tk.Scrollbar(scrollable_frame)
                scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
                second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
-               second_label10.insert(END,note_text)
+               
+               second_label10.insert(END,note_text2+"\n"+str(tag_entry))
                scroll_bar_mini.config( command = second_label10.yview )
                second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
               
@@ -280,11 +282,11 @@ async def main_note(note,tags):
     client = Client(signer)
     # Add relays and connect
     if relay_list!=[]:
-       
+       await Search_status(client=Client(None),list_relay_connect=relay_list) 
        for jrelay in relay_list:
-        relay_url = RelayUrl.parse(jrelay)
-        await client.add_relay(relay_url)
+            await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
+
     # Send an event using the Nostr Signer
     if list_pow!=[]:
      builder = EventBuilder.text_note(note).tags(tags).pow(int(list_pow[0]))
@@ -475,7 +477,6 @@ def metadata_get():
            
             return metadata     
    
-   
 def metadata_stress():
    counter_dict['text']=str(len(Metadata_dict)) 
    counter_dict.place(relx=0.88,rely=0.42)  
@@ -539,7 +540,7 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list        
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)
@@ -700,7 +701,7 @@ def pow_show():
          pow_view.config(text=str("pow tag?: "))
 
 
-pow_button = tk.Button(root, text="pow_show", font=("Arial",12,"bold"), command=pow_show)
+pow_button = tk.Button(root, text="pow show", font=("Arial",12,"bold"), command=pow_show)
 
 list_h=[]
 
@@ -717,14 +718,13 @@ def h_show():
            return list_h
           else:
              h_view.config(text=str(len(list_h)))
-             #h_view.config(text=str("yap it present already"))
+             
              h_tag_entry.delete(0, END) 
              return list_h
             
          else:
               print("already present")
               h_view.config(text=str(len(list_h)))
-              #h_view.config(text=str("yap it present already"))
               h_tag_entry.delete(0, END) 
               return list_h
         
@@ -762,7 +762,7 @@ def content_show():
         else:
            content_view.config(text="content: ") 
             
-h_button = tk.Button(root, text="h_show", font=("Arial",12,"bold"), command=h_show)
+h_button = tk.Button(root, text="h show", font=("Arial",12,"bold"), command=h_show)
 h_view = tk.Label(root, text="h tag?: ", font=("Arial",12,"bold"))
 content_tag = tk.Label(root, text="content-Tag",font=("Arial",12,"bold"))
 entry_content=ttk.Entry(root,justify='left',font=("Arial",12))
@@ -779,7 +779,7 @@ def link_share():
             lists_id.append(Tag.custom(TagKind.CONTENT_WARNING(),list_content))
       if list_h!=[]:        
         for jlist in list_h:
-            lists_id.append(Tag.hashtag(jlist))
+            lists_id.append(Tag.hashtag(str(jlist).lower()))
       return lists_id     
       
 def check_square():
@@ -789,7 +789,6 @@ def check_square():
     else:
         button_entry1.config(text="■",foreground="grey")
         
-#button_list_id=tk.Button(root,text="Tag",command=link_share, background="darkgrey",font=("Arial",14,"bold"))  #only for fun
 button_entry1=tk.Button(root, text="■",font=("Arial",25,"bold"), foreground="grey",command=check_square,background="lightgrey", border=2) #only for fun
 
 def email_check(test:str):
@@ -805,5 +804,40 @@ def email_check(test:str):
       return test 
    else:
       return ""
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    if i==1:
+                        if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                            break
+                        if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()

@@ -268,7 +268,7 @@ def show_lst_ntd(list_note_p):
            
        button=Button(scrollable_frame_1,text=f"Print note", command=lambda val=note: print_var(val))
        button.grid(column=s1,row=2,padx=5,pady=5)
-       button_grid2=Button(scrollable_frame_1,text=f"Click to read!", command=lambda val=note: print_id(val))
+       button_grid2=Button(scrollable_frame_1,text=f"Click to read ", command=lambda val=note: print_id(val))
        button_grid2.grid(row=2,column=s1+1,padx=5,pady=5)    
        
        s=s+2  
@@ -317,7 +317,7 @@ my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae580
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              "Hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
-             "me": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
+             "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 my_list = list(my_dict.values())
 my_name = list(my_dict.keys())
@@ -327,7 +327,7 @@ def on_select(event):
 
 label = tk.Label(frame_top_box, text="Selected Item: ",font=("Arial",10,"bold"),width=20)
 label.grid(row=1, column=5, columnspan=2,pady=5,padx=5 )
-combo_box = ttk.Combobox(frame_top_box, values=["Pablo","jb55","Vitor","Hodlbod","me"],font=("Arial",10,"bold"))
+combo_box = ttk.Combobox(frame_top_box, values=["Pablo","jb55","Vitor","Hodlbod","il_lost_"],font=("Arial",10,"bold"))
 combo_box.grid(row=0, column=5,columnspan=2, pady=5 )
 combo_box.set("Option 1")
 combo_box.bind("<<ComboboxSelected>>", on_select)
@@ -717,7 +717,7 @@ def open_relay():
           counter_relay.grid(column=12,row=0)
           combo_bo_r['value']=relay_list        
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count",font=("Arial",12,"normal"))
     entry_relay.grid(column=12, row=1, padx=10,pady=5)
     relay_button.grid(column=13, row=1, padx=5,pady=5)
@@ -864,7 +864,7 @@ def show_print_test_tag():
    def print_content_2(filter_string):
     s=1
     z=7
-    #print(len(report_ID2_stem),report_ID2_stem)
+    
     for key,value in report_ID2_stem.items():
        report=""
        if value=="Report for "+ filter_string:
@@ -1255,8 +1255,8 @@ def Notebook_():
 
  def search_pubkey_report(pubkey):
     
-    if len(pubkey)==64:
-       print("ok")
+    if len(pubkey)==64 or len(pubkey)==63:
+       
        list_pubkey.append(convert_user(pubkey))
        string_p.set("")
        test_result=asyncio.run(main_report(list_pubkey))
@@ -1362,7 +1362,7 @@ list_pubkey_rep=[]
 
 def search_pubkey_reported(pubkey):
   if note_entry_2d.get()!="":
-   if len(pubkey)==64:
+   if len(pubkey)==64 or len(pubkey):
       list_pubkey_rep.append(convert_user(pubkey))
       string_person.set("")
       test_result=asyncio.run(main_report(list_pubkey_rep))
@@ -1531,6 +1531,6 @@ def print_tag(entry):
         Close_print()
      frame_tab.place(relx=0.05,rely=0.35)
      
-     button_close_TAB.place(relx=0.35,rely=0.35)                  
+     button_close_TAB.place(relx=0.38,rely=0.35)                  
 
 root.mainloop()

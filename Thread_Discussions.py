@@ -299,25 +299,26 @@ def list_pubkey_id():
    test_people=user_convert(timeline_people)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         if single not in db_list_note_follow:
            db_list_note_follow.append(single)
         single_1=json.loads(single["content"])
-        try:
-         if "name" in list(single_1.keys()):
+        
+        if "name" in list(single_1.keys()):
           if single_1["name"]!="":
                       
            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
 
              
-         if "display_name" in list(single_1.keys()):
+        if "display_name" in list(single_1.keys()):
              if single_1["display_name"]!="":
                                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                   Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
          
-         if "picture" in list(single_1.keys()):
+        if "picture" in list(single_1.keys()):
           if single_1["picture"]!="":
                       
            if single["pubkey"] not in list(photo_profile.keys()):
@@ -325,8 +326,10 @@ def list_pubkey_id():
                photo_profile[single["pubkey"]]=single_1["picture"]
                        
                         
-        except KeyError as e:
+      except KeyError as e:
           print("KeyError ",e) 
+      except json.JSONDecodeError as b:
+         print(b)                   
        #print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))   
 
 def search_kind(user,x):
@@ -500,8 +503,8 @@ def layout():
     if Pubkey_Metadata=={}:
         close_canvas()    
 
-    button_close_s=Button(root, command=close_canvas, text="Close X",font=('Arial',12,'normal') )
-    button_close_s.place(relx=0.95,rely=0.15)    
+    button_close_s=Button(root, command=close_canvas, foreground="red",text="X",font=('Arial',12,'normal') )
+    button_close_s.place(relx=0.96,rely=0.15)    
 
 button_open=Button(root, command=layout, text="Users on the server",highlightcolor='WHITE',background="grey",font=('Arial',12,'bold'))
 button_open.place(relx=0.85,rely=0.02, anchor="n")            

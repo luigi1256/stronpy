@@ -1592,7 +1592,9 @@ def pubkey_id(test):
                Pubkey_Metadata[test]=single_1["display_name"]    
                label_display_name.config(text="Nickname "+str(Pubkey_Metadata[test]))
       except KeyError as e:
-          print("KeyError ",e) 
+          print("KeyError ",e)
+      except json.JSONDecodeError as b:
+            print(b)                         
    else:
       label_display_name.config(text="Nickname "+str(Pubkey_Metadata[test]))
 
@@ -1602,23 +1604,26 @@ def list_pubkey_id():
    test_people=user_convert(people_list)    #not cover people are already on metadata
    metadata_note=search_kind(test_people,0)
    if metadata_note!=[]:
+      try: 
        for single in metadata_note:
         single_1=json.loads(single["content"])
-        try:
-         if single_1["name"]!="":
+        
+        if single_1["name"]!="":
            
            
-           if single["pubkey"] not in list(Pubkey_Metadata.keys()):
+            if single["pubkey"] not in list(Pubkey_Metadata.keys()):
               Pubkey_Metadata[single["pubkey"]]=single_1["name"]
               
-         else:   
+        else:   
             if single_1["display_name"]!="":
                 
                 if single["pubkey"]not in list(Pubkey_Metadata.keys()):
                     Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
                   
-        except KeyError as e:
-          print("KeyError ",e)             
+      except KeyError as e:
+          print("KeyError ",e)
+      except json.JSONDecodeError as b:
+        print(b)                                     
    
 def print_people(): 
    if kind_db_list!=[]:  
