@@ -19,13 +19,19 @@ def since_day(number):
     z=calendar.timegm(t.timetuple())
     return z
 
+def utc_time():
+    import time
+    date=time.time()-3600
+    return int(date)
+    
 def return_date_tm(note):
     import datetime
     date_2= datetime.datetime.fromtimestamp(float(note["created_at"])).strftime("%a"+", "+"%d "+"%b"+" %Y")
     date= date_2+ " "+ datetime.datetime.fromtimestamp(float(note["created_at"])).strftime('%H:%M')
     return date
 
-Checkbutton5 = IntVar() 
+Checkbutton5 = IntVar()
+Checkbutton5.set(0)
 frame_time=tk.Frame(root,height=100,width=200)
 
 def five_event():
@@ -96,13 +102,16 @@ entry_var.place(relx=0.42,rely=0.25)
 
 async def get_result_w(client):
    try: 
+    
     if entry_var.get().startswith("naddr1") and len(entry_var.get())>71:
+       public_list.append(Coordinate.parse(entry_var.get()).public_key())
        entry_variable.set(Coordinate.parse(entry_var.get()).identifier())
+       
     if Checkbutton5.get() == 1:
           f = Filter().identifier(entry_var.get()).kind(Kind(30023)).since(timestamp=Timestamp.from_secs(since_day(int(since_entry.get())))).until(timestamp=Timestamp.from_secs(since_day(int(until_entry.get())))).limit(10)
     else:
-           f = Filter().identifier(entry_var.get()).kind(Kind(30023)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(since_day(int(0)))).limit(10)
-
+           f = Filter().identifier(entry_var.get()).kind(Kind(30023)).since(timestamp=Timestamp.from_secs(since_day(int(60)))).until(timestamp=Timestamp.from_secs(utc_time())).limit(10)
+    print(f.as_json()) 
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
@@ -114,10 +123,9 @@ relay_search_list=[]
 
 async def Search_d_tag():
     
-    init_logger(LogLevel.INFO)
-    client = Client(None)
     # Add relays and connect
-    if relay_search_list!=[]:
+    if relay_search_list:
+       client = Client(None)
        for jrelay in relay_search_list:
           await client.add_relay(RelayUrl.parse(jrelay))
        await client.connect()
@@ -125,9 +133,11 @@ async def Search_d_tag():
 
        combined_results = await get_result_w(client)
        return combined_results
-     
+    
+    client = Client(None)
+    init_logger(LogLevel.INFO) 
     await search_box_relay()
-    print("found ", len(relay_search_list), " relays")
+    
 
 def call_text():
   if entry_var.get()!="":
@@ -147,7 +157,9 @@ def call_text():
        second_label10.insert(END,"\n"+"\n")
 
     else:
-       print("empty")
+        print("restart")
+        relay_search_list.clear()
+        button_close_search["text"]="Search Relay"
   else:     
        if relay_search_list==[]:
           if __name__ == "__main__":
@@ -163,9 +175,10 @@ button_close_search.place(relx=0.55,rely=0.24 )
 
 async def get_search_relay(client):
    if public_list!=[]:
-    f=Filter().authors(public_list).kind(Kind(10007))
+    f=Filter().authors(public_list).kind(Kind(10002))
    else: 
-    f=Filter().kind(Kind(10007)).limit(10)
+    f=Filter().kind(Kind(10002)).limit(10)
+   print(f.as_json()) 
    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
    z = [event.as_json() for event in events.to_vec()]
    return z
@@ -197,7 +210,7 @@ async def search_box_relay():
     if relay_add !=None and relay_add!=[]:
            i=0
            while i<len(relay_add):
-            for xrelay in tags_string(relay_add[i],'relay'):
+            for xrelay in tags_string(relay_add[i],'r'):
               if xrelay[0:6]=="wss://" and xrelay[-1]=="/" and xrelay not in Bad_relay_connection:
                if xrelay not in relay_search_list:
                 relay_search_list.append(xrelay) 
@@ -337,7 +350,7 @@ def show_fork_test(note):
    scroll_bar_f.config( command = second_labelf.yview )
    second_labelf.insert(END,note["content"],str)
    second_labelf.grid(padx=2, column=0, columnspan=3, row=0) 
-   context0="npub: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
+   context0="pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
    if note['tags']!=[]:
         if tags_string(note,"title")!=[]: 
             context1 = "\n"+"Title: "+str(tags_string(note,"title")[0])
@@ -409,7 +422,7 @@ def show_print_test(note):
    canvas_2.create_window((0, 0), window=scrollable_frame_2, anchor="nw")
    canvas_2.configure(yscrollcommand=scrollbar_2.set)
    s=1
-   context0="npub: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
+   context0="pubkey: "+note['pubkey']+"\n"+"id: "+note["id"]+"\n"
    if note['tags']!=[]:
         if tags_string(note,"title")!=[]: 
          xnote= "\n"+"Title: "+str(tags_string(note,"title")[0])
@@ -440,37 +453,45 @@ def show_print_test(note):
 
    def print_var(entry):
             print(entry["id"])
+            print(note_to_naddr(note,relay_search_list[0]))
    
    def print_content(entry):
-       result=show_note_from_id(entry)
+       result=article_reply_view(entry)
        if result!=None: 
         z=s+3
         for jresult in result:
            if jresult["id"]!=entry["id"]:  
-             context00="npub: "+jresult['pubkey']+"\n"+"id: "+jresult["id"]+"\n"
+             
              if jresult['tags']!=[]:
               context11="\n"+jresult['content']+"\n"
-              context22="[-[-[Tags]-]-]"+"\n"+str((jresult)["tags"])
+              context22="[[ Tags ]]"+"\n"+str((jresult)["tags"])
              else: 
               context11=jresult['content']+"\n"
               context22=""
              var_id_1=StringVar()
              label_id_1 = Message(scrollable_frame_2,textvariable=var_id_1, relief=RAISED,width=310,font=("Arial",12,"normal"))
-             var_id_1.set(context00)
+             if jresult["kind"]==7:
+                context00="pubkey: "+jresult['pubkey'][0:35]+"\n"+"Like "+jresult["content"]
+                var_id_1.set(context00)
+             else:
+                context00="pubkey: "+jresult['pubkey'][0:35]+ "\n"+ "kind "+ str(jresult["kind"])
+                var_id_1.set(context00)
              label_id_1.grid(pady=2,column=0, columnspan=3,padx=5,row=z)
              scroll_bar_2 = tk.Scrollbar(scrollable_frame_2)
-             scroll_bar_2.grid( sticky = NS,column=4,row=z+1)
              second_label4 = tk.Text(scrollable_frame_2, padx=2, height=5, width=35, yscrollcommand = scroll_bar_2.set, font=('Arial',12,'bold'))
              scroll_bar_2.config( command = second_label4.yview )
              second_label4.insert(END,context11+context22,str)
-             second_label4.grid(padx=2, column=0, columnspan=3, row=z+1) 
+             if jresult["kind"]!=7:
+                second_label4.grid(padx=2, column=0, columnspan=3, row=z+1) 
+                scroll_bar_2.grid( sticky = NS,column=4,row=z+1)
+             
              z=z+2
                    
    button=Button(scrollable_frame_2,text=f"id ", command=lambda val=note: print_var(val))
    button.grid(column=0,row=s+2,padx=5,pady=5)
    button_grid3=Button(scrollable_frame_2,text=f"Tags ", command=lambda val=note: print_tags(val))
    button_grid3.grid(row=s+2,column=1,padx=5,pady=5) 
-   button_grid3=Button(scrollable_frame_2,text=f"this a reply ", command=lambda val=note: print_content(val))
+   button_grid3=Button(scrollable_frame_2,text=f"this a reply? ", command=lambda val=note: print_content(val))
    button_grid3.grid(row=s+2,column=2,padx=5,pady=5)    
    scrollbar_2.pack(side="right", fill="y",pady=20) 
    canvas_2.pack( fill="y", expand=True)
@@ -496,41 +517,17 @@ def db_list_nota(nota_id):
         if nota_x["id"]==nota_id:
             return nota_x
 
-def show_note_from_id(note):
-        result=note["id"]
-        quote_e=nota_reply_id(note)
-        
-        replay_light=[]
-        db_already=[]
-        items=[]
-        if quote_e!=[]:
-           for replay_x in quote_e:
-               if replay_x not in db_list_id(db_list):
-                  replay_light.append(replay_x) 
-               else:
-                   db_already.append(replay_x)
-           if replay_light!=[]:          
-            items=get_note(asyncio.run(Get_event_id(replay_light)))
-           if db_already!=[]:
-               for db_x in db_already:
-                   if db_x  in db_list_id(db_list):
-                    items.append(db_list_nota(db_x)) 
-        else:
-            print("quote_e empty")
-            items=get_note(asyncio.run(Get_event_id(result)))
-             
-        for itemsj in items:
-            if itemsj not in db_list:
-                db_list.append(itemsj)   
-        return items   
-
-def nota_reply_id(nota):
-    e_id=[]
-    if tags_string(nota,'e')!=[]:
-            for event_id in tags_string(nota,'e'):
-                  if event_id not in e_id:
-                    e_id.append(event_id)   
-    return e_id                
+def article_reply_view(note):
+    coord_event=[]
+    test_kind=[]
+    naddr=note_to_naddr(note,relay_search_list[0])
+    tag_id=Coordinate.parse(naddr)
+    coord_event.append(str(tag_id))
+    resp_answer=asyncio.run(Get_art_event( coord_event))
+    if resp_answer!=[]:
+        for resp in get_note(resp_answer):
+            test_kind.append(resp)
+        return test_kind      
 
 def get_note(z):
     f=[]
@@ -552,21 +549,8 @@ def evnts_ids(list_id):
          Event.append(evnt_id(j))
      return Event       
 
-async def get_answers_Event(client, event_):
-    f = Filter().events(evnts_ids(event_)).kinds([Kind(1),Kind(1111)]).limit(int(10*len(event_)))
-    
-    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
-    return z
-
 async def get_one_Event(client, event_):
     f = Filter().id(evnt_id(event_))
-    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-    z = [event.as_json() for event in events.to_vec()]
-    return z
-
-async def get_answer_Event(client, event_):
-    f = Filter().event(evnt_id(event_)).kinds([Kind(1),Kind(1111)]).limit(10)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec()]
     return z
@@ -583,9 +567,7 @@ async def get_one_note(client, e_id):
     z = [event.as_json() for event in events.to_vec()]
     return z
 
-async def Get_event_id(e_id):
-    # Init logger
-    init_logger(LogLevel.INFO)
+async def Get_art_event(a_string):
     
     client = Client(None)
     
@@ -595,26 +577,16 @@ async def Get_event_id(e_id):
     await client.add_relay(RelayUrl.parse("wss://purplerelay.com/"))
     
     await client.connect()
-    
+    test_result= await get_art_Event(client, a_string)
     await asyncio.sleep(2.0)
+    return test_result      
 
-    if isinstance(e_id, list):
-         print("list")
-         test_id = await get_notes_(client,e_id)
-         resp_answer=await get_answers_Event(client,e_id)
-         if resp_answer!=[]:
-          for resp in resp_answer:
-            if resp not in test_id:
-             test_id.append(resp)
-    else:
-        print("str")
-        test_id = await get_one_note(client,e_id)
-        resp_answer=await get_answer_Event(client, e_id)
-        if resp_answer!=[]:
-         for resp in resp_answer:
-          if resp not in test_id:
-           test_id.append(resp)
-    return test_id
+async def get_art_Event(client, event_):
+   
+    f=Filter().kinds([Kind(1111),Kind(7)]).custom_tags(SingleLetterTag.lowercase(Alphabet.A),event_)
+    events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+    z = [event.as_json() for event in events.to_vec() if event.verify()]
+    return z
 
 frame2=Frame(root)
 db_list=[]
@@ -756,7 +728,7 @@ def corny_book(entry,value):
          r_view.config(text="link:")
          p_view.config(text="")
          error_label.config(text="Problem:")
-         print_label.config(text="Wait for the highlights", font=("Arial",12,"bold"),foreground="black")
+         print_label.config(text="Wait for the Tag", font=("Arial",12,"bold"),foreground="black")
 
 def check_square():
     if list_e!=[] or list_a!=[]:
@@ -774,7 +746,7 @@ button_entry1.place(relx=0.64,rely=0.03,relwidth=0.05, relheight=0.1,anchor="n" 
 frame_1=tk.Frame(root,height=100,width=200, background="darkgrey")
 error_label = tk.Label(frame_1, text="Problem:",font=("Arial",12))
 error_label.grid(column=2, rowspan=2, row=0, pady=5,padx=5)
-print_label = ttk.Label(frame_1, text="Wait for the label",font=("Arial",12))
+print_label = ttk.Label(frame_1, text="Wait for the Tag",font=("Arial",12))
 print_label.grid(column=2, columnspan=2, row=2, pady=5,padx=10)
 
 frame_1.grid(column=18,columnspan=5, row=0, rowspan=3)

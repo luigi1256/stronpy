@@ -11,6 +11,7 @@ import requests
 import shutil
 from PIL import Image, ImageTk
 from cryptography.fernet import Fernet
+import ast
 
 root = Tk()
 root.title("Search Example")
@@ -86,7 +87,6 @@ async def Search_status(client:Client,list_relay_connect:list):
                   #if stats.success()==1 and relay.is_connected()==True:
                i=i+1 
        
-
    except IOError as e:
           print(e) 
    except ValueError as b:
@@ -639,6 +639,9 @@ def layout():
          else:
             if tags_string(note_text,"alt")!=[] and str(tags_string(note,"alt")[0])!="":
              context1=context1+str("- Alt: ")+str(tags_string(note,"alt")[0])+"\n"
+             alt=plain_imeta(note,"alt")
+             if alt:
+                  context1=context1+"- "+str(alt)+"\n"
          if tags_string(note_text,"t")!=[]:
             for note_tags in tags_string(note_text,"t"):
                context2=context2+str("#")+note_tags+" "
@@ -739,6 +742,7 @@ def zap_stream_event(note):
            if note["kind"]==22:
               nevent=Nip19Event(EventId.parse(note["id"]),PublicKey.parse(note["pubkey"]),Kind(note["kind"]),[RelayUrl.parse(relay_list[0])]).to_bech32()
               print(f" https://zaptok.social/{nevent}")
+              print(f"https://plebs.app/#/video/{str(note['id'])}")
         
 def video_thumb(nota):
   if tags_str(nota,"imeta")!=[]:
@@ -753,12 +757,26 @@ def video_thumb(nota):
    if url!="":
     return url       
 
-def photo_list_2(note):
- frame_pic=tk.Frame(root,height=80,width= 80) 
- url=video_thumb(note)
- if url!=None: 
-   stringa_pic=StringVar()
+def plain_imeta(nota,tag):
+  if tags_str(nota,"imeta")!=[]:
+   alt=""
+   for dim_photo in tags_str(nota,"imeta"):
+      if more_link(dim_photo[1][4:])=="video": 
+         for jdim in dim_photo:
+            if str(jdim).startswith(tag):
+               alt=str(jdim)
+   if alt!=str(tag)+" " and alt!="":
+    return alt       
 
+def photo_list_2(note):
+   url=video_thumb(note)
+   photo_view(url)
+
+def photo_view(url):
+ if url!=None: 
+   frame_pic=tk.Frame(root,height=80,width= 80) 
+   stringa_pic=StringVar()
+   
    def print_photo():
      s=0  
      stringa_pic.set(url)
@@ -769,10 +787,7 @@ def photo_list_2(note):
       try:
        headers = {"User-Agent": "Mozilla/5.0"}
        response = requests.get(label_pic.get(),headers=headers, stream=True)
-       
        response.raise_for_status()  
-        
-   
        if response.ok==TRUE:
         with open('my_image.png', 'wb') as file:
          shutil.copyfileobj(response.raw, file)
@@ -813,9 +828,16 @@ def search_title(string):
             if string in title_list:
                if note_x not in note_list:
                   note_list.append(note_x)
+        if plain_imeta(note_x,"alt"):
+           alt_text=plain_imeta(note_x,"alt")[4:]
+           title_alt=alt_text.split(" ") 
+           title_list_1 = [str(title_x).lower() for title_x in title_alt]
+           if string in title_list_1:
+            if note_x not in note_list:
+               note_list.append(note_x)         
       
       if note_list!=[]:
-       #print(len(note_list),"\n",note_list[0])            
+                   
        return note_list    
 
 vertical_note=[]
@@ -938,9 +960,7 @@ def print_people():
     scrollable_frame.bind(
     "<Configure>",
     lambda e: canvas.configure(
-        scrollregion=canvas.bbox("all")
-    )
-)
+        scrollregion=canvas.bbox("all")))
      
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
@@ -1039,6 +1059,9 @@ def show_print_test_tag(note):
          context1=context1+"- d Tag "+str(tags_string(note,"d")[0][0:10])+"\n"
         if tags_string(note,"alt")!=[] and str(tags_string(note,"alt")[0])!="":
          context1=context1+"- Alt "+str(tags_string(note,"alt")[0])+"\n"
+         alt=plain_imeta(note,"alt")
+         if alt:
+            context1=context1+"- "+str(alt)+"\n"
         if tags_string(note,"client")!=[]:
          context1=context1+"- Client "+str(tags_string(note,"client")[0])+"\n" 
         if tags_string(note,"published_at")!=[]:
@@ -1072,13 +1095,6 @@ def show_print_test_tag(note):
      if value-1>=0:
          show_print_test_tag(db_note[value-1])         
                                          
-
-   def print_var(entry):
-        print("test1")
-
-   button_grid_1=Button(scrollable_frame_2,text="Zap", command=lambda val=note: print_var(val), width=10, height=3)
-   button_grid_1.grid(row=s,column=4,padx=5,pady=5)    
-
    def send_var(entry):
       e_string_var.set(entry["id"])   
 
@@ -1088,19 +1104,17 @@ def show_print_test_tag(note):
      z=6
      
      for jresult in result[::-1]:
-       if jresult["id"]!=entry["id"]:  
+       if jresult["id"]!=entry["id"]:
          var_id_r=StringVar()
          label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
          label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
          str_time_1=note_time_reply(entry,jresult)
-         var_id_r.set(" Author: "+jresult["pubkey"]+"\n" +"Time: "+str(str_time_1))
-     
+         var_id_r.set(" Pubkey: "+jresult["pubkey"][0:30]+"\n" +"Time: "+str(str_time_1) +"\n" +"Comment")
          scroll_bar_mini_r = tk.Scrollbar(scrollable_frame_2)
-         scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)
          second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
          context22="\n"+ " Important tags: "+"\n"   
          if tags_string(jresult,"E")!=[]:
-          if four_tags(jresult,"E")!=None:
+          if four_tags(jresult,"E"):
             for f_note in four_tags(jresult,"E"):
               context22=context22+str(" < "+ f_note[0]+" > ")+f_note[1][0:9]+ "\n"
               if f_note[2]!="" and f_note not in relay_list:
@@ -1108,7 +1122,7 @@ def show_print_test_tag(note):
          else:
             context22=" < E > Probably some errors \n"              
          if tags_string(jresult,"e")!=[]:
-          if four_tags(jresult,"e")!=None:
+          if four_tags(jresult,"e"):
             for F_note in four_tags(jresult,"e"):
                  context22=context22+str(" < "+ F_note[0]+" > ")+F_note[1][0:9]+ "\n"
                  if F_note[2]!="" and F_note not in relay_list:
@@ -1120,18 +1134,25 @@ def show_print_test_tag(note):
               context22=context22+str(" Author Thread: ")+pr[0:9]+ "\n"
          if tags_string(jresult,"p")!=[]:             
             for Pr in tags_string(jresult,"p"):
-               context22=context22+str("Cited in the reply ")+Pr[0:9]+ "\n"    
-        
-         second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))
-         scroll_bar_mini_r.config( command = second_label10_r.yview )
-         second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
-         button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: print_var(val))
-         button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+               context22=context22+str("Cited in the reply ")+Pr[0:9]+ "\n"  
+
+         scroll_bar_mini_r.config( command = second_label10_r.yview )       
+         if jresult["kind"]==7: 
+            var_id_r.set(" Pubkey: "+jresult["pubkey"][0:32]+"\n" +"Time: "+str(str_time_1)+"\n"+"Like "+jresult["content"]+"\n")
+            
+         else:
+            second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))  
+            second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
+            scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)  
+                  
+         if photo_Show.get()==0:
+            button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: photo_list_2(val))
+            button_photo.grid(column=0,row=z+2,padx=5,pady=5)
          button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
          button_print.grid(column=1,row=z+2,padx=5,pady=5)
          button_grid4=Button(scrollable_frame_2,text=f"Comment ", command=lambda val=jresult: reply_to(val))
          button_grid4.grid(row=z+2,column=2,padx=5,pady=5)        
-     z=z+3     
+       z=z+3     
 
    def reply_to(entry):
     if entry["kind"]==1111:
@@ -1171,6 +1192,7 @@ def show_print_test_tag(note):
         
                 list_one,list_two=tags_first(entry)
                 var_id_2=StringVar()
+                var_id_3=StringVar()
                 label_id_2= Message(scrollable_frame_2,textvariable=var_id_2, relief=RAISED,width=220,font=("Arial",12,"normal"))
                 s=6
                 
@@ -1178,6 +1200,7 @@ def show_print_test_tag(note):
                     s=6
                     list_z,par=tags_parameters(list_one,list_two,val)
                     var_id_2.set(str(list_z))
+                    var_id_3.set(par)
                     value=list_one.index(par)
                     label_id_2.grid(pady=2,column=1,row=s+value, columnspan=2)  
                 button_list=[]
@@ -1192,17 +1215,13 @@ def show_print_test_tag(note):
                     button_list.append(button_grid2)   
                     z=z+1
                     s=s+1 
-                 button_stamp=Button(scrollable_frame_2,text="stamp", command=lambda val=var_id_2: stamp_var(val))
+                 button_stamp=Button(scrollable_frame_2,text="stamp", command=lambda val=(var_id_2),val2=(var_id_3): stamp_var(val,val2))
                  button_stamp.grid(column=0,row=s+1,padx=5,pady=5)
                  def close_Tags():
                     button_stamp.grid_forget()
                      
                     for button2 in  button_list:
-                     button2.grid_forget()
-                    
-                    
-                    #button_grid2.destroy()
-                    
+                     button2.grid_forget()                    
                     
                     button_c_tags.grid_forget()
                     label_id_2.grid_forget()
@@ -1214,9 +1233,13 @@ def show_print_test_tag(note):
                     print("e "+tags_str_long(entry,"e"))
                 if 'mention' in tags_str_long(entry,"a"):   
                      print("a "+tags_str_long(entry,"a"))
-   def stamp_var(entry):
-                if entry.get()!="":
-                 print(entry.get())                                  
+   def stamp_var(entry,obj):
+      if  obj.get()!="imeta":
+         imeta_tag(entry.get(),obj.get())
+      else:   
+            print(obj.get())   
+            print(entry.get())                                  
+                                           
    s=5        
    button=Button(scrollable_frame_2,text=f"Tags ", command=lambda val=note: print_tags(val),font=("Arial",12,"normal"))
    button.grid(column=0,row=s,padx=5,pady=5)
@@ -1581,7 +1604,7 @@ async def get_more_Event(client, event_list):
     return z
 
 async def get_one_note(client, e_id):
-    f = Filter().event(EventId.parse(e_id)).kinds([Kind(1111)]).limit(100)
+    f = Filter().event(EventId.parse(e_id)).kinds([Kind(1111),Kind(7)]).limit(100)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10)) 
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     SubscribeAutoCloseOptions()
@@ -2461,9 +2484,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list     
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 def show_note_from_id(note):
         result:str=note["id"]
@@ -2491,5 +2517,71 @@ def add_reply_idto_comment():
          first_reply.clear()
          first_reply.append(entry_second_note.get())  
        print(first_reply)
+
+def stamp_balance_video(list_tag,obj):
+  if obj=="imeta":
+   list_tag_ast=ast.literal_eval(list_tag)
+   
+   for dim_photo in list_tag_ast:
+     print(dim_photo[0][4:])
+     if more_link(dim_photo[0][4:])=="video": 
+
+      for jdim in dim_photo:
+       if jdim[0:4]=="size":
+        list_number=dim_photo.index(jdim)   
+        number=dim_photo[list_number][5:]
+        if number:
+         if int(number)<int(13000000):
+          stream_uri(dim_photo[0][4:], "my_video.mp4")
+          
+          if messagebox.askyesno("Form", "Do you want to see the video?"): 
+            print('playing video using native player')
+            os.system('my_video.mp4')
+          
+         print(float(round(int(number)/(1024**2),3)), "Megabyte")
+
+def imeta_balance(list_tag,obj):
+   if obj=="imeta":
+      balance=[]
+      url_=[]
+      list_tag_imeta=ast.literal_eval(list_tag)
+      for dim_photo in list_tag_imeta:
+        if more_link(dim_photo[0][4:])=="pic": 
+          url_.append(dim_photo[0][4:])
+          for jdim in dim_photo:
+            if str(jdim).startswith("dim"):
+              list_number=jdim[4:]
+              test2=list_number.split("x")
+              balx=test2[0]
+              baly=test2[1] 
+              balance.append(float(int(balx)/int(baly)))
+ 
+      return balance,url_       
+
+def photo_from_tag(list_tag,obj):
+    """imeta_balance ---> balance,url
+    \n
+    photo_tag ---> photo"""
+    url_=video_thumb_tag(list_tag,obj)
+    photo_view(url_)
+
+def imeta_tag(list_tag,option):
+    if option=="imeta":
+      photo_from_tag(list_tag=list_tag,obj=option)  #note to tag1
+      stamp_balance_video(list_tag,option)        #note to tag1   
+
+def video_thumb_tag(list_tag,obj):
+  if obj=="imeta":
+   url=""
+   list_tag_t=ast.literal_eval(list_tag)
+   for dim_photo in list_tag_t:
+     if more_link(dim_photo[0][4:])=="video": 
+           
+      for jdim in dim_photo:
+       if jdim[0:5]=="image" or jdim[0:5]=="thumb":
+        list_number=dim_photo.index(jdim) 
+        url=  str(dim_photo[list_number][6:])
+   if url!="":
+    return url       
 
 root.mainloop()

@@ -189,7 +189,7 @@ def block_word(x):
     
 def find_japanese(text):
     # Regex pattern for Hiragana, Katakana, and Kanji (CJK Ideographs)
-    japanese_pattern = re.compile(r'[\u3040-\u30FF\u4E00-\u9FFF]')
+    japanese_pattern = re.compile(r'[\u3040-\u30FF\u31F0-\u31FF\u4E00-\u9FFF]')
     return japanese_pattern.findall(text)    
 
 def find_arabic(text):

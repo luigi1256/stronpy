@@ -305,26 +305,25 @@ async def main_long_tk(authors):
    try: # Init logger
     client = Client(None)
     # Add relays and connect
-    relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-    relay_url_2=RelayUrl.parse("wss://nos.lol/")
-    await client.add_relay(relay_url_1)
-    await client.add_relay(relay_url_2)
+    relay_set=["wss://nostr.mom/","wss://nos.lol/"]
+    for relay_n in relay_set:
+       if relay_n not in relay_list:
+          relay_list.append(relay_n)
+    await Search_status(client=Client(None),list_relay_connect=relay_list)      
     if relay_list!=[]:
-       
-       for jrelay in relay_list:
-          relay_url_list = RelayUrl.parse(jrelay)
-          await client.add_relay(relay_url_list)
+        for jrelay in relay_list:
+            await client.add_relay(RelayUrl.parse(jrelay))
     await client.connect()     
     await asyncio.sleep(2.0)
     combined_results = await get_relay(client, authors)
     List_note=get_note(combined_results)
-    if List_note:
+    if List_note!=[]:
        for jlist in List_note:
          if jlist not in List_three and len(tags_string(jlist,"p"))<200:
             List_three.append(jlist)
             for xuser in tags_string(jlist,"p"):
               if xuser not in draft_user:
-                 draft_user.append(xuser)
+                draft_user.append(xuser)
     if draft_user:
      Draft_User=user_convert(draft_user)
      combined_note = await get_long_note(client, Draft_User)
@@ -360,11 +359,11 @@ async def outboxes():
           await client.add_relay(relay_url_list)
              
     else:
-            relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-            relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-            await client.add_relay(relay_url_1)
-            await client.add_relay(relay_url_2)
-     
+            relay_set=["wss://nostr.mom/","wss://purplerelay.com/"]
+            await Search_status(client=Client(None),list_relay_connect=relay_set) 
+            for relay_n in relay_set:
+                await client.add_relay(RelayUrl.parse(relay_n))
+                 
        
     await client.connect()
     relay_add=get_note(await get_outbox(client))
@@ -377,7 +376,8 @@ async def outboxes():
                
                if xrelay not in relay_list:
                  relay_list.append(xrelay) 
-            i=i+1             
+            i=i+1     
+           await Search_status(client=Client(None),list_relay_connect=relay_list)          
     await asyncio.sleep(2.0)
 
 def search_relay():
@@ -403,15 +403,16 @@ async def metadata_object():
           await client.add_relay(relay_url_list)
              
     else:
-           relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-           relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-           await client.add_relay(relay_url_1)
-           await client.add_relay(relay_url_2)
-              
+        
+        relay_set=["wss://nostr.mom/","wss://purplerelay.com/"]
+        await Search_status(client=Client(None),list_relay_connect=relay_set) 
+        for relay_n in relay_set:
+            await client.add_relay(RelayUrl.parse(relay_n))
+           
     await client.connect()
     metadata_page=get_note(await get_metanota(client))
     if metadata_page !=None and metadata_page!=[]:
-           #print(metadata_page[0])
+           
            zeta,pub0=metadata_list(metadata_page,"name")
            for name, key in zip(zeta,pub0):
              if name!=None: 
@@ -477,8 +478,8 @@ def print_text():
     for note in list(user_metadata.keys()):
            
             var_id=StringVar()
-            label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=250)
-            var_id.set(note) 
+            label_id = Message(scrollable_frame,textvariable=var_id, relief=RAISED,width=200)
+            var_id.set(note[0:15]) 
             test=list(user_metadata.keys()).index(note)
             label_id.grid(pady=2,column=1,row=s)
 
@@ -495,8 +496,8 @@ def print_text():
                 print(user_metadata[test])
                               
             button=Button(scrollable_frame,text=f"{npub_list_title(List_three,user_metadata[note])[0:10]}", command=lambda val=note: print_var(val))
-            button.grid(column=0,row=s,padx=20,pady=5)
-            button_grid2=Button(scrollable_frame,text=f"click me for id ", command=lambda val=note: print_id(val))
+            button.grid(column=0,row=s,padx=10,pady=5)
+            button_grid2=Button(scrollable_frame,text=f"Search pubkey ", command=lambda val=note: print_id(val))
             button_grid2.grid(row=s,column=2,padx=5,pady=5)
             
             root.update()  
@@ -872,12 +873,10 @@ async def Get_A_tag(event_):
           relay_url_list = RelayUrl.parse(jrelay)
           await client.add_relay(relay_url_list)
     else:
-         relay_url_1=RelayUrl.parse("wss://nostr.mom/")
-         relay_url_2=RelayUrl.parse("wss://purplerelay.com/")
-         relay_url_3=RelayUrl.parse("wss://relay.primal.net")
-         await client.add_relay(relay_url_1)
-         await client.add_relay(relay_url_2)
-         await client.add_relay(relay_url_3)
+        relay_set=["wss://nostr.mom/","wss://purplerelay.com/","wss://relay.primal.net"]
+        await Search_status(client=Client(None),list_relay_connect=relay_set) 
+        for relay_n in relay_set:
+            await client.add_relay(RelayUrl.parse(relay_n))
     
     await client.connect()
     
@@ -1470,6 +1469,42 @@ async def zap_request_split(hex_npub,percent, callback):
     data = ZapRequestData(public_key_, relays).message(msg).amount(amount_).lnurl(url)
     public_zap_ = EventBuilder.public_zap_request(data).sign_with_keys(keys)               #to_event(keys)
     return public_zap_,amount_       
+
+async def Search_status(client:Client,list_relay_connect:list):
+    try: 
+        if list_relay_connect!=[]:
+            for relay_y in list_relay_connect:
+                await client.add_relay(RelayUrl.parse(relay_y))
+            await client.connect()
+            relays = await client.relays()
+            await asyncio.sleep(1.0)   
+            for url, relay in relays.items():
+                i=0
+                while i<2:   
+            
+                    print(f"Relay: {url}")
+                    print(f"Connected: {relay.is_connected()}")
+                    print(f"Status: {relay.status()}")
+                    stats = relay.stats()
+                    print("Stats:")
+                    print(f"    Attempts: {stats.attempts()}")
+                    print(f"    Success: {stats.success()}")
+                    
+                    
+                    if stats.bytes_received()>0:  #Auth ort other stuff
+                           if str(url) in list_relay_connect:
+                            list_relay_connect.remove(str(url))
+                    if i==1:
+
+                     if stats.success()==0 and relay.is_connected()==False:
+                            if str(url) in list_relay_connect:
+                                list_relay_connect.remove(str(url))
+                        
+                    i=i+1 
+    except IOError as e:
+        print(e) 
+    except ValueError as b:
+        print(b)                   
 
 root.mainloop()         
         

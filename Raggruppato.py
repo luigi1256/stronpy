@@ -63,9 +63,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list 
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
    
 def tags_str(x,obj):
     f=x['tags']
@@ -518,7 +521,7 @@ def show_lst_ntd(list_note_p):
        if note['tags']!=[]: 
         
         if tags_string(note,"e")!=[]:
-              if four_tags(note,"e"):
+              if four_tags(note,"e")!=[]:
                 for F_note in four_tags(note,"e"):
                    if len(F_note)>3:  
                      context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
@@ -697,8 +700,9 @@ def show_print_test_tag(note):
    else:
            context2=""  
    if tags_string(note,"e")!=[]:
-        if four_tags(note,"e"):
+        if four_tags(note,"e")!=[]:
             for F_note in four_tags(note,"e"):
+               if len(F_note)>3:
                 context2=context2+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
    else:
          pass            
@@ -734,8 +738,9 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=3, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="---> tags: <--- "+"\n"   
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e"):
+              if four_tags(jresult,"e")!=[]:
                 for F_note in four_tags(note,"e"):
+                  if len(F_note)>3:   
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[3]+ "\n"
               
              else:
