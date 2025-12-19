@@ -1,11 +1,11 @@
 #Verticals
 import asyncio
-from nostr_sdk import *
-from datetime import timedelta 
-import time
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+from nostr_sdk import *
+from datetime import timedelta 
+import time
 from tkinter import messagebox
 import requests
 import shutil
@@ -587,10 +587,10 @@ def layout():
          
     def create_note(note_text, s):
             
-         button_grid2=Button(scrollable_frame,text= "Author "+note['pubkey'][0:44], command=lambda val=note["pubkey"]: pubkey_id_ver(val))
+         button_grid2=Button(scrollable_frame,text= "Author "+note_text['pubkey'][0:44], command=lambda val=note_text["pubkey"]: pubkey_id_ver(val))
          button_grid2.grid(row=s,column=0,padx=5,pady=5, columnspan=3)  
          scroll_bar_mini = tk.Scrollbar(scrollable_frame)
-         scroll_bar_mini.grid( sticky = NS,column=4,row=s+2,pady=5)
+         scroll_bar_mini.grid( sticky = NS,column=4,row=s+1,pady=5)
 
          def print_photo_url(url):
             try:
@@ -622,15 +622,15 @@ def layout():
             except requests.exceptions.RequestException as e:
              print(f"Error exceptions: {e}") 
 
+         second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")    
          url=video_thumb(note_text)
          if url!=None: 
           if photo_Show.get()==1:
            label_image = Label(scrollable_frame,text="",width=300,background="#E3E0DD")
            photo=print_photo_url(url)
            if photo!=None:
-            label_image.grid(pady=2,row=s+1,column=0, columnspan=3)
-          
-         second_label10 = tk.Text(scrollable_frame, padx=8, height=5, width=27, yscrollcommand = scroll_bar_mini.set, font=('Arial',14,'bold'),background="#D9D6D3")
+            label_image.grid(pady=2,row=s+2,column=0, columnspan=3)
+                  
          context1=""
          context2=""  
          if tags_string(note_text,"title")!=[] and str(tags_string(note,"title")[0])!="":
@@ -650,10 +650,10 @@ def layout():
          second_label10.insert(END,context1+"\n"+str(context2))
          scroll_bar_mini.config( command = second_label10.yview )
          if tags_string(note_text,"content-warning")==[]:
-          second_label10.grid(padx=10, column=0, columnspan=3, row=s+2) 
+          second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
          else:
            second_label10.delete("1.0", "end")
-           second_label10.grid(padx=10, column=0, columnspan=3, row=s+2) 
+           second_label10.grid(padx=10, column=0, columnspan=3, row=s+1) 
 
            def content_show(): 
             if messagebox.askokcancel("Show this Note!"+" "+str(tags_string(note_text,"content-warning")[0]),"Yes/No") == True:     
@@ -661,7 +661,7 @@ def layout():
              content.grid_forget()
 
            content = Button(scrollable_frame, text="show",font=('Arial',12,'normal'), command=content_show)
-           content.grid(row=s+2, column=0, columnspan=3, padx=5, pady=5)  
+           content.grid(row=s+1, column=0, columnspan=3, padx=5, pady=5)  
      
          button=Button(scrollable_frame,text=f"Print me ", command=lambda val=note: print_var(val))
          button.grid(column=0,row=s+3,padx=5,pady=5)
@@ -1144,14 +1144,15 @@ def show_print_test_tag(note):
             second_label10_r.insert(END,jresult["content"]+"\n"+str(context22))  
             second_label10_r.grid(padx=10, column=0, columnspan=3, row=z+1) 
             scroll_bar_mini_r.grid( sticky = NS,column=4,row=z+1)  
-                  
-         if photo_Show.get()==0:
-            button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: photo_list_2(val))
-            button_photo.grid(column=0,row=z+2,padx=5,pady=5)
+            button_grid4=Button(scrollable_frame_2,text=f"Comment ", command=lambda val=jresult: reply_to(val))
+            button_grid4.grid(row=z+2,column=2,padx=5,pady=5)        
+            if photo_Show.get()==0:
+               button_photo=Button(scrollable_frame_2,text=f"Photo ", command=lambda val=jresult: photo_list_2(val))
+               button_photo.grid(column=1,row=z+2,padx=5,pady=5)
          button_print=Button(scrollable_frame_2,text=f"Print ", command=lambda val=jresult: print(val))
-         button_print.grid(column=1,row=z+2,padx=5,pady=5)
-         button_grid4=Button(scrollable_frame_2,text=f"Comment ", command=lambda val=jresult: reply_to(val))
-         button_grid4.grid(row=z+2,column=2,padx=5,pady=5)        
+         button_print.grid(column=0,row=z+2,padx=5,pady=5)
+         
+         
        z=z+3     
 
    def reply_to(entry):
@@ -1370,7 +1371,7 @@ def round_3_comment():      #have the root and the comment
     search_list_id.append(search_id) 
     search_list_id.append(search_id_2)
     found_nota=asyncio.run(Get_id(search_list_id))
-    #print(get_note(found_nota))
+    
     return found_nota  
 
 button_reply_c=tk.Button(root,text="send comment", background="darkgrey", command=second_reply, font=('Arial',12,'normal'))
@@ -1467,7 +1468,6 @@ def third_open():
     comment_frame.place(relx=0.4,rely=0.65,relwidth=0.3,relheight=0.33,anchor='n' )
     note_c_tag.place(relx=0.44,rely=0.69,relwidth=0.1,anchor='n' )
     entry_c_4.place(relx=0.4,rely=0.75,relwidth=0.25,relheight=0.1,anchor='n' )
-    #entry_layout-right
     enter_c_note.place(relx=0.35,rely=0.91,relwidth=0.1,anchor='n' )
     entry_c_note.place(relx=0.45,rely=0.91,relwidth=0.1,anchor='n')
     enter_c_root.place(relx=0.35,rely=0.95,relwidth=0.1,anchor='n' )
@@ -1514,8 +1514,6 @@ def third_open():
             canvas.destroy()
             frame1.destroy()
            
-            #preview_frame.place_forget()
-            
         button_c_close=Button(scrollable_frame, command=close_canvas, text="Close X")
         button_c_close.grid(column=1,row=0, padx=10,pady=10)   
         
@@ -1676,24 +1674,15 @@ async def reply(note,tag):
      
        if first_reply==[]:
         pass
-        # first_reply.append(test.id.to_hex())
        else:
-       
-        first_reply.clear()
+          first_reply.clear()
 
-        #first_reply.append(test.id.to_hex())
-
-        print("Event sent:")
-    
-      
-
-       # Get events from relays
-       print("Getting events from relays...")
-       f = Filter().authors([keys.public_key()])
+       print("Event sent:")
+         
+       f = Filter().authors([keys.public_key()]).limit(10)
        events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
        for event in events.to_vec():
         print(event.as_json())
-
 
 async def the_second_reply(note,tag, root):
     # Init logger
@@ -2451,31 +2440,17 @@ async def search_box_relay():
               
             i=i+1             
 
-#reply kind 1111
-
 def note_time_reply(note,reply):
     value=int((float(reply["created_at"]-note["created_at"])/(60)))
-    if value>0:
-       pass
-    else:
-          
-       return str(int((float(note["created_at"]-reply["created_at"])/(3600))))+str(" hours ago")
-    if value>60:
-        if value>1440:
+    if value>1440:
             if value>2880:
                return str(int((float(reply["created_at"]-note["created_at"])/(86400))))+str(" days later") 
             else:
-             return str(int((float(reply["created_at"]-note["created_at"])/(86400))))+str(" day later") 
-        else:
-            if value>120:
-              return str(int((float(reply["created_at"]-note["created_at"])/(3600))))+str(" hours later") 
-            else:
-               return str(int((float(reply["created_at"]-note["created_at"])/(3600))))+str(" hour later") 
+               return str(int((float(reply["created_at"]-note["created_at"])/(86400))))+str(" day later") 
     else:
-        if value>2:
-          return str(int((float(reply["created_at"]-note["created_at"])/(60))))+str(" minutes later") 
-        else:
-           return str(int((float(reply["created_at"]-note["created_at"])/(60))))+str(" minute later") 
+      time_result=float(int(reply["created_at"]-note["created_at"]))  
+      str_time="Time: "+str(int(float(time_result/3600)))+" Hour  & " +str(int(time_result/60)-int(time_result/(3600))*60)+" Minutes later"
+      return str_time
 
 def four_tags(x,obj):
    tags_list=[]

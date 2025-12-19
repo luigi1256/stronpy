@@ -1512,10 +1512,27 @@ async def Tag_note(note,tag):
      print(e)    
 
 list_q=[]
+list_expiration=[]
+
+def check_expitation():
+   
+   if expiration_tag.get()==1:
+      list_expiration.clear()
+      
+   else:
+      list_expiration.append("no expiration")
+     
+expiration_tag=IntVar()
+
+def until_day_time(day_u:int):
+    import datetime
+    date = datetime.date.today() + datetime.timedelta(days=int(day_u))
+    date_1=datetime.datetime.combine(date, datetime.time(0, 0, 0)).timestamp()
+    
+    return date_1
 
 def Gm_status():
-   
-   
+      
    if button_entry1.cget('foreground')!="green":
       check_square()
    if button_entry1.cget('foreground')=="green":
@@ -1529,10 +1546,14 @@ def Gm_status():
     if list_q!=[]:
        for jlist in list_q:
            lists_id.append(Tag.from_standardized(TagStandard.QUOTE(jlist,RelayUrl.parse(relay_list[0]),None)))       
-         
+    check_expitation()
+    if list_expiration==[]:
+      lists_id.append(Tag.expiration(Timestamp.from_secs(int(until_day_time(115)))))   
+
     if __name__ == '__main__':
         note=entry4.get(1.0, "end-1c")       
         if lists_id!=[] and note!="":
+         
          asyncio.run(Tag_note(note,lists_id))
     clear_list()
     error_label.config(text="Problem:")
@@ -1551,6 +1572,7 @@ entryp_tag=ttk.Entry(root,justify='left',font=("Arial",12),textvariable=entry_p_
 p_view = tk.Label(root, text="p tag?: ", font=("Arial",12))
 Checkbutton8 = IntVar() 
 Type_band = Checkbutton(root, text = "More p tag", variable = Checkbutton8, onvalue = 1, offvalue = 0, height = 2, width = 10,font=('Arial',16,'normal'))
+exp_show= Checkbutton(root, text = "Expiration", variable = expiration_tag,onvalue = 1, offvalue = 0, height = 2, font=('Arial',14,'bold'), command=check_expitation)
 list_p=[]
 
 entry_Home_title=ttk.Label(frame1,text="Send Tag Note", justify='left',font=("Arial",20,"bold"), background="darkgrey",border=2)
@@ -1645,6 +1667,7 @@ def raw_label():
         Check_raw.set(1)
         stuff_frame.place(relx=0.35,rely=0.12,relheight=0.65,relwidth=0.28)  
         Type_band.place(relx=0.5,rely=0.6,relwidth=0.1,relheight=0.05)  
+        exp_show.place(relx=0.5,rely=0.5)  
         p_view.place(relx=0.5,rely=0.7,relwidth=0.1 )
         p_button.place(relx=0.4,rely=0.7)
         p_tag.place(relx=0.4,rely=0.6,relwidth=0.1 )
@@ -1660,6 +1683,7 @@ def raw_label():
       Check_raw.set(0)
       stuff_frame.place_forget() 
       Type_band.place_forget() 
+      exp_show.place_forget()
       p_view.place_forget()
       p_button.place_forget()
       p_tag.place_forget()
@@ -1790,7 +1814,7 @@ def show_print_test_tag(note):
              var_id_r=StringVar()
              label_id_r = Message(scrollable_frame_2,textvariable=var_id_r, relief=RAISED,width=270,font=("Arial",12,"normal"))
              label_id_r.grid(pady=1,padx=8,row=z,column=0, columnspan=3)
-             if note["pubkey"] in list(user_metadata.keys()):
+             if jresult["pubkey"] in list(user_metadata.keys()):
               context0="Nickname " +user_metadata[jresult["pubkey"]]
              else:
                 context0="Pubkey "+jresult["pubkey"]
@@ -1883,8 +1907,6 @@ def event_string_note(note:str):
     if quoted.startswith('nevent1'):
          decode_nevent = Nip19Event.from_nostr_uri("nostr:"+quoted)
     if decode_nevent!="":           
-      #print(f" Event (decoded): {decode_nevent.event_id().to_hex()}")
-      #print(f" Event (decoded): {decode_nevent.relays()}")
       for xrelay in decode_nevent.relays():
             if xrelay not in relay_url_list:
                relay_url_list.append(xrelay)

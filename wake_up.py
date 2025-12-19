@@ -273,7 +273,6 @@ def until_day_time(day_u:int):
     
     return date_1
 
-
 button_1=tk.Button(root,text="Time",command=lambda:return_data_action(6,10),font=("Arial",12))
 button_1.place(relx=0.6,rely=0.25,relwidth=0.04)
 status_list=["announcement","There is a party tomorrow","Sorry was a mistake","There is a party but you are not invited in","OK goodbye"]
