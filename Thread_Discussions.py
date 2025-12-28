@@ -157,9 +157,12 @@ def four_tags(x,obj):
       for jtags in tags_str(x,obj):
         if len(jtags)>2:
           for xtags in jtags[2:]:
-           if jtags not in tags_list:
-             tags_list.append(jtags)
-      return tags_list     
+            if xtags != "":
+                if jtags not in tags_list:
+                    tags_list.append(jtags)
+                break  
+           
+   return tags_list 
 
 def tags_str(x,obj):
     f=x['tags']
@@ -1529,7 +1532,7 @@ def show_print_test_tag(note):
              second_label10_r = tk.Text(scrollable_frame_2, padx=8, height=5, width=24, yscrollcommand = scroll_bar_mini_r.set, font=('Arial',14,'bold'),background="#D9D6D3")
              context22="\n"+ " Important tags: "+"\n"   
              if tags_string(jresult,"E")!=[]:
-              if four_tags(jresult,"E")!=None:
+              if four_tags(jresult,"E"):
                 for f_note in four_tags(jresult,"E"):
                   context22=context22+str(" < "+ f_note[0]+" > ")+f_note[1][0:9]+ "\n"
                   if f_note[2]!="" and RelayUrl.parse(f_note[2]) not in relay_list:
@@ -1537,7 +1540,7 @@ def show_print_test_tag(note):
              else:
                 context22=" < E > Probably some errors \n"              
              if tags_string(jresult,"e")!=[]:
-              if four_tags(jresult,"e")!=None:
+              if four_tags(jresult,"e"):
                 for F_note in four_tags(jresult,"e"):
                      context22=context22+str(" < "+ F_note[0]+" > ")+F_note[1][0:9]+ "\n"
                      if F_note[2]!="" and RelayUrl.parse(F_note[2]) not in relay_list:

@@ -1235,7 +1235,8 @@ def show_print_test_tag(note):
                 if 'mention' in tags_str_long(entry,"a"):   
                      print("a "+tags_str_long(entry,"a"))
    def stamp_var(entry,obj):
-      if  obj.get()!="imeta":
+      
+      if  obj.get()=="imeta":
          imeta_tag(entry.get(),obj.get())
       else:   
             print(obj.get())   
@@ -2498,7 +2499,7 @@ def stamp_balance_video(list_tag,obj):
    list_tag_ast=ast.literal_eval(list_tag)
    
    for dim_photo in list_tag_ast:
-     print(dim_photo[0][4:])
+     print("test",dim_photo[0][4:])
      if more_link(dim_photo[0][4:])=="video": 
 
       for jdim in dim_photo:
@@ -2541,6 +2542,7 @@ def photo_from_tag(list_tag,obj):
     photo_view(url_)
 
 def imeta_tag(list_tag,option):
+    
     if option=="imeta":
       photo_from_tag(list_tag=list_tag,obj=option)  #note to tag1
       stamp_balance_video(list_tag,option)        #note to tag1   

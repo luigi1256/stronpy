@@ -9,10 +9,10 @@ import time
 
 dict_pubkey_relay={}
 less_pubkey_relay={}
+db_note_list=[]
 
 def get_note(z):
     f=[]
-    import json
     for j in z:
        f.append(json.loads(j))
     return f
@@ -44,16 +44,15 @@ def user_convert(x):
     return l
 
 def search_kind(user,x):
+    zeta=[]
     if __name__ == "__main__":
-     # Example usage with a single key
-     single_author = user 
-     single_results = asyncio.run(main(single_author,x))
-    Z=[]
-    note=get_note(single_results)
-    for r in note:
-       if (r)['kind']==x:
-          Z.append(r)
-    return Z
+        single_author = user 
+        single_results = asyncio.run(main(single_author,x))
+        note=get_note(single_results)
+        for r in note:
+            if (r)['kind']==x:
+                zeta.append(r)
+    return zeta
 
 def search_kind_list(list_follow,x):
     note=note_list(list_follow,x)
@@ -64,49 +63,47 @@ def search_kind_list(list_follow,x):
     return Z
 
 def note_list(list_follow,x):
-    L=[]
+    let=[]
     if __name__ == "__main__":
-     test_people = list_follow
-     combined_results = asyncio.run(main(test_people,x))
-    L=get_note(combined_results)
-    return L
+        test_people = list_follow
+        combined_results = asyncio.run(main(test_people,x))
+        let=get_note(combined_results)
+    return let
 
 def relay_t(x):
-     """Write Relays"""
-     i=0
-     c=[]
-     relays=tags_str(x,'r')
-     j=len(relays)
-     while i<j:
-         if len(relays[i])>2:
-             if relays[i][2]=="write":
-              c.append(relays[i][1])
-         else:
-             c.append(relays[i][1])
-         i=i+1
+    """Write Relays"""
+    i=0
+    c=[]
+    relays=tags_str(x,'r')
+    j=len(relays)
+    while i<j:
+        if len(relays[i])>2:
+            if relays[i][2]=="write":
+                c.append(relays[i][1])
+        else:
+            c.append(relays[i][1])
+        i=i+1
          
-     return c
+    return c
 
 def relay_v(x):
-     """Read Relays"""
-     i=0
-     c=[]
-     relays=tags_str(x,'r')
-     j=len(relays)
-     while i<j:
-         if len(relays[i])>2:
-             if relays[i][2]=="read":
-              c.append(relays[i][1])
-         else:
-             c.append(relays[i][1])
-         i=i+1
+    """Read Relays"""
+    i=0
+    c=[]
+    relays=tags_str(x,'r')
+    j=len(relays)
+    while i<j:
+        if len(relays[i])>2:
+            if relays[i][2]=="read":
+                c.append(relays[i][1])
+        else:
+            c.append(relays[i][1])
+        i=i+1
          
-     return c
-
-db_note_list=[]
+    return c
 
 def list_battle(list_one):
-    W=[]
+    wu=[]
     zeta=[]
     c=[]
     list_10002_pubkey=[]
@@ -115,34 +112,34 @@ def list_battle(list_one):
     print("User", " ",len(User))
     zeta=search_kind_list(User,10002)
     for v in zeta:
-     db_note_list.append(v)
-     W.append(relay_t(v))
+        db_note_list.append(v)
+        wu.append(relay_t(v))
     print(len(zeta)) 
     for z_z in zeta:
-       if z_z["pubkey"] not in list_10002_pubkey:
-          list_10002_pubkey.append(z_z["pubkey"])
-          i=0
-          relay_npub=[]
-          relays=tags_str(z_z,'r')
-          j=len(relays)
-          while i<j:
-            if len(relays[i])>2:
-                if relays[i][2]=="write":
+        if z_z["pubkey"] not in list_10002_pubkey:
+            list_10002_pubkey.append(z_z["pubkey"])
+            i=0
+            relay_npub=[]
+            relays=tags_str(z_z,'r')
+            j=len(relays)
+            while i<j:
+                if len(relays[i])>2:
+                    if relays[i][2]=="write":
+                        relay_npub.append(relays[i][1])
+                        c.append(relays[i][1])
+                else:
                     relay_npub.append(relays[i][1])
                     c.append(relays[i][1])
-            else:
-                relay_npub.append(relays[i][1])
-                c.append(relays[i][1])
-            i=i+1
-          dict_pubkey_relay[z_z["pubkey"]]=relay_npub
-          if len(relay_npub)<5:
-             less_pubkey_relay[z_z["pubkey"]]=relay_npub
+                i=i+1
+            dict_pubkey_relay[z_z["pubkey"]]=relay_npub
+            if len(relay_npub)<5:
+                less_pubkey_relay[z_z["pubkey"]]=relay_npub
       
     list_people= list(dict_pubkey_relay.keys())
     
     print("relay list ",len(zeta),"unique publickey ",len(list_10002_pubkey),"\n"," list normal ", len(dict_pubkey_relay),"\n","list less 5 relays ",len(less_pubkey_relay))
     
-    return W
+    return wu
 
 import tkinter as tk
 from tkinter import *
@@ -150,7 +147,9 @@ from tkinter import ttk,messagebox
 
 root = tk.Tk()
 root.geometry("1300x800")
+
 #frame_login
+
 frame_login=Frame(root, width=50, height=50)
 stringa_=tk.IntVar()
 label_name=Label(frame_login,text="Insert a Pubkey: ",font=("Arial",16,"normal"))
@@ -177,136 +176,139 @@ check_relay=Checkbutton(frame_relay, text = "+ kind 3", variable = Checkbutton5,
 check_relay.grid(column=1,row=0)
 
 def to_follows(x,y):
-   h=[]
-   i=0
-   for j in x:
-      if j in y:
-          h.append(j)
-   return h
+    h=[]
+   
+    for j in x:
+        if j in y:
+            h.append(j)
+    return h
 
 def npub_class():
-   if len(Text_base.get("1.0","end-1c"))==63:
-      Npub=PublicKey.parse(Text_base.get("1.0","end-1c"))
-      return Npub
-   if len(Text_base.get("1.0","end-1c"))==64:
-      Npub=PublicKey.parse(Text_base.get("1.0","end-1c"))
-      return Npub
+    if len(Text_base.get("1.0","end-1c"))==63:
+        Npub=PublicKey.parse(Text_base.get("1.0","end-1c"))
+        return Npub
+    if len(Text_base.get("1.0","end-1c"))==64:
+        Npub=PublicKey.parse(Text_base.get("1.0","end-1c"))
+        return Npub
 
 def relay_print():
- if npub_class()!=None:
-  z=search_kind(npub_class(),3)
-  people=tags_string(z[0],'p') 
-  result=list_battle(people)
-  return result
+    if npub_class()!=None:
+        z=search_kind(npub_class(),3)
+        people=tags_string(z[0],'p') 
+        result=list_battle(people)
+        return result
 
 def outrageous():
     i=0
     j=1
-    P=[]
-    W=relay_print()
-    z=len(W)
-    while j<z:
-        t=(to_follows(W[i],W[j]))
-        if t!=[]:
-         P.append(t)
-        i=i+2
-        j=j+2
+    Pu=[]
     test=[]
-    for y in P:
+    Wu=relay_print()
+    if Wu:
+        z=len(Wu)
+        while j<z:
+            t=to_follows(Wu[i],Wu[j])
+            if t!=[]:
+                Pu.append(t)
+            i=i+2
+            j=j+2
+    
+    for y in Pu:
         for v in y:
          if v not in test:
             test.append(v)
     relay_simil=[]
     for j in test:
-     if j+str("/") not in test:
-        relay_simil.append(j)
+        if j+str("/") not in test:
+            relay_simil.append(j)
     return relay_simil
 
 def stamp_relay():
-   if npub_class()!=None:
-    relays=outrageous()
-    if relays!=None:
-        if Text_relay.get("1.0","end-1c")!="":
-                Text_relay.delete("1.0","end")
-                for relay in relays:
-                    Text_relay.insert(END," Relay: "+relay +"\n")
-        else:
-            for relay in relays:    
-                Text_relay.insert(END," Relay: "+relay+"\n")  
+    if npub_class()!=None:
+        relays=outrageous()
+        if relays!=[]:
+                
+                if Text_relay.get("1.0","end-1c")!="":
+                    Text_relay.delete("1.0","end")
+                    for relay in relays:
+                        Text_relay.insert(END," Relay: "+relay +"\n")
+                else:
+                    for relay in relays:    
+                        Text_relay.insert(END," Relay: "+relay+"\n")  
 
-    else:
-        print("None")            
+        else:
+            print("None")            
 
 def list_battle_():
-    W=[]
+    Wu=[]
     zeta=[]
     veta=[]
     list=people()
     User=user_convert(list)
     z=search_kind_list (User,10002)
     if z!=None and z!=[]:
-     for h in z:   
-        zeta.append(h)
-          #print("1")   
+        for h in z:   
+            zeta.append(h)
+             
     z2=search_kind_list(User,3)
-    if z2!=None and z2!=[]:
-     for h2 in z2:   
-        veta.append(h2)    
+    if z2!=[]:
+        for h2 in z2:   
+            veta.append(h2)    
     for v in zeta:
-     W.append(relay_t(v))
+        Wu.append(relay_t(v))
     for c in veta:
-     W.append(relay_c(c))  
-    return W
+        Wu.append(relay_c(c))  
+    return Wu
 
 def relay_choice_List(list_relay):
     relay_n=[]
     relay=[]
     for list_one_relay in list_relay:
-     for j in list_one_relay:
-      s,l=where_is(j,list_relay)
-      for x in l:
-          if l not in relay_n:
-              relay_n.append(l)
-              relay.append(j)
+        for j in list_one_relay:
+            s,l=where_is(j,list_relay)
+            for x in l:
+                if l not in relay_n:
+                    relay_n.append(l)
+                    relay.append(j)
     relay_simil=[]
     for j in relay:
-     if j+str("/") not in relay:
-        relay_simil.append(j)
+        if j+str("/") not in relay:
+            relay_simil.append(j)
     return relay_simil
 
 def stamp_relay_all():
    if npub_class()!=None: 
-    rellays=list_battle_()
-    relays_connect=[]
-    for rel in rellays:
-       if rel!=[] and rel!=None:
-          relays_connect.append(rel)
-    relays=relay_choice_List(relays_connect)
-    if relays!=None and relays!=[]:
+        rellays=list_battle_()
+        relays_connect=[]
+        for rel in rellays:
+            if rel!=[] and rel!=None:
+                relays_connect.append(rel)
+        relays=relay_choice_List(relays_connect)
+        if relays!=None and relays!=[]:
        
-        if Text_relay.get("1.0","end-1c")!="":
+            if Text_relay.get("1.0","end-1c")!="":
                 Text_relay.delete("1.0","end")
                 Text_relay.insert(END,"More Relay, kind 3, kind 10002"  +"\n")
                 for relay in relays:
                    if relay!=[] and relay!=None: 
                     Text_relay.insert(END," Relay: "+str(relay) +"\n")
+            else:
+                Text_relay.insert(END,"More Relay, kind 3, kind 10002"  +"\n")
+                for relay in relays:  
+                    if relay!=[] and relay!=None:   
+                        Text_relay.insert(END," Relay: "+str(relay)+"\n")  
+
         else:
-            Text_relay.insert(END,"More Relay, kind 3, kind 10002"  +"\n")
-            for relay in relays:  
-                if relay!=[] and relay!=None:   
-                    Text_relay.insert(END," Relay: "+str(relay)+"\n")  
+            print("None",relays)           
 
-    else:
-        print("None",relays)           
-
-def where_is(wss,W):
+def where_is(wss,Wu):
     i=0
     s=0
     l=[]
-    while i<len(W):
+    while i<len(Wu):
         j=0
-        while j<len(W[i]):
-            if wss == W[i][j]:
+        while j<len(Wu[i]):
+            if wss == Wu[i][j]:
                 s=s+1
                 l.append(i)
             j=j+1
@@ -315,24 +317,25 @@ def where_is(wss,W):
     return s,l
 
 def people():
-  if npub_class()!=None: 
-   z=search_kind(npub_class(),3)
-   people=tags_string(z[0],'p') 
-   return people
+    if npub_class()!=None: 
+        z=search_kind(npub_class(),3)
+        people=tags_string(z[0],'p') 
+        return people
   
 def relay_c(x):
-     import json
-     if x['content']!="":
-      if len(x)==7:
-        try:
-          zeta=json.loads(x['content'])
-          if type(zeta)=="dict":
-            z=list(zeta.keys())
-            return z
-          else:
-            pass #print(type(zeta))   
-        except:
-          pass   
+    
+    if x['content']!="":
+        if len(x)==7:
+            try:
+                zeta=json.loads(x['content'])
+                if type(zeta)=="dict":
+                    z=list(zeta.keys())
+                    return z
+                
+                else:
+                    pass #print(type(zeta))   
+            except:
+                pass   
             
 button_relay=Button(frame_relay,width=5, command=stamp_relay,text= "10002", font=("Arial",14,"normal"),foreground="blue")
 button_relay.grid(column=1, row=0,pady=5)
@@ -342,9 +345,9 @@ frame_relay.grid(columnspan=3,rowspan=2,pady=5)
 
 async def get_relays(client, authors,x):
     if x==int(1):
-      f = Filter().authors(authors).kind(Kind(x)).limit(500)
+        f = Filter().authors(authors).kind(Kind(x)).limit(500)
     else:
-       f = Filter().authors(authors).kind(Kind(x))
+        f = Filter().authors(authors).kind(Kind(x))
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     z = [event.as_json() for event in events.to_vec() if event.verify()]
     return z
@@ -359,13 +362,13 @@ async def feed_note(authors,x):
             
     client = Client(None)
     if relay_note_list!=[]:
-       for relay_x in relay_note_list:
+        for relay_x in relay_note_list:
            await client.add_relay(RelayUrl.parse(relay_x))
-       for i,relay in enumerate(relay_note_list):    
-        print(str(i) +" "+ str(relay)+"\n")     
-       await client.connect()
-       combined_results = await get_relays(client, authors,x)
-       return combined_results
+        for i,relay in enumerate(relay_note_list):    
+            print(str(i) +" "+ str(relay)+"\n")     
+        await client.connect()
+        combined_results = await get_relays(client, authors,x)
+        return combined_results
 
 async def main(authors,x):
     # Init logger
@@ -374,7 +377,6 @@ async def main(authors,x):
     client = Client(None)
     
     # Add relays and connect
-   
     if isinstance(authors, list):
         if x==10002:
             await client.add_relay(RelayUrl.parse("wss://purplepag.es/"))
@@ -405,80 +407,76 @@ timeline_people=[]
 db_list_note_follow=[]
 
 def pubkey_timeline():
-   for note in db_note_list:
-      if note["pubkey"] not in timeline_people:
-         timeline_people.append(note["pubkey"])
+    for note in db_note_list:
+        if note["pubkey"] not in timeline_people:
+            timeline_people.append(note["pubkey"])
 
 def list_pubkey_id():
-  pubkey_timeline()
-  if timeline_people !=[]:
-      
-   metadata_note=search_kind(user_convert(timeline_people),0)
-   if metadata_note!=[]:
-       for single in metadata_note:
-        if single not in db_list_note_follow:
-           db_list_note_follow.append(single)
-        try:
-         single_1=json.loads(single["content"])
-         if "name" in list(single_1.keys()):
-          if single_1["name"]!="":
-                      
-           if single["pubkey"] not in list(Pubkey_Metadata.keys()):
-              Pubkey_Metadata[single["pubkey"]]=single_1["name"]
-              
-         else:   
-            if "display_name" in list(single_1.keys()):
-             if single_1["display_name"]!="":
-                                
-                if single["pubkey"]not in list(Pubkey_Metadata.keys()):
-                  Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
+    pubkey_timeline()
+    if timeline_people !=[]:
+        metadata_note=search_kind(user_convert(timeline_people),0)
+        if metadata_note!=[]:
+          try:  
+            for single in metadata_note:
+                if single not in db_list_note_follow:
+                    db_list_note_follow.append(single)
          
-         if "picture" in list(single_1.keys()):
-          if single_1["picture"]!="":
-                      
-           if single["pubkey"] not in list(photo_profile.keys()):
-              if single_1["picture"]!="":
-               photo_profile[single["pubkey"]]=single_1["picture"]
+                single_1=json.loads(single["content"])
+                if "name" in list(single_1.keys()):
+                    if single_1["name"]!="":
+                        if single["pubkey"] not in list(Pubkey_Metadata.keys()):
+                            Pubkey_Metadata[single["pubkey"]]=single_1["name"]
+              
+                else:   
+                    if "display_name" in list(single_1.keys()):
+                        if single_1["display_name"]!="":
+                            if single["pubkey"]not in list(Pubkey_Metadata.keys()):
+                                Pubkey_Metadata[single["pubkey"]]=single_1["display_name"]    
+         
+                if "picture" in list(single_1.keys()):
+                    if single_1["picture"]!="":
+                        if single["pubkey"] not in list(photo_profile.keys()):
+                            if single_1["picture"]!="":
+                                photo_profile[single["pubkey"]]=single_1["picture"]
                        
-                        
-        except KeyError as e:
-          print("KeyError ",e) 
-        except json.JSONDecodeError as b:
-           print(b,"\n","Pubkey ",single["pubkey"])  
-       print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))       
+            print("Profile ",len(Pubkey_Metadata)," Profile with image ",len(photo_profile))              
+          except KeyError as e:
+            print("KeyError ",e) 
+          except json.JSONDecodeError as b:
+             print(b,"\n","Pubkey ",single["pubkey"])  
+            
 
 
 def pubkey_id(test):
-   note_pubkey=[]
-   for note_x in db_note_list:
-       if note_x["pubkey"] == test:
-          if note_x not in note_pubkey:
-             note_pubkey.append(note_x)
-   return len(note_pubkey),test
+    note_pubkey=[]
+    for note_x in db_note_list:
+        if note_x["pubkey"] == test and note_x not in note_pubkey:
+            note_pubkey.append(note_x)
+    return len(note_pubkey),test
 
 def relay_id(test):
-   note_pubkey=[]
-   if test.startswith("wss://"):
-     if test.endswith("/"):
-        select=test[:-1]
-     else:
-           select=test+str("/")
-     test_pub=""
-     s=0
-     for note_x in list(dict_pubkey_relay.keys()):
-       if test in dict_pubkey_relay[note_x] or select in dict_pubkey_relay[note_x]:
-        s=s+1
-        note_pubkey.append(note_x)
-     return s,note_pubkey  
-   else:
-      return None,None  
-   
+    note_pubkey=[]
+    select=None
+    if test.startswith("wss://") and test.endswith("/"):
+        select=test
+    if test.startswith("wss://") and test.endswith("/")==False:
+        select=test+str("/")
+    s=0
+    if select:
+        for note_x in list(dict_pubkey_relay.keys()):
+            if select in dict_pubkey_relay[note_x]:
+                s=s+1
+                note_pubkey.append(note_x)
+        return s,note_pubkey  
+    else:
+       return None,None
+     
 dict_relay_number={}
 
 def print_people(): 
    if db_note_list!=[]:  
     if messagebox.askokcancel("Metadata user ","Yes/No") == True:
-     list_pubkey_id()
+        list_pubkey_id()
     frame3=tk.Frame(root)
     canvas = tk.Canvas(frame3,width=250)
     scrollbar = ttk.Scrollbar(frame3, orient="vertical", command=canvas.yview)
@@ -764,17 +762,18 @@ def Fun_outbox(Number:int,my_relay:list):
 my_relay=[]
 
 def relay_numbers_list():
- relay_ten_list=list(dict_relay_number.values())
- relay_ten_list.sort(reverse=True)
- relay_sort=[]
- for relay_in in relay_ten_list:
-    
-    for keys_one in list(dict_relay_number.keys()):
-       if dict_relay_number[keys_one] == relay_in:
-            if len(relay_sort)<10:
-               if keys_one not in relay_sort:
-                  relay_sort.append(keys_one)
- return relay_sort         
+    relay_ten_list=list(dict_relay_number.values())
+    relay_ten_list.sort(reverse=True)
+    relay_sort=[]
+    for relay_in in relay_ten_list:
+        for keys_one in list(dict_relay_number.keys()):
+            if dict_relay_number[keys_one] == relay_in:
+                if len(relay_sort)<10:
+                        if keys_one not in relay_sort:
+                            relay_sort.append(keys_one)
+                else:
+                   break            
+    return relay_sort         
 
 def outbox_model():
     my_relay1=relay_numbers_list()
@@ -923,25 +922,24 @@ def Outbox_list_relays():
 button_people_b=tk.Button(root,text="List of Outbox Relays",command=Outbox_list_relays, font=('Arial',12,'bold'))
 
 def list_follow_missing(list_people):
-   follow_list=people()
-   if follow_list:
-      missing_people=[]
-      missing_relays=[]
-      for people_x in follow_list:
-         if people_x not in list_people:
-            if people_x in list(Pubkey_Metadata.keys()):
-                missing_people.append(Pubkey_Metadata[people_x])
-            else:
-                missing_people.append(people_x)
-            if people_x in list(Outbox_list.keys()):
-             relay=Outbox_list[people_x]
-             print(relay)
-             for relax in relay:
-                if relax not in missing_relays:
-                  missing_relays.append(relax)
+    follow_list=people()
+    if follow_list:
+        missing_people=[]
+        missing_relays=[]
+        for people_x in follow_list:
+            if people_x not in list_people:
+                if people_x in list(Pubkey_Metadata.keys()):
+                    missing_people.append(Pubkey_Metadata[people_x])
+                else:
+                    missing_people.append(people_x)
+                if people_x in list(Outbox_list.keys()):
+                    relay=Outbox_list[people_x]
+                    print(relay)
+                    for relax in relay:
+                        if relax not in missing_relays:
+                            missing_relays.append(relax)
                 
-         
-      return missing_people,missing_relays    
+        return missing_people,missing_relays    
 
 def print_people_from_relay(list_fun:list): 
    if list_fun!=[]:  
