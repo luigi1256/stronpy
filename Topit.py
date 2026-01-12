@@ -596,7 +596,7 @@ entry_nick=ttk.Entry(root,justify='left', font=('Arial',12,'normal'))
 entry_nick.place(relx=0.75,rely=0.12,relwidth=0.12,relheight=0.04) 
 button_close_1=Button(root, command=search_nickname, text="Find ",font=('Arial',12,'normal'), fg="blue")
 button_close_1.place(relx=0.88,rely=0.12)
-db_block_npub=set({"7fa56f5d6962ab1e3cd424e758c3002b8665f7b0d8dcee9fe9e288d7751ac194"})
+db_block_npub=set({})
 db_block_event=set({})
 button_list=[]
 

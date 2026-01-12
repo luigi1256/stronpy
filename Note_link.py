@@ -13,12 +13,12 @@ import requests
 import shutil
 
 def note_list(list_follow):
-    L=[]
+    Let=[]
     if __name__ == "__main__":
-     test_people = list_follow
-     combined_results = asyncio.run(main(test_people))
-    L=get_note(combined_results)
-    return L
+        test_people = list_follow
+        combined_results = asyncio.run(main(test_people))
+        Let=get_note(combined_results)
+    return Let
 
 def note_user(user):
     if __name__ == "__main__":
@@ -114,7 +114,7 @@ async def main(authors):
 
 root = tk.Tk()
 root.title("test link")
-root.geometry("1250x800")
+root.geometry("1300x800")
 frame_top_box=tk.Frame(root,height=30,width=200,background="darkgrey")
 frame2=tk.Frame(root,height=60,width=110)
 
@@ -122,7 +122,7 @@ my_dict = {"Pablo": "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae580
            "jb55": "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
              "Vitor": "460c25e682fda7832b52d1f22d3d22b3176d972f60dcdc3212ed8c92ef85065c", 
              "Hodlbod": "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322", 
-             "me": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
+             "il_lost_": "592295cf2b09a7f9555f43adb734cbee8a84ee892ed3f9336e6a09b6413a0db9"}
 
 my_list = list(my_dict.values())
 my_name = list(my_dict.keys())
@@ -132,7 +132,7 @@ def on_select(event):
 
 label = tk.Label(frame_top_box, text="Selected Item: ",font=("Arial",10,"bold"),width=20)
 label.grid(row=1, column=5, columnspan=2,pady=5,padx=5 )
-combo_box = ttk.Combobox(frame_top_box, values=["Pablo","jb55","Vitor","Hodlbod","me"],font=("Arial",10,"bold"))
+combo_box = ttk.Combobox(frame_top_box, values=["Pablo","jb55","Vitor","Hodlbod","il_lost_"],font=("Arial",10,"bold"))
 combo_box.grid(row=0, column=5,columnspan=2, pady=5 )
 combo_box.set("Option 1")
 combo_box.bind("<<ComboboxSelected>>", on_select)
