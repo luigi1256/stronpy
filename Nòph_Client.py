@@ -708,7 +708,7 @@ def open_relay():
           counter_relay.grid(column=12,row=1)
           combo_bo_r['value']=relay_list
 
-    relay_button = tk.Button(frame_account, text="Check!", font=("Arial",12,"normal"),background="grey", command=relay_class)
+    relay_button = tk.Button(frame_account, text="Check ", font=("Arial",12,"normal"),background="grey", command=relay_class)
     counter_relay=Label(frame_account,text="count")
     entry_relay.grid(column=11, row=2, padx=10,pady=5)
     relay_button.grid(column=12, row=2, padx=10,pady=5)

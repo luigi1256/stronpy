@@ -19,7 +19,7 @@ frame6=Frame(root,width=120,height=60, border=5,background="lightgrey")
 frame4=Frame(frame3,width=70,height=20)
 
 def test_hash(test_uuid):
- return hash(test_uuid)
+  return hash(test_uuid)
  
 Text_bar=Text(frame3, width=60,height=2,wrap="word",undo=True,foreground="grey",font=("sans-serif",12,"bold"))
 Text_bar.pack(ipadx=2,ipady=2)
@@ -237,10 +237,10 @@ def OpenColumn():
     frame3.pack(side="left",fill=BOTH)   
     
     def delete_column(): 
-     if Checkbutton5.get() == 0:
-      frame3.destroy()
-     else:
-        print("Error "+" ") 
+      if Checkbutton5.get() == 0:
+       frame3.destroy()
+      else:
+         print("Error "+" ") 
 
     button_delete=Button(frame3,command=delete_column,text="❌")  
     button_delete.grid(column=2,row=0)
@@ -483,7 +483,7 @@ def create_button_test():
     frame_open.place(relx=0.4,rely=0.1)
 
     def delete_create_note(): 
-       frame_open.destroy()
+      frame_open.destroy()
     
     button_delete1=Button(frame_box,command=delete_create_note,text="❌", fg="red")  
     button_delete1.grid(column=2,row=0)   
@@ -752,23 +752,20 @@ def OpenColumn3():
         print(e)  
 
     def get_image_text():
-     try:
-      Text_t3.tag_configure("warning")
-      sel_start,sel_end=Text_t3.tag_ranges("sel")
-      if sel_start and sel_end:
-       selected_text = Text_t3.get(sel_start, sel_end)
-       #print(sel_start, sel_end)
-       Text_t3.insert(sel_end,"(url image)")
-       Text_t3.insert(sel_start,"![text image]")
-       
-       
-       #Text_t3.tag_add("warning",sel_start, sel_end)    
-       #Text_t3.grid()
-      else:
-         print("no") 
-     except ValueError as e:
-        print(e)      
-    
+      try:
+        Text_t3.tag_configure("warning")
+        sel_start,sel_end=Text_t3.tag_ranges("sel")
+        if sel_start and sel_end:
+          selected_text = Text_t3.get(sel_start, sel_end)
+          #print(sel_start, sel_end)
+          Text_t3.insert(sel_end,"(url image)")
+          Text_t3.insert(sel_start,"![text image]")
+
+        else:
+          print("no") 
+      except ValueError as e:
+         print(e)      
+
     button_input2=Button(frame7, text = "Link", command =get_link_text,font=("sans-serif", 12, "normal"),width=5)
     button_input2.grid(column=3, row=1)
     button_input3=Button(frame7, text = "Image",command =get_image_text,font=("sans-serif", 12, "normal"))
@@ -799,30 +796,30 @@ def OpenColumn3():
     from tkinter.filedialog import asksaveasfilename
       
     def SaveFile(): 
-     try:
-       files = [('All Files', '*.*'),  
-             ('Markdown', '*.md'), 
-             ('Text Document', '*.txt')] 
-       file = asksaveasfilename(filetypes = files, defaultextension = files) 
-       fob=open(file,'w',encoding='utf-8')
-       fob.write(Text_t3.get(1.0, "end-1c"))
-       fob.close()
-       if entry_1.get()!="":
-        entry_1.delete(0, END)  
-        if Text_t3.get(1.0, "end-1c")=="":
-          entry_1.insert(0,"Saved: "+ "ok"+" No line")
-        else:
+      try:
+        files = [('All Files', '*.*'),  
+              ('Markdown', '*.md'), 
+              ('Text Document', '*.txt')] 
+        file = asksaveasfilename(filetypes = files, defaultextension = files) 
+        fob=open(file,'w',encoding='utf-8')
+        fob.write(Text_t3.get(1.0, "end-1c"))
+        fob.close()
+        if entry_1.get()!="":
+          entry_1.delete(0, END)  
           if Text_t3.get(1.0, "end-1c")=="":
-           entry_1.insert(0,"Saved: "+ "ok"+" No line")
+            entry_1.insert(0,"Saved: "+ "ok"+" No line")
           else:
-           entry_1.insert(0,"Saved: "+ "ok") 
-       else:
-        entry_1.insert(0,"Saved: "+ "ok")   
-     except FileNotFoundError as e:
-       if entry_1.get()!="":
-        entry_1.delete(0, END)  
-        entry_1.insert(0,"Error: "+str(e))
-       else:
+            if Text_t3.get(1.0, "end-1c")=="":
+              entry_1.insert(0,"Saved: "+ "ok"+" No line")
+            else:
+              entry_1.insert(0,"Saved: "+ "ok") 
+        else:
+          entry_1.insert(0,"Saved: "+ "ok")   
+      except FileNotFoundError as e:
+        if entry_1.get()!="":
+          entry_1.delete(0, END)  
+          entry_1.insert(0,"Error: "+str(e))
+        else:
           entry_1.insert(0,"Error: "+str(e))
         
     def Save_in_DB():
@@ -845,7 +842,7 @@ def OpenColumn3():
     "sig":str(value)+str(test_hash(value.int))}
         if event["content"]!="":
           if event["tags"][1]!="":
-           c.execute('''
+            c.execute('''
         INSERT INTO name (id, pubkey, created_at, kind, tags, content, sig)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
@@ -859,65 +856,65 @@ def OpenColumn3():
         ))
           conn.commit()
         else:
-           entry_1.insert(0," No text")  
+          entry_1.insert(0," No text")  
      except sqlite3.Error as e:
         print(f"Errore durante l'aggiunta dell'evento: {e}")
      finally:
         if conn:
-            conn.close()
+          conn.close()
     
     def fetch_article():
-     try:
+      try:
         conn = sqlite3.connect('Pcenter.db')
         c = conn.cursor()
         c.execute('SELECT * FROM name where kind= ?', (30023,))
         events = c.fetchall()
         return events
-     except sqlite3.Error as e:
+      except sqlite3.Error as e:
         print(f"Errore durante la lettura degli eventi: {e}")
         return []
-     finally:
+      finally:
         if conn:
-            conn.close()
+          conn.close()
     def kind30023_data_name():
-        note=fetch_article()  
-        events=[]
-        for j in note:
-            events.append(fake_rerender(j))
-        return events      
-
+      note=fetch_article()  
+      events=[]
+      for j in note:
+          events.append(fake_rerender(j))
+      return events      
+    
     def read_long_form():
-        if Checkbutton8.get() == 1:
-         articles=kind30023_data_name()
-         if len(articles)>0:
-           if entry_1.get()!="":
-             entry_1.delete(0, END)
-             entry_1.insert(0,"Read: "+ "the article")
-           else:
-                entry_1.insert(0,"Read: "+ "the article")
-           if Text_t3.get(1.0, "end-1c")=="":
-               Text_t3.insert(END,articles[::-1][0]['content'])
-           else:
-                Text_t3.delete("1.0","end")
-                Text_t3.insert(END,articles[::-1][0]['content'])
-           if entry_2.get()!="":
-             entry_2.delete(0, END)
-             entry_2.insert(0,str(articles[::-1][0]['tags'][1]))  
-           else:
-             entry_2.insert(0,str(articles[::-1][0]['tags'][1]))     
-                    
-         else:
-              if entry_1.get()!="":
-                    entry_1.delete(0, END)
-                    entry_1.insert(0,"No article")
-              else:
-                    entry_1.insert(0,"No article")
+      if Checkbutton8.get() == 1:
+        articles=kind30023_data_name()
+        if len(articles)>0:
+          if entry_1.get()!="":
+            entry_1.delete(0, END)
+            entry_1.insert(0,"Read: "+ "the article")
+          else:
+            entry_1.insert(0,"Read: "+ "the article")
+          if Text_t3.get(1.0, "end-1c")=="":
+            Text_t3.insert(END,articles[::-1][0]['content'])
+          else:
+            Text_t3.delete("1.0","end")
+            Text_t3.insert(END,articles[::-1][0]['content'])
+          if entry_2.get()!="":
+            entry_2.delete(0, END)
+            entry_2.insert(0,str(articles[::-1][0]['tags'][1]))  
+          else:
+            entry_2.insert(0,str(articles[::-1][0]['tags'][1]))     
+
         else:
-             if entry_1.get()!="":
-                    entry_1.delete(0, END)
-                    entry_1.insert(0,"lock button: ")
-             else:
-                    entry_1.insert(0,"lock button: ")
+            if entry_1.get()!="":
+                  entry_1.delete(0, END)
+                  entry_1.insert(0,"No article")
+            else:
+                  entry_1.insert(0,"No article")
+      else:
+            if entry_1.get()!="":
+                  entry_1.delete(0, END)
+                  entry_1.insert(0,"lock button: ")
+            else:
+                  entry_1.insert(0,"lock button: ")
 
     def del_text():
       Text_t3.delete("1.0", "end")
@@ -940,9 +937,9 @@ def OpenColumn3():
     frame6.pack(side="right",padx=2,fill="both", expand=0.5)
     
     def delete_column_3(): 
-     if Checkbutton8.get() == 0:
-      frame6.pack_forget()
-     else:
+      if Checkbutton8.get() == 0:
+        frame6.pack_forget()
+      else:
         print("Error "+" ")
 
     button_delete3=Button(frame7,command=delete_column_3,text= "Close❌",width=6, font=button_font)  
@@ -962,14 +959,14 @@ File2Menu=Menu(frame2)
 text_variable = StringVar()
 
 def report_fake(event):
-     id = event[0]
-     sig= event[6]
-     kind=event[3]
-     npub=event[1]
-     created_at=event[2]
-     tags=json.loads(event[4])
-     content=event[5]
-     return id,kind,created_at,npub,tags,content,sig
+    id = event[0]
+    sig= event[6]
+    kind=event[3]
+    npub=event[1]
+    created_at=event[2]
+    tags=json.loads(event[4])
+    content=event[5]
+    return id,kind,created_at,npub,tags,content,sig
 
 def fake_rerender(event):
     a,b,c,d,e,f,g=report_fake(event)
