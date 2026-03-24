@@ -1063,33 +1063,35 @@ async def reply(note,tag):
      await client.connect()
      event_to_comment:dict=tag
      if event_to_comment!=NONE:
-      if Event.from_json(f"{event_to_comment}").kind().as_u16()!=(1111):    
-       print(Event.from_json(f"{event_to_comment}").kind().as_u16()) 
-       if outbox_list!=[]:
-        builder =EventBuilder.comment(note,Event.from_json(f"{event_to_comment}"),Event.from_json(f"{event_to_comment}"),RelayUrl.parse(outbox_list[0]))
-       else:
-          builder =EventBuilder.comment(note,Event.from_json(f"{event_to_comment}"),Event.from_json(f"{event_to_comment}"),None)
-       test = await client.send_event_builder(builder)
-     
-       if first_reply==[]:
-        pass
-        # first_reply.append(test.id.to_hex())
-       else:
+      #if Event.from_json(f"{event_to_comment}").kind().as_u16()!=(1111):    
+      #   print(Event.from_json(f"{event_to_comment}").kind().as_u16()) 
+         comment=nip22_extract_parent(Event.from_json(f"{event_to_comment}"))
+         root=nip22_extract_root(Event.from_json(f"{event_to_comment}"))
+         if comment and root:
+            builder =EventBuilder.comment(note,comment,root)
        
-        first_reply.clear()
-
-        #first_reply.append(test.id.to_hex())
-
-        print("Event sent:")
-    
-      
-
-       # Get events from relays
-       print("Getting events from relays...")
-       f = Filter().authors([keys.public_key()])
-       events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
-       for event in events.to_vec():
-        print(event.as_json())
+         # builder =EventBuilder.comment(note,Event.from_json(f"{event_to_comment}"),Event.from_json(f"{event_to_comment}"))
+            test = await client.send_event_builder(builder)
+     
+            if first_reply==[]:
+               pass
+               # first_reply.append(test.id.to_hex())
+            else:
+            
+               first_reply.clear()
+   
+               #first_reply.append(test.id.to_hex())
+   
+               print("Event sent:")
+   
+         
+   
+       #    Get events from relays
+            print("Getting events from relays...")
+            f = Filter().authors([keys.public_key()])
+            events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
+            for event in events.to_vec():
+               print(event.as_json())
 
 async def the_second_reply(note,tag, root):
     # Init logger
@@ -1162,8 +1164,8 @@ async def Get_id(event_):
     client = Client(None)
     if relay_list!=[]:
       
-       for jrelay in relay_list:
-          await client.add_relay(RelayUrl.parse(jrelay))
+      for jrelay in relay_list:
+         await client.add_relay(jrelay)
     else:
      await client.add_relay(RelayUrl.parse("wss://nostr.mom"))
      await client.add_relay(RelayUrl.parse("wss://nos.lol"))

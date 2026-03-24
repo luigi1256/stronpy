@@ -1506,8 +1506,8 @@ async def Tag_note(note,tag):
     f = Filter().authors([keys.public_key()]).kind(Kind(24)).limit(20)
     events = await Client.fetch_events(client,f,timeout=timedelta(seconds=10))  
     for event in events.to_vec():
-     if event.verify():
-      print(event.as_json())
+      if event.verify(): 
+         print(event.as_json())
   except NostrSdkError as e:
      print(e)    
 
